@@ -14,11 +14,14 @@ library(lme4)
 # Mysid distribution, demographics, and co-occurrence with gray whales on the NW coast of Washington State
 
 ## Research Questions
+
+### Descriptive:
 + What is the species composition of mysid shrimp in the study area?
 + What is the size, age, maturity composition of mysid shrimp in the study area?
 + How does mysid shrimp distribution vary by sample site?
+
+### Modeling:
 + Does mysid shrimp density predict gray whale presence?
-I expect that gray whale presence will be partially explained by mysid shrimp density, but that our sample sites aren't able to comprehensively represent the presence of patchy mysid swarms, so the prediction may not be very good.
 
 ## Methods
 
