@@ -1,0 +1,70 @@
+---
+title: "Project Mysids"
+author: "Liz Allyn"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r message = F, echo = F}
+library(knitr)
+library(glmm)
+library(lme4)
+```
+
+# Mysid distribution, demographics, and co-occurrence with gray whales on the NW coast of Washington State
+
+## Research Questions
++ What is the species composition of mysid shrimp in the study area?
++ What is the size, age, maturity composition of mysid shrimp in the study area?
++ How does mysid shrimp distribution vary by sample site?
++ Does mysid shrimp density predict gray whale presence?
+I expect that gray whale presence will be partially explained by mysid shrimp density, but that our sample sites aren't able to comprehensively represent the presence of patchy mysid swarms, so the prediction may not be very good.
+
+## Methods
+
+
+## Data Organization
+
+```{r}
+# Read in Data
+data <- read.csv("Er prey analysis for R fixed whale presence.csv")
+
+#
+
+
+```
+
+
+## Model Construction
+
+Options:
+
+Response:
++ Whale Presence or Absence (Bernoulli?)
+
+Fixed Effects
++ Mysid Count
++ Mysid Avg Size
++ Mysid Gravid Prop
++ Mysid NR:HS Ratio (expect interaction w/count)
++ Month
++ Temp
+
+Random Effects
++ Site
++ Date?
+
+```{r}
+# model creation
+
+# intercept only
+m0 <- glm(data = data, whale.presence ~ MysidCount, family = "poisson")
+```
+
+## Diagnostics
+
+```{r}
+
+```
+
+
