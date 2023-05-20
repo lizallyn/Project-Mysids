@@ -47,8 +47,19 @@ data <- read.csv("Er prey analysis for R fixed whale presence.csv")
 Options:
 
 Response: 
-Whale counts near sampling sites during sampling - zero-inflated. Model as hurdle.
+Whale counts near sampling sites during sampling - zero-inflated. Hurdle model.
 Zeros w/ Bernoulli, non-0 counts check for overdispersion - Poisson vs neg binom.
+
+Pull out non-zero counts and check for overdispersion and GOF generally.
+
+```{r}
+# pull out non-zero counts
+nonzero <- data[which(data$whalecount > 0),]
+
+# construct model with mysid count
+m1 <- glm(data = nonzero, whalecount ~ MysidCount)
+```
+
 
 Fixed Effects: 
 + Mysid Count 
