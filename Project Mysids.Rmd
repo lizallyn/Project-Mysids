@@ -80,7 +80,8 @@ Next we will construct the hurdle model.
 
 ```{r}
 library(pscl)
-m.hurdle <- 
+m.hurdle <- hurdle(whalecount ~ MysidCount|MysidCount, data = data, dist = "negbin")
+summary(m.hurdle)
 ```
 
 
