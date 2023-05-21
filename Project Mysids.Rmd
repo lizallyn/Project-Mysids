@@ -10,8 +10,6 @@ editor_options:
 
 ```{r message = F, echo = F}
 library(knitr)
-library(glmm)
-library(lme4)
 ```
 
 # Characterizing Mysid (Crustacea: Mysida) swarms and their co-occurrence with gray whales (Eschrichtius robustus) in northwest Washington State
@@ -53,11 +51,36 @@ Zeros w/ Bernoulli, non-0 counts check for overdispersion - Poisson vs neg binom
 Pull out non-zero counts and check for overdispersion and GOF generally.
 
 ```{r}
+library(VGAM)
+
 # pull out non-zero counts
 nonzero <- data[which(data$whalecount > 0),]
 
+# look at them
+hist(nonzero$whalecount)
+
 # construct model with mysid count
-m1 <- glm(data = nonzero, whalecount ~ MysidCount)
+m1 <- vglm(whalecount ~ MysidCount, data = nonzero, family = "pospoisson")
+
+# check for overdispersion
+pchisq(sum(residuals(m1,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
+# p = 0.000005, overdispersed
+
+# fit with ZT neg binom
+m2 <- vglm(whalecount ~ MysidCount, data = nonzero, family = posnegbinomial)
+summary(m2)
+
+# check for overdispersion
+pchisq(sum(residuals(m2,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
+```
+
+Since the non-zero count data is overdispersed, we need to use the negative binomial distribution instead of Poisson in our hurdle model.
+
+Next we will construct the hurdle model.
+
+```{r}
+library(pscl)
+m.hurdle <- 
 ```
 
 
