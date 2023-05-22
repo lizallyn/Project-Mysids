@@ -33,12 +33,17 @@ editor_options:
 ```{r}
 # Read in Data
 data <- read.csv("Er prey analysis for R fixed whale presence.csv")
+
+# Visualize the relationship
+plot(data$MysidCount, data$whalecount)
 ```
+
+This makes it look like there's no good reason to be looking for a relationship here...
 
 ## Model Construction
 
 Response: 
-Whale counts near sampling sites during sampling. Look at count distribution
+Whale counts near sampling sites during sampling. Look at count distribution.
 
 ```{r}
 hist(data$whalecount)
@@ -54,21 +59,22 @@ nonzero <- data[which(data$whalecount > 0),]
 
 # look at them
 hist(nonzero$whalecount)
+mean(nonzero$whalecount)
 ```
 
-The data seem likely to be overdispersed - mostly 1, with just a few observations of up to 8 whales. 
+The data seem likely to be overdispersed - mostly 1, with just a few observations of up to 8 whales (which is likely to be outside CIs because the mean is 1.9).
 
 ```{r message=F}
 library(VGAM)
 
-# construct model with mysid count
+# construct zero-truncated Poisson model with mysid count
 m1 <- vglm(whalecount ~ MysidCount, data = nonzero, family = "pospoisson")
 
 # check for overdispersion
 pchisq(sum(residuals(m1,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
 # p = 0.000005, overdispersed
 
-# fit with ZT neg binom
+# fit with ZT neg binom instead
 m2 <- vglm(whalecount ~ MysidCount, data = nonzero, family = posnegbinomial)
 summary(m2)
 ```
@@ -79,17 +85,22 @@ Next we will construct the hurdle model.
 
 ```{r}
 library(pscl)
+
 m.hurdle <- hurdle(whalecount ~ MysidCount|MysidCount, data = data, dist = "negbin")
 summary(m.hurdle)
 ```
 
+Next we need to figure out the random effect structure. It makes sense to include site just based on the structure of the data. Perhaps date?
+
+
 
 Fixed Effects: 
 + Mysid Count 
++ NR Count
++ HS Count
 + Mysid Avg Size 
-+ Mysid Gravid Prop 
-+ Mysid NR:HS Ratio (expect interaction w/count) 
-+ Month 
++ Mysid Gravid Count
++ Month?
 + Temp?
 + Kelp Cover?
 
