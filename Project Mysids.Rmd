@@ -81,7 +81,17 @@ summary(m2)
 
 Since the non-zero count data is overdispersed, we need to use the negative binomial distribution instead of Poisson in our hurdle model.
 
-Next we will construct the hurdle model.
+Next we will construct the hurdle model manually as a two-part process.
+
+```{r}
+library(lme4)
+
+# hurdle
+m.0 <- glmer.nb(whalecount ~ MysidCount + )
+
+# non-zero count data
+```
+
 
 ```{r}
 library(pscl)
