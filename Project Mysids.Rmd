@@ -87,9 +87,12 @@ Next we will construct the hurdle model manually as a two-part process.
 library(lme4)
 
 # hurdle
-m.0 <- glmer.nb(whalecount ~ MysidCount + )
+m.0 <- glmer(whalepresence ~ scale(MysidCount) + StudyMon + (1|Site), data = data, family = binomial)
+summary(m.0)
 
 # non-zero count data
+m.non0 <- glmer.nb(whalecount ~ scale(MysidCount) + StudyMon + (1|Site), data = nonzero)
+summary(m.non0)
 ```
 
 
