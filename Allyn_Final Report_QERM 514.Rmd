@@ -1,0 +1,68 @@
+---
+title: "Characterizing Mysid (Crustacea: Mysida) swarms and their co-occurrence with gray whales (Eschrichtius robustus) in northwest Washington State"
+author: "Liz Allyn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Eastern North Pacific gray whales (Eschrictius robustus) migrate between their breeding grounds in Baja California, Mexico, and their feeding grounds in the Bering Sea every year. Their movement and distribution within that range during the feeding season is related to the quality of foraging opportunities and the distribution of prey species (Moore, Grebmeier & Davies, 2003; Bradford et al., 2012; Feyrer & Duffus, 2015; Stimmelmayr & Gulland, 2020; Hildebrand et al., 2022). A smaller group of whales called the Pacific Coast Feeding Group (PCFG) is known to use the area from northern California, USA to British Columbia, Canada more frequently during the feeding season instead of migrating all the way to the Bering Sea (Calambokidis et al., 2002). 
+
+PCFG whales exhibit a wide array of variability in foraging strategies and interannual site use (Darling, Keogh & Steeves, 1998; Scordino et al., 2017). Four discrete foraging strategies have been described in the PCFG range: benthic foraging on amphipods, epibenthic foraging on mysid swarms, pelagic foraging on crab larvae (primarily Porcellanidae), and shallow water foraging for ghost shrimp (Callianassa spp) (Nerini, 1984; Kvitek & Oliver, 1986; Duffus, 1996). This variability poses challenges for management, especially around defining the PCFG range, estimating the size of the group, determining sources of recruitment, and identifying critical habitat. As a result, many research groups have recently focused on identifying and characterizing the relationships between gray whales and their prey to increase our understanding of the PCFG and the role they play in the ecosystem. 
+
+In northwest Washington, gray whales exhibit spatial and temporal variability in their use of coastal areas during the feeding season, and the number of whales present in the region can also vary greatly within a season and between years (Scordino et al., 2017). Gray whale distribution has been related to prey availability in other research areas of the PCFG range. Much of this research has focused on the relationship between gray whales and mysid shrimp, which are a key prey item in Clayoquot Sound, BC, Canada and Port Orford, OR, USA. In Clayoquot Sound, researchers have documented close relationships between gray whale foraging and mysid abundance, including both a top-down effect of gray whale foraging on mysid abundance and an effect of mysid abundance on gray whale distribution in the area (Burnham, 2015; Burnham & Duffus, 2016, 2018). In Port Orford, studies have documented a threshold foraging response in gray whales where feeding behaviors were only initiated given a large enough abundance of high-calorie prey items (Hildebrand, Bernard & Torres, 2021; Hildebrand et al., 2022). It is likely that similar dynamics are at play in Washington, but no studies have yet documented the composition or abundance of mysid swarms in the area, or how they might influence gray whale behavior. 
+
+This study aimed to characterize the demographics of mysid swarms in northwest Washington and examine the co-occurrence of mysid swarms with feeding gray whales. We expected that gray whale presence would be predicted by the abundance of mysids sampled and by the species and size composition of the swarm. 
+
+## Methods
+
+### Study Area
+
+Small boat surveys were conducted in northwest Washington State as described in Scordino et al. (2017). The primary purpose of these surveys was to document gray whale sightings and collect photographs for individual photo identification. During the gray whale feeding season in 2019 and 2020, plankton tows were conducted concurrently at discrete sites along the established survey route to collect preliminary information about the prey base available to gray whales and the demographics of mysid swarms in this region (Figure 1 - not included in figure limit for this report).
+
+### Sample Collection
+
+Sites along the established gray whale survey route were chosen to conduct sampling for mysid shrimp presence and demographic composition. Seven sites in the Strait of Juan de Fuca and seven sites in the Pacific Ocean were surveyed. All sample sites were close to shore in depths of less than 50 ft and were selected based on areas where gray whales have previously been documented to feed (Scordino et al., 2017) and a desire to stratify sampling sites throughout the study region. Exact sample locations moved closer or further from the shore throughout the season to consistently sample along the edge of the expanding and contracting kelp line, as navigation within kelp beds was not possible with our research vessel, and the habitat immediately surrounding kelp beds in this region is often not suitable for mysids. The southernmost site sampled in 2019 was the South of Bodelteh Islands site, but sampling effort was moved to the Ozette Island site in 2020 to expand the sampling area further south. We aimed to collect one sample per site each month, but sampling effort was highly variable due to a number of factors, including lost or malfunctioning equipment, inclement weather, or the need to prioritize other primary research objectives. Sampling occurred during the gray whale feeding season from June to November in 2019 and from June to September in 2020.
+
+Samples were collected using a Bongo-style net manufactured by Sea-Gear Corporation (Melbourne, FL, USA) similar to ones used by other regional research groups (Burnham, 2015; Hildebrand et al., 2022). Twin hoops measured 30 cm in diameter with a 3:1 mouth to length ratio and a 500-µm mesh. At each site, the net was lowered over the side by hand until it reached the bottom (confirmed through the collection of benthic species, substrate sediments, estimated line out from depth sounder, and the ability of the technician to feel the bottom), then was towed slowly (approximately 1 kt through the water, accounting for current speed and direction) near the bottom for 30 seconds and retrieved as fast as could be achieved by hand (approximately 0.6 m s-1). This procedure was repeated for two tows at each sample site, and contents of the cod end from each tow were poured into a single 500-mL container. If the sample did not contain mysids or other known gray whale prey items then the sampling effort was recorded but the sample was not retained. Samples were stored in 70% ethanol before processing.
+
+### Sample Processing
+
+For each sample, species identifications of all mysids were conducted according to Kathman (1986) using a 40x dissecting microscope. Mysids were measured from the tip of the rostrum to the tip of the telson and the species, sex, maturity, and gravidity were identified. Mysids were designated as “Unknown” species if they couldn’t be identified due to a damaged or absent telson. Mysids were assigned a sex based on the presence of a brood sac for females or a reproductive appendage for males, and mysids that did not have either characteristic were designated as (insert new designation here). Seven samples with high mysid density (visually estimated as containing >1000 mysids) were approximated by visually estimating the total count of mysids in the sample, collecting a subsample of 100 mysids from that sample, and identifying the species, sex, length, maturity, and gravidity of the subsample. The demographic composition of the subsample was then extrapolated to characterize the full sample. These tows that were characterized via subsampling were included in all subsequent analyses and can be inspected separately in our publicly available data repository (see Allyn et al., 2023). Other non-mysid organisms collected during sampling were identified to the lowest taxonomic level possible but were not included in subsequent analyses. These data are available in the data repository or upon request.
+
+### Gray Whale Surveys
+
+Gray whale sightings were recorded throughout the study period during small boat surveys of northwest Washington using the methods described in detail in Scordino et al. (2017). In summary, each gray whale sighted during surveys was photographed using digital SLR cameras with a 100 – 400 mm lens and the time and location of the sighting was recorded. Photographs of gray whales were sent to Cascadia Research Collective (Olympia, WA, USA) for inclusion in their catalog of individually identified gray whales from the west coast of the contiguous USA and Canada. Each whale photographed was processed according to establish procedures and was either matched to an existing whale and identification number in the catalog, assigned a new identification number if no match could be made, or left unidentified if photos of the whale were of insufficient quality (Calambokidis et al., 2002; Calambokidis, Pérez & Laake, 2019). Individual identifications were used to determine the total number of individual whales observed in the survey area, since whales can be sighted more than once during survey effort during the same day or on subsequent days throughout the season. Surveys were conducted under Marine Mammal Protection Act research permits granted by NMFS to author JJS (23970 and 19430).
+
+### Analysis
+
+Data analysis and visualization was conducted using Microsoft Excel and R version 4.1.1 (R Core Team, 2021). All prey sample data underlying the results presented in the study are available from Mendeley Data (Allyn et al., 2023). Whale sighting data is available upon request from the Makah Fisheries Management Department of the Makah Tribe (see Data Declaration for contact information).
+
+Mysid swarm size, species, sex, and maturity compositions were summarized and described. A generalized linear mixed hurdle model was constructed to evaluate if the presence of whales near sample sites during sampling could be predicted by the abundance of mysids sampled at that location as a proxy for prey availability in the area. 
+
+## Results
+
+(descriptive mysid composition results excluded for this report.)
+
+### Model Selection
+
+The whale count data was zero-inflated, so a hurdle model was constructed using glmmTMB (Brooks et al., 2017) with a binomial hurdle and zero-truncated negative binomial for the overdispersed non-zero count data.
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
