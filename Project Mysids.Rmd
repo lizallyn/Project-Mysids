@@ -28,7 +28,7 @@ editor_options:
 
 ## Methods
 
-## Data Organization
+### Data Organization
 
 ```{r}
 # Read in Data
@@ -40,16 +40,15 @@ plot(data$MysidCount, data$whalecount)
 
 This makes it look like there's no good reason to be looking for a relationship here...
 
-## Model Construction
+### Model Construction
 
-Response: 
-Whale counts near sampling sites during sampling. Look at count distribution.
+The response variable for this model is whale counts near sampling sites during sampling. Here we look at the count distribution with a histogram.
 
 ```{r}
 hist(data$whalecount)
 ```
 
-The data are clearly zero-inflated, so we need to use a Hurdle model.
+Since the data are counts, we make no assumption of normality from the start. The data are clearly zero-inflated from looking at the histogram, so we will need to use a Hurdle model.
 
 Pull out non-zero counts and check for overdispersion.
 
@@ -62,13 +61,15 @@ hist(nonzero$whalecount)
 mean(nonzero$whalecount)
 ```
 
-The data seem likely to be overdispersed - mostly 1, with just a few observations of up to 8 whales (which is likely to be outside CIs because the mean is 1.9).
+The data seem likely to be overdispersed - mostly 1, with just a few observations of up to 8 whales (which is likely to be outside CIs because the mean is 1.9). Below I check for overdispersion using deviance and Pearson's chi square test.
 
 ```{r message=F}
 library(VGAM)
+library(faraway)
 
 # construct zero-truncated Poisson model with mysid count
 m1 <- vglm(whalecount ~ MysidCount, data = nonzero, family = "pospoisson")
+summary(m1)
 
 # check for overdispersion
 pchisq(sum(residuals(m1,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
@@ -81,29 +82,57 @@ summary(m2)
 
 Since the non-zero count data is overdispersed, we need to use the negative binomial distribution instead of Poisson in our hurdle model.
 
+This is a Poisson hurdle - replace with appropriate ZTNegBinom!!
+$$
+f(y|p,\lambda) = 
+\begin{cases}
+   Pr(y=0) & (1-p)\\
+   Pr(y>0) & p~*~\frac{e^{-\lambda}\lambda^y}{y!(1-e^{-\lambda})}
+\end{cases}
+$$
+
+Next we will check for weird points and other diagnostics. We've settled on the model framework already because of the nature of the data, but good to check for weird things anyway.
+
+```{r}
+# plot residuals
+plot(fitted(m2), residuals(m2)[,2])
+
+# hat values
+halfnorm(hatvalues(m2), labs = nonzero$Sample)
+```
+Residuals look very weird, I think that's ok though?
+Hat values pulled out 20191106-4 which had 1400 mysids and 20200716-2 which had 1500 mysids, so those are pretty elevated counts.
+This all seems fine, we're already using a model structure that accounts for a lot of these potential issues. 
+
 Next we will construct the hurdle model manually as a two-part process.
 
 ```{r}
 library(lme4)
 
 # hurdle
-m.0 <- glmer(whalepresence ~ scale(MysidCount) + StudyMon + (1|Site), data = data, family = binomial)
+m.0 <- glmer(whalepresence ~ MysidCount + scale(Month) + (1|Site), data = data, family = binomial)
 summary(m.0)
 
 # non-zero count data
-m.non0 <- glmer.nb(whalecount ~ scale(MysidCount) + StudyMon + (1|Site), data = nonzero)
+m.non0 <- glmer.nb(whalecount ~ MysidCount + Month + (1|Site), data = nonzero)
 summary(m.non0)
 ```
 
+Here we use glmmTMB to construct the hurdle model with binomial zeros and zero-truncated negative binomial nonzeros, with random effects. Then we evaluate the random effect structure. Site is the only candidate effect. 
 
 ```{r}
-library(pscl)
+library(glmmTMB)
+library(TMB)
+library(bbmle) # AICtab
 
-m.hurdle <- hurdle(whalecount ~ MysidCount|MysidCount, data = data, dist = "negbin")
-summary(m.hurdle)
+glmm.1 <- glmmTMB(data = data, whalecount ~ MysidCount + scale(Month) + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.1)
+glmm.0 <- glmmTMB(data = data, whalecount ~ MysidCount + scale(Month), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.0)
+AICtab(glmm.1, glmm.0)
 ```
 
-Next we need to figure out the random effect structure. It makes sense to include site just based on the structure of the data. Perhaps date?
+The model with site is not better than the model with no random effects, but it's not more than 2 dAIC worse, and makes sense for the data structure, so I'm deciding to keep it for now.
 
 
 
@@ -117,12 +146,14 @@ Fixed Effects:
 + Temp?
 + Kelp Cover?
 
-Random Effects: 
-+ Site 
-+ Date?
+Look for effect of MysidCount first, then can look more detailed if that effect exists. 
 
 ## Diagnostics
 
 ```{r}
-
+glmm.0 <- glmmTMB(data = data, whalecount ~ MysidCount + scale(Month), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.0)
+glmm.0.null <- glmmTMB(data = data, whalecount ~ 1 + scale(Month), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.0.null)
+AICtab(glmm.0, glmm.0.null)
 ```
