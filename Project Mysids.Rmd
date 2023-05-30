@@ -157,3 +157,5 @@ glmm.0.null <- glmmTMB(data = data, whalecount ~ 1 + scale(Month), family = trun
 summary(glmm.0.null)
 AICtab(glmm.0, glmm.0.null)
 ```
+The model of the mean is better than the one with MysidCount as a predictor.
+
