@@ -168,7 +168,53 @@ AICtab(glmm.0, glmm.0.null)
 ```
 The model of the mean is better than the one with MysidCount as a predictor...not sure where to go from here?
 
-What if we look at region-wide per month. Average number of mysids per sample per day. Total number of unique whales in the study area per day where samples were taken. 
+Any kind of summary would be kind of like adding Day or Month as a random effect? Maybe first look at whales per day in total area, with Site, Date as random effects.
+
+```{r}
+# summarize by day to remove duplicate data
+
+# pipe avg mysids per sample per day
+summ.1 <- data %>%
+  group_by(Date) %>%
+  summarise(avg.mysids <- mean(MysidCount),
+            unique.w <- mean(uniquewhal))
+
+daily <- data.frame(summ.1)
+colnames(daily) <- c("Date", "AvgMysids", "UniqueW")
+
+# look at data
+hist(daily$UniqueW)
+plot(daily$AvgMysids, daily$UniqueW)
+```
+Still zero-inflated. Looks like more of a trend too - almost never 0 whales when nonzero mysids around maybe?
+Check for overdispersion
+
+```{r}
+# pull out nonzero data
+daily.n0 <- daily[which(daily$UniqueW > 0),]
+
+# construct zero-truncated Poisson model with mysid count
+m5 <- vglm(UniqueW ~ AvgMysids, data = daily.n0, family = "pospoisson")
+summary(m5)
+
+# check for overdispersion
+pchisq(sum(residuals(m5,type = "pearson")^2),nrow(daily.n0)-2,lower.tail = FALSE)
+# overdispersed
+
+# try the neg binom
+m6 <- vglm(UniqueW ~ AvgMysids, data = daily.n0, family = "posnegbinomial")
+summary(m6)
+```
+
+Data are overdispersed, do the same negative binomial hurdle as before.
+
+```{r}
+glmm.daily.1 <- glmmTMB(data = daily, UniqueW ~ AvgMysids, family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.daily.1)
+```
+
+
+What if we look at region-wide per month. Average number of mysids per sample per day. Total number of unique whales in the study area per day that samples were taken. 
 
 ```{r}
 library(dplyr)
@@ -179,7 +225,15 @@ summ.1 <- data %>%
   group_by(Date) %>%
   summarise(avg.mysids <- mean(MysidCount))
 
+# pull out whale days when samples were taken
+whale.days <- subset(x = whales, subset = Date %in% data$Date)
 
+# create data frame
+summ.1$unique.w <- whale.days$Unique
+summ.1$total.w <- whale.days$Whales
+
+daily <- data.frame(summ.1)
+colnames(daily) <- c("Date", "AvgMysids", "UniqueW", "TotalW")
 ```
 
 
