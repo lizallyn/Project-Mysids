@@ -31,11 +31,20 @@ editor_options:
 ### Data Organization
 
 ```{r}
+library(ggplot2)
+
 # Read in Data
 data <- read.csv("Er prey analysis for R fixed whale presence.csv")
 
 # Visualize the relationship
 plot(data$MysidCount, data$whalecount)
+
+data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal and Sail", "Sail River", "First Beach", "Koitlah", "Slant Rock", "Skagway Rocks", "Anderson Rocks", "Portage Head", "Duk Point", "North Bodelteh", "South Bodelteh", "Ozette Island"))
+
+scatterplot <- ggplot(data = data, aes(x = MysidCount, y = whalecount)) + 
+  geom_point(aes(color = Site)) + 
+  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample")
+scatterplot
 ```
 
 This makes it look like there's no good reason to be looking for a relationship here...
@@ -157,5 +166,20 @@ glmm.0.null <- glmmTMB(data = data, whalecount ~ 1 + scale(Month), family = trun
 summary(glmm.0.null)
 AICtab(glmm.0, glmm.0.null)
 ```
-The model of the mean is better than the one with MysidCount as a predictor.
+The model of the mean is better than the one with MysidCount as a predictor...not sure where to go from here?
+
+What if we look at region-wide per month. Average number of mysids per sample per day. Total number of unique whales in the study area per day where samples were taken. 
+
+```{r}
+library(dplyr)
+whales <- read.csv("whales per day for R.csv")
+
+# pipe avg mysids per sample per day
+summ.1 <- data %>%
+  group_by(Date) %>%
+  summarise(avg.mysids <- mean(MysidCount))
+
+
+```
+
 
