@@ -17,7 +17,7 @@ PCFG whales exhibit a wide array of variability in foraging strategies and inter
 
 In northwest Washington, gray whales exhibit spatial and temporal variability in their use of coastal areas during the feeding season, and the number of whales present in the region can also vary greatly within a season and between years (Scordino et al., 2017). Gray whale distribution has been related to prey availability in other research areas of the PCFG range. Much of this research has focused on the relationship between gray whales and mysid shrimp, which are a key prey item in Clayoquot Sound, BC, Canada and Port Orford, OR, USA. In Clayoquot Sound, researchers have documented close relationships between gray whale foraging and mysid abundance, including both a top-down effect of gray whale foraging on mysid abundance and an effect of mysid abundance on gray whale distribution in the area (Burnham, 2015; Burnham & Duffus, 2016, 2018). In Port Orford, studies have documented a threshold foraging response in gray whales where feeding behaviors were only initiated given a large enough abundance of high-calorie prey items (Hildebrand, Bernard & Torres, 2021; Hildebrand et al., 2022). It is likely that similar dynamics are at play in Washington, but no studies have yet documented the composition or abundance of mysid swarms in the area, or how they might influence gray whale behavior.
 
-This study aimed to characterize the demographics of mysid swarms in northwest Washington and examine the co-occurrence of mysid swarms with feeding gray whales. We expected that gray whale presence would be predicted by the abundance of mysids sampled and by the species and size composition of the swarm.
+This study aimed to characterize the demographics of mysid swarms in northwest Washington and examine the co-occurrence of mysid swarms with feeding gray whales. We expected that gray whale presence would be predicted by the abundance of mysids sampled.
 
 ## Methods
 
@@ -67,17 +67,99 @@ $$ where;
 
 -   *n* is the number of samples
 
-A model was constructed with whale count as the response and mysid count as the predictor, with sample site as a random effect to account for repeated measures. This model was compared against the null intercept model using AIC.
+A model was constructed with whale count as the response and mysid count as the predictor, with sample Site as a random effect to account for repeated measures. The model with the random effect of Site had a delta AIC of 0.9 compared to the model with no random effect, but including it makes sense for the structure of the data. This model was compared against the null intercept model using AIC.
 
-We checked for goodness of fit with the mysid model using the DHARMa package (Hartig, 2022) as well as
+We checked for goodness of fit with the mysid model using the DHARMa package (Hartig, 2022) as well as visual checks on the plotted model predictions.
 
-The null model performed better than the model with mysid count as a predictor. This means that mysid counts in a nearby sample do not give us any more ability to predict the number of whales near the sample site than the average whale count for that site independent of the sample composition.
-
-(insert scatterplot with model predictions and mean for each site.)
+(insert scatterplot with model predictions and mean for each site. Maybe also AIC table?)
 
 ## Discussion
 
+The null model performed better than the model with mysid count as a predictor. This means that mysid counts in a nearby sample do not give us any more ability to predict the number of whales near the sample site than the average whale count for that site independent of the sample composition. This is somewhat surprising because we know that whales respond to the distribution of their prey in other nearby systems (Clayoquot Sound, BC and Port Orford, OR), so we expected to see a similar response here.
+
+It's possible that our sampling procedure is not well designed to capture patterns at such a small spatial and temporal scale (the area around the sample site during the sampling activity). PCFG gray whales utilize a broad spectrum of prey species and foraging strategies, so their distribution during the feeding season may be indicative of overall prey availability and system productivity in a given region. Within that larger pattern of system productivity that the whales may be responding to, our mysid samples may not be able to capture a comprehensive snapshot of the prey available to whales.
+
+The disconnect between whale distribution and mysid counts at this small scale could also be due to the patchiness of mysid swarms and the discrete nature of our sampling methods. Mysid swarms are veryy patchy, so our discrete plankton net sampling method may be missing crucial blooms of prey availability, or conversely sampling from a swarm that is more abundant than the surrounding area as a whole. In this way our sampling could easily be disconnected from the cues whales need to determine their foraging effort.
+
+To address the patchy nature of the data collected in this study, I think it would be interesting to look at the data aggregated on a slightly larger spatial and temporal scale. From our whale surveys we are able to determine the total number of uniquely identified whales in the study region that we encountered on a given survey day. We could similarly summarize the average number of mysids caught per tow for each survey day, and see if there is any relatedness between these daily measures. In this analysis, the average daily mysids per tow would act as an indicator of the overall productivity of the area. We would then expect the number of whales in the area to increase as the average mysids increased, and decrease when there are few mysids in the area.
+
 ## References
 
-Hartig F (2022). \_DHARMa: Residual Diagnostics for Hierarchical (Multi-Level / Mixed) Regression Models\_.
- R package version 0.4.6, <https://CRAN.R-project.org/package=DHARMa>.
+Bradford AL, Weller DW, Punt
+AE, Ivashchenko Y v., Burdin AM, van Blaricom GR, Brownell RL. 2012. Leaner
+leviathans: Body condition variation in a critically endangered whale
+population. *Journal of Mammalogy* 93:251--266. DOI:
+10.1644/11-MAMM-A-091.1.
+
+Brooks Mollie E., Kasper Kristensen, Koen J. van Benthem, Arni Magnusson, Casper W. Berg, Anders Nielsen, Hans J. Skaug, Martin Maechler and Benjamin M. Bolker (2017). glmmTMB Balances Speed and Flexibility Among Packages for
+ Zero-inflated Generalized Linear Mixed Modeling. The R Journal, 9(2), 378-400. doi: 10.32614/RJ-2017-066.
+
+Burnham RE. 2015.
+Reproductive strategies conferring species dominance in marine mysid
+(Peracarida, Mysida) species in coastal waters off Vancouver Island, BC. *Crustaceana*
+88:1421--1438. DOI: 10.1163/15685403-00003502.
+
+Burnham RE, Duffus DA. 2016.
+Gray whale (Eschrichtius robustus) predation and the demise of amphipod prey
+reserves in Clayoquot Sound, British Columbia. *Aquatic Mammals*
+42:123--126. DOI: 10.1578/AM.42.2.2016.123.
+
+Burnham R, Duffus D. 2018.
+Patterns of predator-prey dynamics between gray whales (Eschrichtius robustus)
+and mysid species in Clayoquot Sound. *Journal of Cetacean Research and
+Management* 19:95--103.
+
+Calambokidis J, Darling JD,
+Deecke V, Gearin P, Gosho M, Megill W, Tombach CM, Goley D, Toropova C,
+Gisborne B. 2002. Abundance, range and movements of a feeding aggregation of
+gray whales (Eschrichtius robustus) from California to southeastern Alaska in
+1998. *Journal of Cetacean Research and Management* 4:267--276.
+
+Darling JD, Keogh KE, Steeves
+TE. 1998. Gray whale (Eschrichtius robustus) habitat utilization and prey
+species off Vancouver Island, BC. *Marine Mammal Science* 14:692--720. DOI:
+10.1111/j.1748-7692.1998.tb00757.x.
+
+Duffus DA. 1996. The
+recreational use of grey whales in southern Clayoquot Sound, Canada. *Applied
+Geography* 16:179--190. DOI: 10.1016/0143-6228(96)00002-1.
+
+Feyrer LJ, Duffus DA. 2015.
+Threshold foraging by gray whales in response to fine scale variations in mysid
+density. *Marine Mammal Science* 31:560--578. DOI: 10.1111/mms.12178.
+
+Hartig F (2022). \_DHARMa: Residual Diagnostics for Hierarchical (Multi-Level / Mixed) Regression Models\_.R package version 0.4.6, <https://CRAN.R-project.org/package=DHARMa>.
+
+Hildebrand L, Bernard KS,
+Torres LG. 2021. Do Gray Whales Count Calories? Comparing Energetic Values of
+Gray Whale Prey Across Two Different Feeding Grounds in the Eastern North
+Pacific. *Frontiers in Marine Science* 0:1008. DOI:
+10.3389/FMARS.2021.683634.
+
+Hildebrand L, Sullivan FA,
+Orben RA, Derville S, Torres LG. 2022. Trade-offs in prey quantity and quality
+in gray whale foraging. *Marine Ecology Progress Series* 695:189--202. DOI:
+10.3354/meps14115.Kvitek RG, Oliver JS. 1986.
+Side-scan sonar estimates of the utilization of gray whale feeding grounds
+along Vancouver Island, Canada. *Continental Shelf Research* 6:639--654.
+DOI: 10.1016/0278-4343(86)90028-2.
+
+Moore SE, Grebmeier JM,
+Davies JR. 2003. Gray whale distribution relative to forage habitat in the
+northern Bering Sea: current conditions and retrospective summary. *Canadian
+Journal of Zoology* 81:734--742. DOI: 10.1139/z03-043.
+
+Nerini M. 1984. A Review of
+Gray Whale Feeding Ecology. In: Jones M lou, Swartz SL, Leatherwood S eds. *The
+Gray Whale: Eschrichtius Robustus*. Academic Press, 423--450.
+
+Scordino JJ, Gosho M, Gearin
+PJ, Akmajian A, Calambokidis J, Wright N. 2017. Individual gray whale use of
+coastal waters off northwest Washington during the feeding season 1984--2011:
+Implications for management. *Journal of Cetacean Research and Management*
+16:57--69.
+
+Stimmelmayr R, Gulland FMD.
+2020. Gray Whale (Eschrichtius robustus) Health and Disease: Review and Future
+Directions. *Frontiers in Marine Science* 7:963. DOI:
+10.3389/FMARS.2020.588820/BIBTEX.
