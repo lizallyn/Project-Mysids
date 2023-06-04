@@ -41,10 +41,26 @@ plot(data$MysidCount, data$whalecount)
 
 data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal and Sail", "Sail River", "First Beach", "Koitlah", "Slant Rock", "Skagway Rocks", "Anderson Rocks", "Portage Head", "Duk Point", "North Bodelteh", "South Bodelteh", "Ozette Island"))
 
+theme.Speciesym <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 13, colour = "black"), 
+        axis.text.y = element_text(size = 13, colour = "black"),
+        axis.ticks.x = element_blank(), 
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black", face = "italic"), 
+        legend.key.size = unit(2, "line")) 
+
 scatterplot <- ggplot(data = data, aes(x = MysidCount, y = whalecount)) + 
-  geom_point(aes(color = Site)) + 
-  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample")
+  geom_point(aes(color = Site), size = 3) + 
+  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample") +
+  theme.Speciesym
 scatterplot
+# ggsave(plot = scatterplot, "scatterplot of whales by sample color by site.pdf", 
+#        width = 10, height = 8, device = "pdf", dpi = 700)
 ```
 
 This makes it look like there's no good reason to be looking for a relationship here...
@@ -119,11 +135,11 @@ Next we will construct the hurdle model manually as a two-part process.
 library(lme4)
 
 # hurdle
-m.0 <- glmer(whalepresence ~ MysidCount + scale(Month) + (1|Site), data = data, family = binomial)
+m.0 <- glmer(whalepresence ~ MysidCount + (1|Site), data = data, family = binomial)
 summary(m.0)
 
 # non-zero count data
-m.non0 <- glmer.nb(whalecount ~ MysidCount + Month + (1|Site), data = nonzero)
+m.non0 <- glmer.nb(whalecount ~ MysidCount + (1|Site), data = nonzero)
 summary(m.non0)
 ```
 
@@ -157,18 +173,64 @@ Fixed Effects:
 
 Look for effect of MysidCount first, then can look more detailed if that effect exists. 
 
-## Diagnostics
+## Fixed Effects
 
 ```{r}
-glmm.0 <- glmmTMB(data = data, whalecount ~ MysidCount + scale(Month), family = truncated_nbinom1, ziformula = ~.)
+library(knitr)
+library(plyr)
+data$Site <- as.factor(data$Site)
+glmm.m <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.m)
+glmm.0 <- glmmTMB(data = data, whalecount ~ 1 + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+# Error in eigen(h) : infinite or missing values in 'x'
 summary(glmm.0)
-glmm.0.null <- glmmTMB(data = data, whalecount ~ 1 + scale(Month), family = truncated_nbinom1, ziformula = ~.)
-summary(glmm.0.null)
-AICtab(glmm.0, glmm.0.null)
+kable(AICtab(glmm.0, glmm.m))
+
+# model of the mean by hand bc not running
+null.res <- data %>%
+  group_by(Site) %>%
+  summarise(site.mean = mean(whalecount))
+
+# I could do this in 3 sec in Excel w/vlookup - assign site means to rows in data
+data$site.mean <- null.res[which(null.res$Site == data$Site)]
+null.res$Site %in% data$Site
+
+test <- join(data, null.res, by = 'Site')
+
+plot(data$MysidCount, predict(glmm.m))
 ```
 The model of the mean is better than the one with MysidCount as a predictor...not sure where to go from here?
+Tried to add month but inconsistent coverage of sites x months, so different lengths of data I think? Doesn't run at the moment. 
 
-Any kind of summary would be kind of like adding Day or Month as a random effect? Maybe first look at whales per day in total area, with Site, Date as random effects.
+The predictions from these models are very unrealistic - lots of negative whales at high mysid density. Makes sense why this is such a bad model. I think this makes sense that it fit as a negative beta though from looking at the scatterplot - the trend really does seem negative. So I'm guessing it's a good fit to the data, but the data is a bad representation of the system dynamics. Though the plot below does not confirm this theory...
+
+```{r}
+theme.Speciesym <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 13, colour = "black"), 
+        axis.text.y = element_text(size = 13, colour = "black"),
+        axis.ticks.x = element_blank(), 
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black", face = "italic"), 
+        legend.key.size = unit(2, "line")) 
+
+scatterplot <- ggplot() + 
+  geom_point(data = data, aes(x = MysidCount, y = whalecount, color = Site), size = 3) + 
+  geom_line(data = test, aes(x =  MysidCount, y = site.mean, color = Site)) +
+  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample") +
+  theme.Speciesym
+scatterplot
+```
+
+
+
+### Break - beyond this project below
+
+Any kind of summary would be kind of like adding Day or Month as a random effect? Maybe first look at whales per day in total area with avg mysids per tow per day.
 
 ```{r}
 # summarize by day to remove duplicate data
@@ -185,6 +247,27 @@ colnames(daily) <- c("Date", "AvgMysids", "UniqueW")
 # look at data
 hist(daily$UniqueW)
 plot(daily$AvgMysids, daily$UniqueW)
+
+theme.Speciesym <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 13, colour = "black"), 
+        axis.text.y = element_text(size = 13, colour = "black"),
+        axis.ticks.x = element_blank(), 
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black", face = "italic"), 
+        legend.key.size = unit(2, "line")) 
+
+scatterplot.daily <- ggplot(data = daily, aes(x = AvgMysids, y = UniqueW)) + 
+  geom_point(size = 3) + 
+  labs(x = "Average mysid count per sample", y = "Unique whales in the study area") +
+  theme.Speciesym
+scatterplot.daily
+ggsave(plot = scatterplot.daily, "scatterplot of unique whales by avg mysids.pdf",
+       width = 10, height = 8, device = "pdf", dpi = 700)
 ```
 Still zero-inflated. Looks like more of a trend too - almost never 0 whales when nonzero mysids around maybe?
 Check for overdispersion
@@ -204,12 +287,31 @@ pchisq(sum(residuals(m5,type = "pearson")^2),nrow(daily.n0)-2,lower.tail = FALSE
 # try the neg binom
 m6 <- vglm(UniqueW ~ AvgMysids, data = daily.n0, family = "posnegbinomial")
 summary(m6)
+
 ```
 
-Data are overdispersed, do the same negative binomial hurdle as before.
+```{r}
+# build a binom to frankenstein the thing bc the hurdle glmmTMB below isn't working
+
+# create presence column
+daily$Presence <- rep(NA, nrow(daily))
+daily$Presence[which(daily$UniqueW == 0)] <- 0
+daily$Presence[which(daily$UniqueW > 0)] <- 1
+
+
+```
+
+
+Data are overdispersed, do a neagtive binomial hurdle, but no random effects this time.
 
 ```{r}
-glmm.daily.1 <- glmmTMB(data = daily, UniqueW ~ AvgMysids, family = truncated_nbinom1, ziformula = ~.)
+library(nloptr)
+# control parameters? from Whooping crane file
+cntrl <- glmmTMBControl(optimizer = bobyqa, optCtrl = list(maxeval = 1e5))
+
+glmm.daily.1 <- glmmTMB(data = daily, UniqueW ~ 1, family = truncated_nbinom1, ziformula = ~ AvgMysids, control = cntrl)
+# Error in is.nloptr(ret) : length(lb) != length(x0)
+
 summary(glmm.daily.1)
 ```
 
