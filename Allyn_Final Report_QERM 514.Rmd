@@ -47,6 +47,48 @@ Mysid swarm size, species, sex, and maturity compositions were summarized and de
 
 ## Results
 
+```{r}
+source("~Users/lizallyn/Documents/GitHub/Project-Mysids/Project Mysids.Rmd") # not working
+
+library(ggplot2)
+
+# Read in Data
+data <- read.csv("Er prey analysis for R fixed whale presence.csv")
+
+data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal and Sail", "Sail River", "First Beach", "Koitlah", "Slant Rock", "Skagway Rocks", "Anderson Rocks", "Portage Head", "Duk Point", "North Bodelteh", "South Bodelteh", "Ozette Island"))
+
+## Inspect data distribution
+
+hist(data$whalecount) # zero-inflated
+# will need hurdle model to account for this
+
+## Check for overdispersion in nonzero counts
+
+# pull out non-zero counts
+nonzero <- data[which(data$whalecount > 0),]
+
+library(VGAM)
+
+# construct zero-truncated Poisson model with mysid count
+m1 <- vglm(whalecount ~ MysidCount, data = nonzero, family = "pospoisson")
+summary(m1)
+
+# check for overdispersion
+pchisq(sum(residuals(m1,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
+# p = 0.000005, overdispersed
+# proceed with negative binomial
+
+## Look for weird things in data
+# hat values
+halfnorm(hatvalues(m2), labs = nonzero$Sample)
+# shows points with very high mysid counts - makes sense
+# model structure accounts for a lot of other weird things, so I don't
+# think we need any other diagnostics yet
+
+
+
+```
+
 (Descriptive mysid composition results excluded for this report.)
 
 ### Model Selection
