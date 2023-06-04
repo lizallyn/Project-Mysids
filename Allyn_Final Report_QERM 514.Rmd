@@ -47,7 +47,7 @@ Mysid swarm size, species, sex, and maturity compositions were summarized and de
 
 ## Results
 
-(descriptive mysid composition results excluded for this report.)
+(Descriptive mysid composition results excluded for this report.)
 
 ### Model Selection
 
@@ -66,3 +66,18 @@ $$ where;
 -   *y* is the predicted count of whales present
 
 -   *n* is the number of samples
+
+A model was constructed with whale count as the response and mysid count as the predictor, with sample site as a random effect to account for repeated measures. This model was compared against the null intercept model using AIC.
+
+We checked for goodness of fit with the mysid model using the DHARMa package (Hartig, 2022) as well as
+
+The null model performed better than the model with mysid count as a predictor. This means that mysid counts in a nearby sample do not give us any more ability to predict the number of whales near the sample site than the average whale count for that site independent of the sample composition.
+
+(insert scatterplot with model predictions and mean for each site.)
+
+## Discussion
+
+## References
+
+Hartig F (2022). \_DHARMa: Residual Diagnostics for Hierarchical (Multi-Level / Mixed) Regression Models\_.
+ R package version 0.4.6, <https://CRAN.R-project.org/package=DHARMa>.
