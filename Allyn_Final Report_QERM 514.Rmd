@@ -47,7 +47,7 @@ Mysid swarm size, species, sex, and maturity compositions were summarized and de
 
 ## Results
 
-```{r message = F}
+```{r message = F, echo = F, warning = F, results = F}
 # source("~Users/lizallyn/Documents/GitHub/Project-Mysids/Project Mysids.Rmd") # not working
 
 library(ggplot2)
@@ -59,7 +59,7 @@ data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal 
 
 ## Inspect data distribution
 
-hist(data$whalecount) # zero-inflated
+# hist(data$whalecount) # zero-inflated
 # will need hurdle model to account for this
 
 ## Check for overdispersion in nonzero counts
@@ -84,7 +84,7 @@ summary(m2)
 ## Look for weird things in data
 # hat values
 library(faraway)
-halfnorm(hatvalues(m2), labs = nonzero$Sample)
+# halfnorm(hatvalues(m2), labs = nonzero$Sample)
 # shows points with very high mysid counts - makes sense
 # model structure accounts for a lot of other weird things, so I don't
 # think we need any other diagnostics yet
@@ -109,25 +109,57 @@ AICtab(glmm.1, glmm.0)
 library(knitr)
 library(plyr)
 library(dplyr)
+library(DHARMa)
 
 data$Site <- as.factor(data$Site)
 glmm.mm <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon + (1|Site), family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.mm)
 glmm.m <- glmmTMB(data = data, whalecount ~ MysidCount + (1|Site), family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.m)
+# month only model not currently running, same error as null model
+# glmm.1 <- glmmTMB(data = data, whalecount ~ StudyMon + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+# summary(glmm.1)
 # null model not currently running? error below.
-glmm.0 <- glmmTMB(data = data, whalecount ~ 1 + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+# glmm.0 <- glmmTMB(data = data, whalecount ~ 1 + (1|Site), family = truncated_nbinom1, ziformula = ~.)
 # Error in eigen(h) : infinite or missing values in 'x'
 # summary(glmm.0)
 
-kable(AICtab(glmm.mm, glmm.m))
+AIC.table <- kable(AICtab(glmm.mm, glmm.m), caption = "Table 1: delta AIC values for the three candidate models. glmm.mm included both mysid counts and study month as predictors, glmm.m included only mysid counts as a predictor, glmm.1 is the model with only study month as a predictor, and glmm.0 is the null intercept model.")
 # including month is worse (deltaAIC = 2.4) - not a lot worse, but I'm going to exclude anyway. In another scenario I might choose to do weighted predictions with both models.
 
-# remember to do the AIc comparison when all three models are running!!
+# remember to do the AIC comparison when all three models are running!!
 
+# plot(simulateResiduals(glmm.m))
+```
+
+(Descriptive mysid composition results excluded for this report.)
+
+### Model Selection
+
+The whale count data was zero-inflated, so a hurdle model was constructed using glmmTMB (Brooks et al., 2017) with a binomial hurdle and zero-truncated negative binomial for the overdispersed non-zero count data. The equation for this model is:
+
+$$
+f(y|p,\lambda) = 
+\begin{cases}
+   Pr(y=0) & (1-p)\\
+   Pr(y>0) & p~*~\frac{\Gamma(y+n)p^n(1-p)^y}{\Gamma(n)y!(1-p^n)}\\
+\end{cases}
+$$ where;
+
+-   *p* is the probability of observing a whale at a given sample site during sampling
+
+-   *y* is the predicted count of whales present
+
+-   *n* is the number of samples
+
+A model was constructed with whale count as the response and mysid count as the predictor, with sample Site as a random effect to account for repeated measures. The model with the random effect of Site had a delta AIC of 1 compared to the model with no random effect, but including it makes sense for the structure of the data. This model was compared against the null intercept model using AIC.
+
+We checked for goodness of fit with the mysid model using the DHARMa package (Hartig, 2022) as well as visual checks on the plotted model predictions. The mysid model contains quantile deviations, and those are not addressed in this analysis. 
+
+```{r echo = F}
 ## Predictions
 
-plot(data$MysidCount, predict(glmm.m, type = "response"))
+# plot(data$MysidCount, predict(glmm.m, type = "response"))
 # looks good now! type = "response" undoes the link function transformation! Key!!
 
 # model of the mean predictions by hand bc model not running above
@@ -148,42 +180,20 @@ theme.Speciesym <- theme_classic() +
         axis.ticks.x = element_blank(), 
         legend.title = element_text(size = 12, colour = "black"), 
         legend.text = element_text(size = 10, colour = "black", face = "italic"), 
-        legend.key.size = unit(1, "line")) 
+        legend.key.size = unit(1, "line"))
 
 scatterplot <- ggplot() + 
-  geom_point(data = data, aes(x = MysidCount, y = whalecount, color = Site), size = 3, alpha = 0.5) + 
+  geom_point(data = data, aes(x = MysidCount, y = whalecount, color = Site), size = 3) + 
   geom_line(data = data, aes(x = MysidCount, y = predict(glmm.m, type = "response"), group = Site, color = Site)) +
-  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample") +
+  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample", 
+       caption = "Figure 1: Scatterplot of observed whales by mysid counts, with predictions from the mysid model overlaid.") +
   theme.Speciesym
 scatterplot
-
 ```
 
-(Descriptive mysid composition results excluded for this report.)
+The model with mysid counts as a predictor did not perform better than the null intercept model, though the delta AIC value was only xxxx.
 
-### Model Selection
-
-The whale count data was zero-inflated, so a hurdle model was constructed using glmmTMB (Brooks et al., 2017) with a binomial hurdle and zero-truncated negative binomial for the overdispersed non-zero count data. The equation for this model is
-
-$$
-f(y|p,\lambda) = 
-\begin{cases}
-   Pr(y=0) & (1-p)\\
-   Pr(y>0) & p~*~\frac{\Gamma(y+n)p^n(1-p)^y}{\Gamma(n)y!(1-p^n)}\\
-\end{cases}
-$$ where;
-
--   *p* is the probability of observing a whale at a given sample site during sampling
-
--   *y* is the predicted count of whales present
-
--   *n* is the number of samples
-
-A model was constructed with whale count as the response and mysid count as the predictor, with sample Site as a random effect to account for repeated measures. The model with the random effect of Site had a delta AIC of 1 compared to the model with no random effect, but including it makes sense for the structure of the data. This model was compared against the null intercept model using AIC.
-
-We checked for goodness of fit with the mysid model using the DHARMa package (Hartig, 2022) as well as visual checks on the plotted model predictions.
-
-(insert scatterplot with model predictions and mean for each site. Maybe also AIC table?)
+`r AIC.table`
 
 ## Discussion
 
