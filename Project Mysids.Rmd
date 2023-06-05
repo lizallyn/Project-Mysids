@@ -208,18 +208,18 @@ The predictions from these models are very unrealistic - lots of negative whales
 theme.Speciesym <- theme_classic() +
   theme(plot.margin = margin(t=10,r=10,b=10,l=10),
         axis.title = element_blank(), 
-        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
-        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 12), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 12), 
         plot.title = element_blank(), 
-        axis.text.x = element_text(size = 13, colour = "black"), 
-        axis.text.y = element_text(size = 13, colour = "black"),
+        axis.text.x = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(size = 10, colour = "black"),
         axis.ticks.x = element_blank(), 
-        legend.title = element_text(size = 15, colour = "black"), 
-        legend.text = element_text(size = 13, colour = "black", face = "italic"), 
-        legend.key.size = unit(2, "line")) 
+        legend.title = element_text(size = 12, colour = "black"), 
+        legend.text = element_text(size = 10, colour = "black", face = "italic"), 
+        legend.key.size = unit(1, "line")) 
 
 scatterplot <- ggplot() + 
-  geom_point(data = data, aes(x = MysidCount, y = whalecount, color = Site), size = 3) + 
+  geom_point(data = data, aes(x = MysidCount, y = whalecount, color = Site), size = 3, alpha = 0.5) + 
   geom_line(data = test, aes(x =  MysidCount, y = site.mean, color = Site)) +
   labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample") +
   theme.Speciesym
