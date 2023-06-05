@@ -47,8 +47,8 @@ Mysid swarm size, species, sex, and maturity compositions were summarized and de
 
 ## Results
 
-```{r}
-source("~Users/lizallyn/Documents/GitHub/Project-Mysids/Project Mysids.Rmd") # not working
+```{r message = F}
+# source("~Users/lizallyn/Documents/GitHub/Project-Mysids/Project Mysids.Rmd") # not working
 
 library(ggplot2)
 
@@ -76,16 +76,86 @@ summary(m1)
 # check for overdispersion
 pchisq(sum(residuals(m1,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
 # p = 0.000005, overdispersed
-# proceed with negative binomial
+
+# fit with ZT neg binom instead
+m2 <- vglm(whalecount ~ MysidCount, data = nonzero, family = posnegbinomial)
+summary(m2)
 
 ## Look for weird things in data
 # hat values
+library(faraway)
 halfnorm(hatvalues(m2), labs = nonzero$Sample)
 # shows points with very high mysid counts - makes sense
 # model structure accounts for a lot of other weird things, so I don't
 # think we need any other diagnostics yet
 
+## Construct hurdle model with ZT neg binom and assess Site as random effect.
+# global model at this point includes Month as well
 
+library(glmmTMB)
+library(TMB)
+library(bbmle) # AICtab
+
+glmm.1 <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.1)
+glmm.0 <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon, family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.0)
+AICtab(glmm.1, glmm.0)
+# delta AIC says no random effect better by 1, not large enough to exclude
+# Site makes sense according to structure of data.
+
+## Assess fixed effect structure
+
+library(knitr)
+library(plyr)
+library(dplyr)
+
+data$Site <- as.factor(data$Site)
+glmm.mm <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.mm)
+glmm.m <- glmmTMB(data = data, whalecount ~ MysidCount + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.m)
+# null model not currently running? error below.
+glmm.0 <- glmmTMB(data = data, whalecount ~ 1 + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+# Error in eigen(h) : infinite or missing values in 'x'
+# summary(glmm.0)
+
+kable(AICtab(glmm.mm, glmm.m))
+# including month is worse (deltaAIC = 2.4) - not a lot worse, but I'm going to exclude anyway. In another scenario I might choose to do weighted predictions with both models.
+
+# remember to do the AIc comparison when all three models are running!!
+
+## Predictions
+
+plot(data$MysidCount, predict(glmm.m, type = "response"))
+# looks good now! type = "response" undoes the link function transformation! Key!!
+
+# model of the mean predictions by hand bc model not running above
+null.res <- data %>%
+  group_by(Site) %>%
+  summarise(site.mean = mean(whalecount))
+
+test <- join(data, null.res, by = 'Site')
+
+theme.Speciesym <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 12), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 12), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 10, colour = "black"), 
+        axis.text.y = element_text(size = 10, colour = "black"),
+        axis.ticks.x = element_blank(), 
+        legend.title = element_text(size = 12, colour = "black"), 
+        legend.text = element_text(size = 10, colour = "black", face = "italic"), 
+        legend.key.size = unit(1, "line")) 
+
+scatterplot <- ggplot() + 
+  geom_point(data = data, aes(x = MysidCount, y = whalecount, color = Site), size = 3, alpha = 0.5) + 
+  geom_line(data = data, aes(x = MysidCount, y = predict(glmm.m, type = "response"), group = Site, color = Site)) +
+  labs(x = "Mysid Count per Sample", y = "Number of Whales near Site during Sample") +
+  theme.Speciesym
+scatterplot
 
 ```
 
@@ -109,7 +179,7 @@ $$ where;
 
 -   *n* is the number of samples
 
-A model was constructed with whale count as the response and mysid count as the predictor, with sample Site as a random effect to account for repeated measures. The model with the random effect of Site had a delta AIC of 0.9 compared to the model with no random effect, but including it makes sense for the structure of the data. This model was compared against the null intercept model using AIC.
+A model was constructed with whale count as the response and mysid count as the predictor, with sample Site as a random effect to account for repeated measures. The model with the random effect of Site had a delta AIC of 1 compared to the model with no random effect, but including it makes sense for the structure of the data. This model was compared against the null intercept model using AIC.
 
 We checked for goodness of fit with the mysid model using the DHARMa package (Hartig, 2022) as well as visual checks on the plotted model predictions.
 
