@@ -27,15 +27,17 @@ nonzero <- data[which(data$whalecount > 0),]
 library(VGAM)
 
 # construct zero-truncated Poisson model with mysid count
-m.zt.pois <- vglm(whalecount ~ MysidCount, data = nonzero, family = "pospoisson")
+m.zt.pois <- vglm(whalecount ~ MysidCount + StudyMon, data = nonzero, 
+                  family = "pospoisson")
 summary(m.zt.pois)
 
 # check for overdispersion
-pchisq(sum(residuals(m.zt.pois,type = "pearson")^2),nrow(nonzero)-2,lower.tail = FALSE)
+pchisq(sum(residuals(m.zt.pois,type = "pearson")^2), nrow(nonzero)-2, lower.tail = FALSE)
 # p = 0.000005, overdispersed
 
 # fit with ZT neg binom instead
-m.zt.nbin <- vglm(whalecount ~ MysidCount, data = nonzero, family = posnegbinomial)
+m.zt.nbin <- vglm(whalecount ~ MysidCount + StudyMon, data = nonzero, 
+                  family = posnegbinomial)
 summary(m.zt.nbin)
 
 ## Look for weird things in data
@@ -47,10 +49,32 @@ unusual <- data$Sample[which(hval>thresh)]
 uvals <- as.numeric(hval[which(hval>thresh)])
 # plot points of high leverage
 halfnorm(hval, labs = nonzero$Sample, nlab = length(uvals))
-# shows points with very high mysid counts - makes sense
 # model structure accounts for a lot of other weird things, so I don't
 # think we need any other diagnostics yet
 
 ### Random Effects Structure
 
 # Construct hurdle model with ZT neg binom and assess Site as random effect.
+# Assess with LRT
+install.packages("RLRsim")
+library(TMB)
+library(glmmTMB)
+library(RLRsim)
+
+# model with the random effect of Site
+model.rand <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon + (1|Site), 
+                  family = truncated_nbinom1, ziformula = ~.)
+summary(model.rand)
+model.matrix(model.rand)
+# returns design matrix
+
+# model without the random effect of Site
+model.norand <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon, 
+                  family = truncated_nbinom1, ziformula = ~.)
+summary(model.norand)
+model.matrix(model.norand)
+
+lrtest(model.rand, model.norand)
+# Site makes sense according to structure of data and finding a package to 
+# test random effect structure is turning into a pain in the butt so skipping
+
