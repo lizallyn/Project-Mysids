@@ -74,7 +74,7 @@ model.norand <- glmmTMB(data = data, whalecount ~ MysidCount + StudyMon,
 summary(model.norand)
 model.matrix(model.norand)
 
-lrtest(model.rand, model.norand)
+lrtest(model.rand, model.norand) # doesn't work
 # Site makes sense according to structure of data and finding a package to 
-# test random effect structure is turning into a pain in the butt so skipping
+# test random effect structure is turning into a pain in the butt so including
 
