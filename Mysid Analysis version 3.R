@@ -9,9 +9,23 @@
 # from GitHub repo
 data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv?token=GHSAT0AAAAAACGGT3YBL6TD7PYVKVQJFPTEZGWVSHQ")
 
+# All obs file
+all <- read.csv("All obs for R.csv")
+
 ### Data Manipulation/Cleaning/Visualization
 
 data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal and Sail", "Sail River", "First Beach", "Koitlah", "Slant Rock", "Skagway Rocks", "Anderson Rocks", "Portage Head", "Duk Point", "North Bodelteh", "South Bodelteh", "Ozette Island"))
+
+## Sex Summary Table
+library(tidyr)
+library(dplyr)
+
+all$counter <- rep(1, nrow(all))
+
+sex.summ <- all %>%
+  filter(mysid. == "YES") %>%
+  group_by(Year, gender, gravid.) %>%
+  summarise(total = sum(counter))
 
 ### Inspect Distribution
 
