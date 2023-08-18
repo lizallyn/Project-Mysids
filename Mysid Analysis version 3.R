@@ -71,7 +71,6 @@ halfnorm(hval, labs = nonzero$Sample, nlab = length(uvals))
 # install.packages("RLRsim")
 library(TMB) # glmmTMB needs this
 library(glmmTMB) # glmmTMB for model construction
-library(RLRsim) # lrtest
 
 # model with the random effect of Site
 model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month + (1|Site), 
@@ -113,14 +112,16 @@ colnames(AIC.comp.mm) <- c("AIC", "delta", "weight")
 AIC.comp.mm
 # Null is the best model at small spatial scales
 
+## Add confidence intervals!!!!!!
+
 ### Region-wide Mysid-Whale Patterns
 
-## read in data
+## Read in data
 
 tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
 
-# Data Manipulation
+## Data Manipulation
 
 data$counter <- rep(1, nrow(data))
 
@@ -128,8 +129,34 @@ daily <- data %>%
   group_by(Date) %>%
   summarize(n.tows <- sum(counter),
             mysids <- mean(MysidCount))
+colnames(daily) <- c("Date", "n.tows", "mysids")
 
 sample.days <- which(whales$Date %in% data$Date)
 whale.days <- slice(.data = whales, sample.days)
 daily$whales <- whale.days$Unique
+
+colnames(daily) <- c("Date", "n.tows", "mysids", "whales")
+
+
+### Construct Some Models!
+
+hist(daily$whales)
+# again lots of zeros
+
+## overdispersion likely, checking anyway
+# same code as above, will override
+# caution!!!
+
+nonzero <- daily[which(daily$whales > 0),]
+
+# construct zero-truncated Poisson model with mysid count
+m.zt.pois <- vglm(whales ~ mysids, data = nonzero, 
+                  family = "pospoisson")
+summary(m.zt.pois)
+
+# check for overdispersion
+pchisq(sum(residuals(m.zt.pois,type = "pearson")^2), nrow(nonzero)-2, lower.tail = FALSE)
+# p = very small, overdispersed, duh
+
+## Hurdle Models again, here we go!
 
