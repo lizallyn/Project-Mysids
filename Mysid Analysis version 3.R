@@ -7,10 +7,7 @@
 # from file
 # data <- data <- read.csv("Er prey analysis for R fixed whale presence.csv")
 # from GitHub repo
-data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv?token=GHSAT0AAAAAACGGT3YBL6TD7PYVKVQJFPTEZGWVSHQ")
-
-# All obs file
-all <- read.csv("All obs for R.csv")
+data <- read.csv(url("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv"))
 
 ### Data Manipulation/Cleaning/Visualization
 
@@ -20,9 +17,9 @@ data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal 
 library(tidyr)
 library(dplyr)
 
-all$counter <- rep(1, nrow(all))
+data$counter <- rep(1, nrow(all))
 
-sex.summ <- all %>%
+sex.summ <- data %>%
   filter(mysid. == "YES") %>%
   group_by(Year, gender, gravid.) %>%
   summarise(total = sum(counter))
@@ -76,31 +73,48 @@ library(glmmTMB) # glmmTMB for model construction
 library(RLRsim) # lrtest
 
 # model with the random effect of Site
-model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + StudyMon + (1|Site), 
+model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month + (1|Site), 
                   family = truncated_nbinom1, ziformula = ~.)
 summary(model.rand)
 model.matrix(model.rand)
 # returns design matrix
 
 # model without the random effect of Site
-model.norand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + StudyMon, 
+model.norand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month, 
                   family = truncated_nbinom1, ziformula = ~.)
 summary(model.norand)
 model.matrix(model.norand)
 
-lrtest(model.rand, model.norand) # doesn't work
-# Site makes sense according to structure of data and finding a package to 
-# test random effect structure is turning into a pain in the butt so including
+library(lmtest)
+lrtest(model.rand, model.norand)
+# doesn't favor the random effect, taking it out moving forward.
 
 ### Fixed Effects
 
 data$Site <- as.factor(data$Site)
-glmm.mm <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + StudyMon + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+glmm.mm <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month, 
+                   family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.mm)
-glmm.m <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+glmm.m <- glmmTMB(data = data, whalecount ~ scale(MysidCount), 
+                  family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.m)
-glmm.0 <- glmmTMB(data = data, whalecount ~ 1 + (1|Site), family = truncated_nbinom1, ziformula = ~.)
+glmm.0 <- glmmTMB(data = data, whalecount ~ 1, 
+                  family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.0)
 
-data$whalecount
+AIC.comp.mm <-  data.frame(matrix(nrow = 3, ncol = 3, data = c(AIC(glmm.mm),
+                                                               AIC(glmm.m),
+                                                               AIC(glmm.0)), 
+                        row.names = c("Mysids + Month", "Month", "Null")))
+AIC.comp.mm[,2] <- AIC.comp.mm[,1] - min(AIC.comp.mm)
+AIC.comp.mm[,3] <- exp(-0.5*AIC.comp.mm[,2])/sum(exp(-0.5*AIC.comp.mm[,2]))
+colnames(AIC.comp.mm) <- c("AIC", "delta", "weight")
+AIC.comp.mm
+# Null is the best model at small spatial scales
 
-plot(data$whalecount, predict(glmm.mm))
+### Region-wide Mysid-Whale Patterns
+
+## read in data
+
+tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
+whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
