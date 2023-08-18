@@ -8,6 +8,7 @@
 # data <- data <- read.csv("Er prey analysis for R fixed whale presence.csv")
 # from GitHub repo
 data <- read.csv(url("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv"))
+all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
 
 ### Data Manipulation/Cleaning/Visualization
 
@@ -17,9 +18,9 @@ data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal 
 library(tidyr)
 library(dplyr)
 
-data$counter <- rep(1, nrow(all))
+all$counter <- rep(1, nrow(all))
 
-sex.summ <- data %>%
+sex.summ <- all %>%
   filter(mysid. == "YES") %>%
   group_by(Year, gender, gravid.) %>%
   summarise(total = sum(counter))
@@ -118,3 +119,17 @@ AIC.comp.mm
 
 tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
+
+# Data Manipulation
+
+data$counter <- rep(1, nrow(data))
+
+daily <- data %>%
+  group_by(Date) %>%
+  summarize(n.tows <- sum(counter),
+            mysids <- mean(MysidCount))
+
+sample.days <- which(whales$Date %in% data$Date)
+whale.days <- slice(.data = whales, sample.days)
+daily$whales <- whale.days$Unique
+
