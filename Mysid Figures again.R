@@ -55,10 +55,6 @@ data$pc.EG <- data$EG/data$MysidCount
 data$pc.HP <- data$HP/data$MysidCount
 data$pc.TC <- data$TC/data$MysidCount
 data$pc.U <- data$U/data$MysidCount
-data$totalcheck <- data$pc.HS + data$pc.NR + data$pc.CI + data$pc.ED + 
-  data$pc.EG + data$pc.HP + data$pc.TC + data$pc.U
-
-data$Sample[which(data$totalcheck < 1)]
 
 # make data long
 long.spp.all <- gather(data, Species, Count, HS:U)
@@ -70,11 +66,64 @@ long.spp.all$ym <- factor(long.spp.all$ym,
                                      "2019_10", "2019_11", "2020_6", "2020_7", 
                                      "2020_8", "2020_9"))
 
-# filter by year
-spp2019 <- dplyr::filter(long.spp.all, Year == 2019)
-spp2020 <- dplyr::filter(long.spp.all, Year == 2020)
+spp.summ <- long.spp.all %>%
+  group_by(Species, ym) %>%
+  summarize(perspp <- sum(Count),
+            totalmys <- sum(MysidCount))
+colnames(spp.summ) <- c("Species", "ym", "perspp", "totalmys")
+as.data.frame(spp.summ)
+spp.summ$pc <- spp.summ$perspp/spp.summ$totalmys
 
-# summarize by month and species for each year
-spp.summ.2019 <- spp2019 %>%
-  group_by(Month, Species) %>%
-  summarize(avg)
+# order spp by abundance
+spp.summ$Species <- as.factor(spp.summ$Species)
+spp.summ <- spp.summ %>%
+  mutate(Species = recode(Species, HS = "H. sculpta", NR = "N. rayii", CI = "C. ignota", 
+                              TC = "T. columbiae", HP = "H. platypoda", ED = "E. davisi", 
+                              EG = "E. grimaldii", U = "Unknown"))
+spp.summ$Species <- factor(spp.summ$Species, levels = c("H. sculpta", 
+                                                        "N. rayii", 
+                                                        "C. ignota", 
+                                                        "T. columbiae", 
+                                                        "H. platypoda", 
+                                                        "E. davisi", 
+                                                        "E. grimaldii", 
+                                                        "Unknown"))
+
+# set the theme
+dodge <- position_dodge(width=0.9)
+theme.Speciesym <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 12), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 12), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 10, colour = "black", angle=90), 
+        axis.text.y = element_text(size = 10, colour = "black"),
+        axis.ticks.x = element_blank(),
+        legend.position = "right", 
+        legend.title = element_text(size = 12, colour = "black"), 
+        legend.text = element_text(size = 10, colour = "black", face = "italic"), 
+        legend.key.size = unit(1, "line")) # size of color boxes
+
+# plot building
+plot.Speciesym <- 
+  ggplot(data = spp.summ, aes(x = ym, y = pc, fill = Species)) + 
+  geom_col(position = "stack") + 
+  labs(x = "Year_Month", y = "catch composition") +
+  theme.Speciesym +
+  guides(color = guide_legend("Species")) +
+  scale_x_discrete(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(name = "Species", 
+                    labels = c("H. sculpta", "N. rayii", "C. ignota", 
+                               "T. columbiae", "H. platypoda", "E. davisi", 
+                               "E. grimaldii", "Unknown"),
+                    values = c("HS" = "khaki3",
+                               "NR" = "darksalmon",
+                               "CI" = "skyblue2",
+                               "TC" = "darkseagreen2",
+                               "HP" = "skyblue4",
+                               "ED" = "darkslategrey",
+                               "EG" = "darkseagreen4",
+                               "U" = "darkgrey"))
+plot(plot.Speciesym)
