@@ -74,10 +74,10 @@ Sample,Date,Location,Site,Region,Year,Month,Date_Loc,Year.month.loc,Year.month.r
 20200626-1,20200626,Skagway,Skagway,Ocean,2020,6,20200626_Skagway,2020_6_Skagway,2020_6_Ocean,92,,Low,0,,,86,6,0,0,0,0,0,0,0,,,No,5,5
 20200626-2,20200626,ANDERSON ROCKS,Anderson Rocks,Ocean,2020,6,20200626_ANDERSON ROCKS,2020_6_ANDERSON ROCKS,2020_6_Ocean,9,9,Low,7,crab,9,8,0,1,0,0,0,0,0,0,,,No,5,5
 20200708-1,20200708,First Beach,First Beach,Strait,2020,7,20200708_First Beach,2020_7_First Beach,2020_7_Strait,0,1,None,0,fish,1,0,0,0,0,0,0,0,0,0,,,No,3,3
-20200708-2,20200708,Sail River,Sail River,Strait,2020,7,20200708_Sail River,2020_7_Sail River,2020_7_Strait,2000,,High,0,,,1980,0,0,0,0,0,0,0,0,,,No,3,3
+20200708-2,20200708,Sail River,Sail River,Strait,2020,7,20200708_Sail River,2020_7_Sail River,2020_7_Strait,1980,,High,0,,,1980,0,0,0,0,0,0,0,0,,,No,3,3
 20200708-3,20200708,Seal and Sail,Seal And Sail,Strait,2020,7,20200708_Seal and Sail,2020_7_Seal and Sail,2020_7_Strait,155,2,High,0,snail,2,150,0,0,0,0,1,0,4,1,FEEDING,SAIL ROCK,Yes,3,3
 20200708-4,20200708,BULLMAN BEACH,Bullman Beach,Strait,2020,7,20200708_BULLMAN BEACH,2020_7_BULLMAN BEACH,2020_7_Strait,3,,Low,0,,,2,0,0,0,0,0,0,1,1,,BULLMAN,Yes,3,3
-20200708-5,20200708,Chito Beach,Chito Beach,Strait,2020,7,20200708_CHITO BEACH,2020_7_CHITO BEACH,2020_7_Strait,125,5,High,0,snail,3,117,0,5,0,0,0,0,1,0,,,No,3,3
+20200708-5,20200708,Chito Beach,Chito Beach,Strait,2020,7,20200708_CHITO BEACH,2020_7_CHITO BEACH,2020_7_Strait,123,5,High,0,snail,3,117,0,5,0,0,0,0,1,0,,,No,3,3
 20200709-1,20200709,Koitlah,Koitlah,Strait,2020,7,20200709_Koitlah,2020_7_Koitlah,2020_7_Strait,1,2,Low,0,other crustacean,1,1,0,0,0,0,0,0,0,2,TRAVEL,KOITLAH,Yes,17,18
 20200709-2,20200709,Slant Rock,Slant Rock,Strait,2020,7,20200709_Slant Rock,2020_7_Slant Rock,2020_7_Strait,0,1,None,0,shrimp,1,0,0,0,0,0,0,0,0,0,,,No,17,18
 20200709-3,20200709,Skagway,Skagway,Ocean,2020,7,20200709_Skagway,2020_7_Skagway,2020_7_Ocean,0,0,None,0,,,0,0,0,0,0,0,0,0,1,,SOUTH OF SKAGWAY,Yes,17,18
