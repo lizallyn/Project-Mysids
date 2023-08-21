@@ -15,7 +15,7 @@ all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/
 # Pull out useful clean mysid data to simplify data frame
 
 data <- data.full[,c(1,2,4,6,7,11,17:25,30)]
-as.data.frame(data)
+# as.data.frame(data)
 
 data$Site <- factor(data$Site, 
                     levels = c("Chito Beach", "Bullman Beach", "Seal and Sail",
@@ -264,6 +264,17 @@ mysids.map.combined
 ## Species catch comp plot
 
 data$pc.HS <- data$HS/data$MysidCount
+data$pc.NR <- data$NR/data$MysidCount
+data$pc.CI <- data$CI/data$MysidCount
+data$pc.ED <- data$ED/data$MysidCount
+data$pc.EG <- data$EG/data$MysidCount
+data$pc.HP <- data$HP/data$MysidCount
+data$pc.TC <- data$TC/data$MysidCount
+data$pc.U <- data$U/data$MysidCount
+data$totalcheck <- data$pc.HS + data$pc.NR + data$pc.CI + data$pc.ED + 
+                       data$pc.EG + data$pc.HP + data$pc.TC + data$pc.U
+
+data$Sample[which(data$totalcheck < 1)]
 
 # make data long
 long.spp.all <- gather(data, Species, Count, HS:U)
