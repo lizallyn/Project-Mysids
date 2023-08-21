@@ -7,17 +7,22 @@
 # from file
 # data <- data <- read.csv("Er prey analysis for R fixed whale presence.csv")
 # from GitHub repo
-data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
 
 ### Data Manipulation/Cleaning/Visualization
+
+# Pull out useful clean mysid data to simplify data frame
+
+data <- data.full[,c(1,2,4,6,7,11,17:25,30)]
+as.data.frame(data)
 
 data$Site <- factor(data$Site, 
                     levels = c("Chito Beach", "Bullman Beach", "Seal and Sail",
                                "Sail River", "First Beach", "Koitlah", 
                                "Slant Rock", "Skagway Rocks", "Anderson Rocks", 
-                               "Portage Head", "Duk Point", "North Bodelteh", 
-                               "South Bodelteh", "Ozette Island"))
+                               "Portage Head", "Duk Point", "North of Bodelteh Islands", 
+                               "South of Bodelteh Islands", "Ozette Island"))
 
 ## Sex Summary Table
 library(tidyr)
@@ -44,7 +49,7 @@ nonzero <- data[which(data$whalecount > 0),]
 library(VGAM)
 
 # construct zero-truncated Poisson model with mysid count
-m.zt.pois <- vglm(whalecount ~ MysidCount + StudyMon, data = nonzero, 
+m.zt.pois <- vglm(whalecount ~ MysidCount + Month, data = nonzero, 
                   family = "pospoisson")
 summary(m.zt.pois)
 
@@ -53,7 +58,7 @@ pchisq(sum(residuals(m.zt.pois,type = "pearson")^2), nrow(nonzero)-2, lower.tail
 # p = 0.000005, overdispersed
 
 # fit with ZT neg binom instead
-m.zt.nbin <- vglm(whalecount ~ MysidCount + StudyMon, data = nonzero, 
+m.zt.nbin <- vglm(whalecount ~ MysidCount + Month, data = nonzero, 
                   family = posnegbinomial)
 summary(m.zt.nbin)
 
@@ -80,6 +85,13 @@ library(glmmTMB) # glmmTMB for model construction
 # model with the random effect of Site
 model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month + (1|Site), 
                   family = truncated_nbinom1, ziformula = ~.)
+
+# not running again, troubleshooting
+any(is.infinite(unlist(data)))
+any(is.na(unlist(data)))
+# both return false
+class(data)
+
 summary(model.rand)
 model.matrix(model.rand)
 # returns design matrix
@@ -96,7 +108,6 @@ lrtest(model.rand, model.norand)
 
 ### Fixed Effects
 
-data$Site <- as.factor(data$Site)
 glmm.mm <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month, 
                    family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.mm)
