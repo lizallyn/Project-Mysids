@@ -209,7 +209,11 @@ library(ggmap)
 
 site.summ <- tows %>%
   group_by(Location) %>%
-  summarize(myspertow <- mean(Mysids))
+  summarize(myspertow <- mean(Mysids),
+            lat <- mean(Dec.lat),
+            long <- mean(Dec.long))
+colnames(site.summ) <- c("Location", "myspertow", "lat", "long")
+data.frame(site.summ)
 
 # bounds for tow map
 long1 <- -124.9
@@ -223,27 +227,17 @@ tows <- tows[order(-tows$Mysids),]
 # load terrain map
 tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, maptype = "terrain")
 
-map2019 <- ggmap(tow_ter) +
-  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
-             data = tows2019,
-             alpha = 0.4) +
-  lims(size = c(0,2000)) +
-  labs(x = "Longitude", y = "Latitude", title = "2019") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
-  theme(legend.position = "none",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14))
-
-map2020 <- ggmap(tow_ter) +
-  geom_point(data = tows2020,
-             alpha = 0.4,
-             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month, alpha = 0.4)) +
-  labs(x = "Longitude", y = "Latitude", title = "2020") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
-  lims(size = c(0,2000)) +
-  theme(legend.position = "none",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14))
+mysids.map.combined <- ggmap(tow_ter) +
+  geom_point(aes(x=long, y=lat, size = myspertow),
+             data = site.summ,
+             alpha = 0.5,
+             color = "sienna4") +
+  lims(size = c(0,800)) +
+  labs(x = "Longitude", y = "Latitude") +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.title = element_text(size = 14))
+mysids.map.combined
 
 maplegend <- ggmap(tow_ter) +
   geom_point(data = tows,
