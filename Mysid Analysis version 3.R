@@ -98,19 +98,23 @@ summary(glmm.mm)
 glmm.m <- glmmTMB(data = data, whalecount ~ scale(MysidCount), 
                   family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.m)
+glmm.mo <- glmmTMB(data = data, whalecount ~ Month, 
+                  family = truncated_nbinom1, ziformula = ~.)
+summary(glmm.mo)
 glmm.0 <- glmmTMB(data = data, whalecount ~ 1, 
                   family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.0)
 
-AIC.comp.mm <-  data.frame(matrix(nrow = 3, ncol = 3, data = c(AIC(glmm.mm),
+AIC.comp.mm <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AIC(glmm.mm),
                                                                AIC(glmm.m),
-                                                               AIC(glmm.0)), 
-                        row.names = c("Mysids + Month", "Month", "Null")))
+                                                               AIC(glmm.mo),
+                                                               AIC(glmm.0))))
 AIC.comp.mm[,2] <- AIC.comp.mm[,1] - min(AIC.comp.mm)
 AIC.comp.mm[,3] <- exp(-0.5*AIC.comp.mm[,2])/sum(exp(-0.5*AIC.comp.mm[,2]))
 colnames(AIC.comp.mm) <- c("AIC", "delta", "weight")
 AIC.comp.mm
 # Null is the best model at small spatial scales
+# but just month is also in the running, and month and mysids has some evidence
 
 ## Add confidence intervals!!!!!!
 
@@ -159,4 +163,23 @@ pchisq(sum(residuals(m.zt.pois,type = "pearson")^2), nrow(nonzero)-2, lower.tail
 # p = very small, overdispersed, duh
 
 ## Hurdle Models again, here we go!
+
+# no random effects to consider I don't think?
+
+## Fixed Effects
+
+area.model <- glmmTMB(data = daily, whales ~ mysids, 
+                      family = truncated_nbinom1, ziformula = ~.)
+null.area.model <- glmmTMB(data = daily, whales ~ 1, 
+                           family = truncated_nbinom1, ziformula = ~.)
+
+AIC.comp.area <-  data.frame(matrix(nrow = 2, ncol = 3, data = c(AIC(area.model),
+                                                               AIC(null.area.model)),
+                                    row.names = c("Mysids", "Null")))
+AIC.comp.area[,2] <- AIC.comp.area[,1] - min(AIC.comp.area)
+AIC.comp.area[,3] <- exp(-0.5*AIC.comp.area[,2])/sum(exp(-0.5*AIC.comp.area[,2]))
+colnames(AIC.comp.area) <- c("AIC", "delta", "weight")
+AIC.comp.area
+# mysid model is preferred! By a lot!!
+
 
