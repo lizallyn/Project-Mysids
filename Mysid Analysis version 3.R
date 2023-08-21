@@ -172,6 +172,12 @@ pchisq(sum(residuals(m.zt.pois,type = "pearson")^2), nrow(nonzero)-2, lower.tail
 
 area.model <- glmmTMB(data = daily, whales ~ mysids, 
                       family = truncated_nbinom1, ziformula = ~.)
+summary(area.model)
+# why is the mysid coefficient negative tho??
+
+plot(daily$mysids, daily$whales)
+# yeah this is too messy to pull anything out of for a story
+
 null.area.model <- glmmTMB(data = daily, whales ~ 1, 
                            family = truncated_nbinom1, ziformula = ~.)
 
@@ -184,7 +190,82 @@ AIC.comp.area[,2] <- AIC.comp.area[,1] - min(AIC.comp.area)
 AIC.comp.area[,3] <- exp(-0.5*AIC.comp.area[,2])/sum(exp(-0.5*AIC.comp.area[,2]))
 
 AIC.comp.area
-# mysid model is preferred!
+# mysid model is preferred...but not meaningful I don't think
 
 confint(area.model)
 #...but the CI's all include 0
+# so it might be the preferred model, but not a ton of evidence,
+# and likely picking up on something else
+
+plot(daily$mysids, predict(area.model))
+
+### Figures
+
+## Prey density map combined years and months
+
+library(ggmap)
+
+# Summarize by site
+
+site.summ <- tows %>%
+  group_by(Location) %>%
+  summarize(myspertow <- mean(Mysids))
+
+# bounds for tow map
+long1 <- -124.9
+lat1 <- 48.1
+long2 <- -124.2
+lat2 <- 48.45
+
+# sort tow data
+tows <- tows[order(-tows$Mysids),]
+
+# load terrain map
+tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, maptype = "terrain")
+
+map2019 <- ggmap(tow_ter) +
+  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
+             data = tows2019,
+             alpha = 0.4) +
+  lims(size = c(0,2000)) +
+  labs(x = "Longitude", y = "Latitude", title = "2019") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14))
+
+map2020 <- ggmap(tow_ter) +
+  geom_point(data = tows2020,
+             alpha = 0.4,
+             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month, alpha = 0.4)) +
+  labs(x = "Longitude", y = "Latitude", title = "2020") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  lims(size = c(0,2000)) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14))
+
+maplegend <- ggmap(tow_ter) +
+  geom_point(data = tows,
+             alpha = 0.4,
+             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
+  labs(x = "Longitude", y = "Latitude") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "right",
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black")) +
+  guides(colour = guide_legend(override.aes = list(size=5, alpha = 0.5)))
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+legend <- get_legend(maplegend)
+
+mysiddensitymap <- grid.arrange(arrangeGrob(map2019,map2020), 
+                                legend, ncol = 2, widths = c(2,0.5))
+# ggsave(plot = mysiddensitymap, "sample map larger legend dots 3.pdf",
+#        width = 9, height  = 9, device='pdf', dpi=700)
