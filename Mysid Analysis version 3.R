@@ -86,11 +86,11 @@ library(glmmTMB) # glmmTMB for model construction
 model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month + (1|Site), 
                   family = truncated_nbinom1, ziformula = ~.)
 
-# not running again, troubleshooting
-any(is.infinite(unlist(data)))
-any(is.na(unlist(data)))
-# both return false
-class(data)
+# # not running again, troubleshooting
+# any(is.infinite(unlist(data)))
+# any(is.na(unlist(data)))
+# # both return false
+# class(data)
 
 summary(model.rand)
 model.matrix(model.rand)
@@ -120,6 +120,9 @@ summary(glmm.mo)
 glmm.0 <- glmmTMB(data = data, whalecount ~ 1, 
                   family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.0)
+
+# plot(data$MysidCount, predict(glmm.0))
+# the intercept for the conditional model is very negative, weird
 
 rows <- c("Mysids + Month", "Mysids", "Month", "Null")
 columns <- c("AIC", "delta", "weight")
