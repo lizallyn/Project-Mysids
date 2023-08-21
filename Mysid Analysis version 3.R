@@ -105,18 +105,20 @@ glmm.0 <- glmmTMB(data = data, whalecount ~ 1,
                   family = truncated_nbinom1, ziformula = ~.)
 summary(glmm.0)
 
+rows <- c("Mysids + Month", "Mysids", "Month", "Null")
+columns <- c("AIC", "delta", "weight")
 AIC.comp.mm <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AIC(glmm.mm),
                                                                AIC(glmm.m),
                                                                AIC(glmm.mo),
-                                                               AIC(glmm.0))))
+                                                               AIC(glmm.0)), 
+                                                               dimnames = list(rows, columns)))
 AIC.comp.mm[,2] <- AIC.comp.mm[,1] - min(AIC.comp.mm)
 AIC.comp.mm[,3] <- exp(-0.5*AIC.comp.mm[,2])/sum(exp(-0.5*AIC.comp.mm[,2]))
-colnames(AIC.comp.mm) <- c("AIC", "delta", "weight")
 AIC.comp.mm
 # Null is the best model at small spatial scales
 # but just month is also in the running, and month and mysids has some evidence
 
-## Add confidence intervals!!!!!!
+confint(glmm.0)
 
 ### Region-wide Mysid-Whale Patterns
 
@@ -173,13 +175,16 @@ area.model <- glmmTMB(data = daily, whales ~ mysids,
 null.area.model <- glmmTMB(data = daily, whales ~ 1, 
                            family = truncated_nbinom1, ziformula = ~.)
 
+rows2 <- c("Area", "Null")
+columns2 <- c("AIC", "delta", "weight")
 AIC.comp.area <-  data.frame(matrix(nrow = 2, ncol = 3, data = c(AIC(area.model),
                                                                AIC(null.area.model)),
-                                    row.names = c("Mysids", "Null")))
+                                    dimnames = list(rows2, columns2)))
 AIC.comp.area[,2] <- AIC.comp.area[,1] - min(AIC.comp.area)
 AIC.comp.area[,3] <- exp(-0.5*AIC.comp.area[,2])/sum(exp(-0.5*AIC.comp.area[,2]))
-colnames(AIC.comp.area) <- c("AIC", "delta", "weight")
+
 AIC.comp.area
-# mysid model is preferred! By a lot!!
+# mysid model is preferred!
 
-
+confint(area.model)
+#...but the CI's all include 0
