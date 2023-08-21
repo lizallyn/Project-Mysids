@@ -7,12 +7,17 @@
 # from file
 # data <- data <- read.csv("Er prey analysis for R fixed whale presence.csv")
 # from GitHub repo
-data <- read.csv(url("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv"))
+data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
 
 ### Data Manipulation/Cleaning/Visualization
 
-data$Site <- factor(data$Site, levels = c("Chito Beach", "Bullman Beach", "Seal and Sail", "Sail River", "First Beach", "Koitlah", "Slant Rock", "Skagway Rocks", "Anderson Rocks", "Portage Head", "Duk Point", "North Bodelteh", "South Bodelteh", "Ozette Island"))
+data$Site <- factor(data$Site, 
+                    levels = c("Chito Beach", "Bullman Beach", "Seal and Sail",
+                               "Sail River", "First Beach", "Koitlah", 
+                               "Slant Rock", "Skagway Rocks", "Anderson Rocks", 
+                               "Portage Head", "Duk Point", "North Bodelteh", 
+                               "South Bodelteh", "Ozette Island"))
 
 ## Sex Summary Table
 library(tidyr)
@@ -239,27 +244,28 @@ mysids.map.combined <- ggmap(tow_ter) +
         legend.title = element_text(size = 14))
 mysids.map.combined
 
-maplegend <- ggmap(tow_ter) +
-  geom_point(data = tows,
-             alpha = 0.4,
-             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
-  labs(x = "Longitude", y = "Latitude") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
-  theme(legend.position = "right",
-        legend.title = element_text(size = 15, colour = "black"), 
-        legend.text = element_text(size = 13, colour = "black")) +
-  guides(colour = guide_legend(override.aes = list(size=5, alpha = 0.5)))
-
-get_legend <- function(myggplot){
-  tmp <- ggplot_gtable(ggplot_build(myggplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)
-}
-
-legend <- get_legend(maplegend)
-
-mysiddensitymap <- grid.arrange(arrangeGrob(map2019,map2020), 
-                                legend, ncol = 2, widths = c(2,0.5))
 # ggsave(plot = mysiddensitymap, "sample map larger legend dots 3.pdf",
 #        width = 9, height  = 9, device='pdf', dpi=700)
+
+## Species catch comp plot
+
+data$pc.HS <- data$HS/data$MysidCount
+
+# make data long
+long.spp.all <- gather(data, Species, Count, HS:U)
+
+# create year_month column
+long.spp.all$ym <- paste(long.spp.all$Year, long.spp.all$Month, sep = "_")
+long.spp.all$ym <- factor(long.spp.all$ym, 
+                          levels = c("2019_6", "2019_7", "2019_8", "2019_9", 
+                                     "2019_10", "2019_11", "2020_6", "2020_7", 
+                                     "2020_8", "2020_9"))
+
+# filter by year
+spp2019 <- dplyr::filter(long.spp.all, Year == 2019)
+spp2020 <- dplyr::filter(long.spp.all, Year == 2020)
+
+# summarize by month and species for each year
+spp.summ.2019 <- spp2019 %>%
+  group_by(Month, Species) %>%
+  summarize(avg)
