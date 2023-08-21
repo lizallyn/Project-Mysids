@@ -88,9 +88,9 @@ spp.summ$Species <- factor(spp.summ$Species, levels = c("H. sculpta",
                                                         "E. davisi", 
                                                         "E. grimaldii", 
                                                         "Unknown"))
+spp.summ$pc[spp.summ$pc == "NaN"] <- 0
 
 # set the theme
-dodge <- position_dodge(width=0.9)
 theme.Speciesym <- theme_classic() +
   theme(plot.margin = margin(t=10,r=10,b=10,l=10),
         axis.title = element_blank(), 
@@ -109,7 +109,7 @@ theme.Speciesym <- theme_classic() +
 plot.Speciesym <- 
   ggplot(data = spp.summ, aes(x = ym, y = pc, fill = Species)) + 
   geom_col(position = "stack") + 
-  labs(x = "Year_Month", y = "catch composition") +
+  labs(x = "Year_Month", y = "Catch Composition %") +
   theme.Speciesym +
   guides(color = guide_legend("Species")) +
   scale_x_discrete(expand = c(0,0)) +
@@ -118,12 +118,12 @@ plot.Speciesym <-
                     labels = c("H. sculpta", "N. rayii", "C. ignota", 
                                "T. columbiae", "H. platypoda", "E. davisi", 
                                "E. grimaldii", "Unknown"),
-                    values = c("HS" = "khaki3",
-                               "NR" = "darksalmon",
-                               "CI" = "skyblue2",
-                               "TC" = "darkseagreen2",
-                               "HP" = "skyblue4",
-                               "ED" = "darkslategrey",
-                               "EG" = "darkseagreen4",
-                               "U" = "darkgrey"))
+                    values = c("H. sculpta" = "khaki3",
+                               "N. rayii" = "darksalmon",
+                               "C. ignota" = "skyblue2",
+                               "T. columbiae" = "darkseagreen2",
+                               "H. platypoda" = "skyblue4",
+                               "E. davisi" = "darkslategrey",
+                               "E. grimaldii" = "darkseagreen4",
+                               "Unknown" = "darkgrey"))
 plot(plot.Speciesym)
