@@ -96,16 +96,18 @@ theme.Speciesym <- theme_classic() +
         axis.title = element_blank(), 
         axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 12), 
         axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 12), 
-        plot.title = element_blank(), 
+        plot.title = element_blank(),
         axis.text.x = element_text(size = 10, colour = "black", angle=90), 
         axis.text.y = element_text(size = 10, colour = "black"),
         axis.ticks.x = element_blank(),
-        legend.position = "right", 
+        legend.position = "right",
         legend.title = element_text(size = 12, colour = "black"), 
         legend.text = element_text(size = 10, colour = "black", face = "italic"), 
         legend.key.size = unit(1, "line")) # size of color boxes
 
 # plot building
+library(PNWColors)
+pal <- c(pnw_palette("Sailboat", 7), "#CDC9C9")
 plot.Speciesym <- 
   ggplot(data = spp.summ, aes(x = ym, y = pc, fill = Species)) + 
   geom_col(position = "stack") + 
@@ -118,12 +120,5 @@ plot.Speciesym <-
                     labels = c("H. sculpta", "N. rayii", "C. ignota", 
                                "T. columbiae", "H. platypoda", "E. davisi", 
                                "E. grimaldii", "Unknown"),
-                    values = c("H. sculpta" = "khaki3",
-                               "N. rayii" = "darksalmon",
-                               "C. ignota" = "skyblue2",
-                               "T. columbiae" = "darkseagreen2",
-                               "H. platypoda" = "skyblue4",
-                               "E. davisi" = "darkslategrey",
-                               "E. grimaldii" = "darkseagreen4",
-                               "Unknown" = "darkgrey"))
+                    values = pal)
 plot(plot.Speciesym)
