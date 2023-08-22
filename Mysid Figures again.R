@@ -49,10 +49,6 @@ mysids.map.combined
 
 ## Other prey map with seal/sail/bullman detail inset
 
-#### Fig 1: Sample Sites Map ####
-
-# packages needed: ggmap, ggrepel
-
 # bounds for sample map
 maxlong <- -124.9
 minlat <- 48.1
@@ -102,24 +98,13 @@ map_with_inset <- ggdraw() +
             width = 0.4, height=0.4)
 map_with_inset
 
-# ggsave(plot = map_with_inset, filename = "Sample sites map final.pdf",
-#        width = 9, height = 5, device='pdf', dpi=700)
-
-#### Fig 2: Prey Density Map ####
-
-# packages needed:
-
-# bounds for tow map
-long1 <- -124.9
-lat1 <- 48.1
-long2 <- -124.2
-lat2 <- 48.45
+#### Fig 2: Prey Density Ma
 
 # bounds for ss inset
-insleft.ss <- -124.6
-instop.ss <- 48.4
+insleft.ss <- -124.575
+instop.ss <- 48.38
 insright.ss <- -124.5
-insbott.ss <- 48.32
+insbott.ss <- 48.33
 
 # bounds for sample map
 maxlong <- -124.9
@@ -138,13 +123,6 @@ outline <- data.frame(cbind(outline.lat, outline.long))
 ss_ter <- get_stamenmap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss),
                         zoom=13, maptype = "terrain")
 
-ss.insetmap <- ggmap(ss_ter) +
-  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
-            linewidth = 1) +
-  theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5)
-ss.insetmap
-
 # sort tow data
 tows <- tows[order(-tows$Mysids),]
 tows$Month <- factor(tows$Month, levels = c("June", "July", "August", "September", "October", "November"))
@@ -160,12 +138,28 @@ map2019 <- ggmap(tow_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
              alpha = 0.4) +
-  lims(size = c(0,2000)) +
+  lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019") +
   scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14))
+ss.insetmap2019 <- ggmap(ss_ter) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
+            linewidth = 1) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5) +
+  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
+             data = tows2019,
+             alpha = 0.4) +
+  lims(size = c(0,800)) +
+  labs(x = "", y = "") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14))
+  
+ss.insetmap2019
 
 map2020 <- ggmap(tow_ter) +
   geom_point(data = tows2020,
