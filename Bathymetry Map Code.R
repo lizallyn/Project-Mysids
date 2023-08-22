@@ -49,7 +49,7 @@ base <- get_stamenmap(bbox = c(maxlong,minlat,minlong,maxlat),
 
 # create color scale that makes the land gray
 
-binwidth <- 10
+binwidth <- 20
 # width of contours in feet (I think)
 
 palette <- "Blues" # palette you want to expand
@@ -58,13 +58,14 @@ pal_length <- 9 # num colors in existing palette
 h2o_bins <- ceiling(abs(min(b$z))/binwidth) # num h2o contours
 land_bins <- ceiling(max(b$z)/binwidth) # num land contours
 land_pal <- rep(x = "ivory4", times = land_bins)
+land_pal2 <- rev(colorRampPalette(brewer.pal(pal_length, "Greens"))(land_bins))
 # creates a palette with the same shade of gray for each contour
 h2o_pal <- rev(colorRampPalette(brewer.pal(pal_length, palette))(h2o_bins))
 # creates a palette with a shade of blue for each contour
-all_pal <- c(h2o_pal, land_pal) # combine palettes
+all_pal <- c(h2o_pal, land_pal2) # combine palettes
 
 # set contour color
-lines <- "ivory4" # match the land contour fill so they don't show
+lines <- "darkgreen" # match the land contour fill so they don't show
 
 # create the plot!
 
@@ -82,7 +83,7 @@ bathmap <- ggmap(base) +
                       binwidth = binwidth, 
                       show.legend = F) +
   scale_fill_manual(values = c(all_pal)) +
-  geom_contour(data = b, 
+  geom_contour(data = b,
                aes(x=x, y=y, z=z),
                binwidth = binwidth,
                color = lines,
