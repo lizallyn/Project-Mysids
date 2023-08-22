@@ -18,6 +18,8 @@ site.summ <- tows %>%
 colnames(site.summ) <- c("Location", "myspertow", "lat", "long")
 data.frame(site.summ)
 
+site.summ.coord <- site.summ[,3:4]
+
 # bounds for tow map
 long1 <- -124.9
 lat1 <- 48.1
@@ -42,6 +44,162 @@ mysids.map.combined <- ggmap(tow_ter) +
         legend.title = element_text(size = 14))
 mysids.map.combined
 
+# ggsave(plot = mysiddensitymap, "sample map larger legend dots 3.pdf",
+#        width = 9, height  = 9, device='pdf', dpi=700)
+
+## Other prey map with seal/sail/bullman detail inset
+
+#### Fig 1: Sample Sites Map ####
+
+# packages needed: ggmap, ggrepel
+
+# bounds for sample map
+maxlong <- -124.9
+minlat <- 48.1
+minlong <- -124
+maxlat <- 48.45
+
+# bounds for inset map
+insleft <- -127
+insright <- -121
+instop <- 50
+insbott <- 45
+
+insetbox.lat <- c(minlat, minlat, maxlat, maxlat, minlat)
+insetbox.long <- c(minlong, maxlong, maxlong, minlong, minlong)
+insetbox.shape <- data.frame(cbind(insetbox.lat, insetbox.long))
+
+outline.lat <- c(insbott, insbott, instop, instop, insbott)
+outline.long <- c(insleft, insright, insright, insleft, insleft)
+outline <- data.frame(cbind(outline.lat, outline.long))
+
+inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop), 
+                       zoom=7, maptype="terrain")
+insetmap <- ggmap(inset) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), size = 1) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5)
+
+base_ter <- get_stamenmap(bbox = c(maxlong,minlat,minlong,maxlat), 
+                          zoom=11, maptype="terrain")
+map1 <- ggmap(base_ter) +
+  geom_point(data = sites, 
+             aes(x = Dec.long, y = Dec.lat), 
+             color = "white") +
+  labs(x = "Longitude", y = "Latitude") +
+  geom_text_repel(data = sites,
+                  alpha = 0.8,
+                  color = "black",
+                  aes(x = Dec.long, y = Dec.lat, label = Location),
+                  segment.linetype = 0,
+                  force_pull = 1,
+                  box.padding = 0.1,
+                  size = 3,
+                  fontface = 2)
+map_with_inset <- ggdraw() + 
+  draw_plot(map1) + 
+  draw_plot(insetmap, x = 0.65, y = 0.55, 
+            width = 0.4, height=0.4)
+map_with_inset
+
+# ggsave(plot = map_with_inset, filename = "Sample sites map final.pdf",
+#        width = 9, height = 5, device='pdf', dpi=700)
+
+#### Fig 2: Prey Density Map ####
+
+# packages needed:
+
+# bounds for tow map
+long1 <- -124.9
+lat1 <- 48.1
+long2 <- -124.2
+lat2 <- 48.45
+
+# bounds for ss inset
+insleft.ss <- -124.6
+instop.ss <- 48.4
+insright.ss <- -124.5
+insbott.ss <- 48.32
+
+# bounds for sample map
+maxlong <- -124.9
+minlat <- 48.1
+minlong <- -124.2
+maxlat <- 48.45
+
+insetbox.lat <- c(minlat, minlat, maxlat, maxlat, minlat)
+insetbox.long <- c(minlong, maxlong, maxlong, minlong, minlong)
+insetbox.shape <- data.frame(cbind(insetbox.lat, insetbox.long))
+
+outline.lat <- c(insbott.ss, insbott.ss, instop.ss, instop.ss, insbott.ss)
+outline.long <- c(insleft.ss, insright.ss, insright.ss, insleft.ss, insleft.ss)
+outline <- data.frame(cbind(outline.lat, outline.long))
+
+ss_ter <- get_stamenmap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss),
+                        zoom=13, maptype = "terrain")
+
+ss.insetmap <- ggmap(ss_ter) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
+            linewidth = 1) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5)
+ss.insetmap
+
+# sort tow data
+tows <- tows[order(-tows$Mysids),]
+tows$Month <- factor(tows$Month, levels = c("June", "July", "August", "September", "October", "November"))
+
+# filter tow data by year
+tows2019 <- dplyr::filter(tows, Year == 2019)
+tows2020 <- dplyr::filter(tows, Year == 2020)
+
+# load terrain map
+tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, maptype = "terrain")
+
+map2019 <- ggmap(tow_ter) +
+  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
+             data = tows2019,
+             alpha = 0.4) +
+  lims(size = c(0,2000)) +
+  labs(x = "Longitude", y = "Latitude", title = "2019") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14))
+
+map2020 <- ggmap(tow_ter) +
+  geom_point(data = tows2020,
+             alpha = 0.4,
+             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month, alpha = 0.4)) +
+  labs(x = "Longitude", y = "Latitude", title = "2020") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  lims(size = c(0,2000)) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14))
+
+maplegend <- ggmap(tow_ter) +
+  geom_point(data = tows,
+             alpha = 0.4,
+             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
+  labs(x = "Longitude", y = "Latitude") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "right",
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black")) +
+  guides(colour = guide_legend(override.aes = list(size=5, alpha = 0.5)))
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+legend <- get_legend(maplegend)
+
+mysiddensitymap <- grid.arrange(arrangeGrob(map2019,map2020), 
+                                legend, ncol = 2, widths = c(2,0.5))
 # ggsave(plot = mysiddensitymap, "sample map larger legend dots 3.pdf",
 #        width = 9, height  = 9, device='pdf', dpi=700)
 
