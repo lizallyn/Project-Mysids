@@ -107,7 +107,8 @@ theme.Speciesym <- theme_classic() +
 
 # plot building
 library(PNWColors)
-pal <- c(pnw_palette("Sailboat", 7), "#CDC9C9")
+# "#CDC9C9" snow3 for unknown?
+pal <- c(pnw_palette("Sailboat", 8))
 plot.Speciesym <- 
   ggplot(data = spp.summ, aes(x = ym, y = pc, fill = Species)) + 
   geom_col(position = "stack") + 
@@ -122,3 +123,4 @@ plot.Speciesym <-
                                "E. grimaldii", "Unknown"),
                     values = pal)
 plot(plot.Speciesym)
+
