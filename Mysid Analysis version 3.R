@@ -230,7 +230,7 @@ plot(SS.data$MysidCount, SS.data$whalecount)
 hist(SS.data$whalecount)
 hist(SS.data$MysidCount)
 
-model.full <- glmmTMB(data = SS.data, formula = whalecount ~ scale(MysidCount), 
+model.full <- glm(data = SS.data, formula = whalecount ~ scale(MysidCount), 
                       family = truncated_nbinom1, ziformula = ~.)
 
 # not converging, trying with whale presence/absence
