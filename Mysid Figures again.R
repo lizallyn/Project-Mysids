@@ -49,6 +49,8 @@ mysids.map.combined
 
 ## Other prey map with seal/sail/bullman detail inset
 
+
+
 # bounds for sample map
 maxlong <- -124.9
 minlat <- 48.1
@@ -100,17 +102,23 @@ map_with_inset
 
 #### Fig 2: Prey Density Ma
 
-# bounds for ss inset
-insleft.ss <- -124.575
-instop.ss <- 48.38
-insright.ss <- -124.5
-insbott.ss <- 48.33
+# bounds for underlying area map
+long1 <- -124.9
+lat1 <- 48.1
+long2 <- -124.2
+lat2 <- 48.45
 
-# bounds for sample map
-maxlong <- -124.9
-minlat <- 48.1
-minlong <- -124.2
-maxlat <- 48.45
+# bounds for ss inset map creation
+insleft.ss <- -124.575
+instop.ss <- 48.37
+insright.ss <- -124.51
+insbott.ss <- 48.34
+
+# bounds for outline on map of inset area
+maxlong <- -124.575
+minlat <- 48.37
+minlong <- -124.51
+maxlat <- 48.34
 
 insetbox.lat <- c(minlat, minlat, maxlat, maxlat, minlat)
 insetbox.long <- c(minlong, maxlong, maxlong, minlong, minlong)
@@ -143,10 +151,10 @@ map2019 <- ggmap(tow_ter) +
   scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14))
-ss.insetmap2019 <- ggmap(ss_ter) +
+        axis.title = element_text(size = 14)) +
   geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
-            linewidth = 1) +
+            linewidth = 1)
+ss.insetmap2019 <- ggmap(ss_ter) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
@@ -156,10 +164,18 @@ ss.insetmap2019 <- ggmap(ss_ter) +
   labs(x = "", y = "") +
   scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
   theme(legend.position = "none",
-        axis.text = element_text(size = 12),
+        axis.text = element_blank(),
         axis.title = element_text(size = 14))
-  
-ss.insetmap2019
+# add inset to map
+library(cowplot)
+
+map_with_inset2019 <- ggdraw() + 
+  draw_plot(map2019) + 
+  draw_plot(ss.insetmap2019, x = 0.5, y = 0.1, 
+            width = 0.4, height=0.4)
+map_with_inset2019
+
+# now do it for 2020 too
 
 map2020 <- ggmap(tow_ter) +
   geom_point(data = tows2020,
