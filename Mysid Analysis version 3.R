@@ -217,3 +217,30 @@ confint(area.model)
 # and likely picking up on something else
 
 plot(daily$mysids, predict(area.model))
+
+### Pull out just Sail River/Bullman area
+
+SS.data <- data[which(data$Site %in% c("Seal And Sail", "Sail River", "Bullman Beach")),]
+
+par(mfrow = c(2,1))
+plot(data$MysidCount, data$whalecount)
+plot(SS.data$MysidCount, SS.data$whalecount)
+# looks just as confused as the other ones
+
+hist(SS.data$whalecount)
+hist(SS.data$MysidCount)
+
+model.full <- glmmTMB(data = SS.data, formula = whalecount ~ scale(MysidCount), 
+                      family = truncated_nbinom1, ziformula = ~.)
+
+# not converging, trying with whale presence/absence
+
+SS.data$whalepres <- NULL
+SS.data$whalepres[which(SS.data$whalecount > 0)] <- 1
+SS.data$whalepres[which(SS.data$whalecount == 0)] <- 0
+
+plot(SS.data$MysidCount, SS.data$whalepres)
+
+model.bin <- glm(data = SS.data, formula = whalepres ~ scale(MysidCount),
+                 family = "binomial")
+summary(model.bin)
