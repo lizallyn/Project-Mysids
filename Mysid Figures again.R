@@ -3,10 +3,15 @@
 
 ### Figures
 
+tows <- read.csv("Tow data for R.csv")
+whale <- read.csv("Whales in full survey area 2019 2020.csv")
+
 ## Prey density map combined years and months
 
 library(ggplot2)
 library(ggmap)
+library(dplyr)
+library(tidyr)
 
 # Summarize by site
 
@@ -28,16 +33,20 @@ lat2 <- 48.45
 
 # sort tow data
 tows <- tows[order(-tows$Mysids),]
+whale$Est_Size_Best <- as.numeric(whale$Est_Size_Best)
 
 # load terrain map
 tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, maptype = "terrain")
 
 mysids.map.combined <- ggmap(tow_ter) +
+  geom_point(data = whale, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
+                               size = Est_Size_Best),
+             color = "orchid3",
+             alpha = 0.3) +
   geom_point(aes(x=long, y=lat, size = myspertow),
              data = site.summ,
              alpha = 0.5,
-             color = "sienna4") +
-  lims(size = c(0,800)) +
+             color = "dodgerblue") +
   labs(x = "Longitude", y = "Latitude") +
   theme(axis.text = element_text(size = 12),
         axis.title = element_text(size = 14),
@@ -49,7 +58,10 @@ mysids.map.combined
 
 ## Other prey map with seal/sail/bullman detail inset
 
+sites <- read.csv("Sample site coords for R.csv")
 
+library(ggrepel)
+library(cowplot)
 
 # bounds for sample map
 maxlong <- -124.9
@@ -100,7 +112,10 @@ map_with_inset <- ggdraw() +
             width = 0.4, height=0.4)
 map_with_inset
 
-#### Fig 2: Prey Density Ma
+#### Fig 2: Prey Density Map
+
+# read in ss whale data clipped
+ss.whale <- read.csv("Whale at Seal and Sail and Bullman 2019 2020.csv")
 
 # bounds for underlying area map
 long1 <- -124.9
@@ -157,6 +172,9 @@ map2019 <- ggmap(tow_ter) +
 ss.insetmap2019 <- ggmap(ss_ter) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5) +
+  geom_point(data = ss.whale, aes(x = Start_Dec_Long, y = Start_Dec_Lat),
+             color = "black",
+             alpha = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
              alpha = 0.4) +
@@ -166,8 +184,6 @@ ss.insetmap2019 <- ggmap(ss_ter) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
-# add inset to map
-library(cowplot)
 
 map_with_inset2019 <- ggdraw() + 
   draw_plot(map2019) + 
