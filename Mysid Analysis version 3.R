@@ -10,9 +10,10 @@
 data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
 
+
 ### Data Manipulation/Cleaning/Visualization
 
-# Pull out useful clean mysid data to simplify data frame
+# Pull out useful clean mysid data columns to simplify data frame
 
 data <- data.full[,c(1,2,4,6,7,11,17:25,30)]
 # as.data.frame(data)
