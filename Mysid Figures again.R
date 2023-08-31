@@ -403,9 +403,9 @@ whalemap_with_inset2020 <- ggdraw() +
 whalemap_with_inset2020
 
 # Create the composite
-panels <- grid.arrange(map_with_inset2019,
-                       map_with_inset2020, 
+panels <- grid.arrange(map_with_inset2019, 
                        whalemap_with_inset2019,
+                       map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(2,0.25))
 ggsave(path = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Final R Docs/Maps",
