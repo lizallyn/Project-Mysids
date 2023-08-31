@@ -117,6 +117,16 @@ map_with_inset
 # read in ss whale data clipped
 ss.whale <- read.csv("Whale at Seal and Sail and Bullman 2019 2020.csv")
 
+# whale icon
+# install.packages("tidyverse")
+library(tidyverse)
+library(readr)
+library(proj4)
+library(magick)
+library(ggimage)
+
+ss.whale$image <- ("https://github.com/lizallyn/Project-Mysids/blob/c00ee08e463b274792e8562cbfaa9e17eb6cbdfc/icons8-whale-66.png")
+
 # bounds for underlying area map
 long1 <- -124.72
 lat1 <- 48.15
@@ -178,8 +188,7 @@ map2019 <- ggmap(tow_ter) +
 ss.insetmap2019 <- ggmap(ss_ter) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
-  geom_point(data = ss.w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat),
-             shape = 17,
+  geom_image(data = ss.w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, image = image),
              alpha = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
