@@ -125,7 +125,7 @@ library(proj4)
 library(magick)
 library(ggimage)
 
-ss.whale$image <- ("https://github.com/lizallyn/Project-Mysids/blob/c00ee08e463b274792e8562cbfaa9e17eb6cbdfc/icons8-whale-66.png")
+ss.whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
 
 # bounds for underlying area map
 long1 <- -124.72
@@ -223,8 +223,7 @@ map2020 <- ggmap(tow_ter) +
 ss.insetmap2020 <- ggmap(ss_ter) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
-  geom_point(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat),
-             shape = 17,
+  geom_image(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, image = image),
              alpha = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2020,
@@ -262,9 +261,9 @@ get_legend <- function(myggplot){
 
 legend <- get_legend(maplegend)
 
-mysiddensitymapwithwhales <- grid.arrange(arrangeGrob(map_with_inset2019,map_with_inset2020), 
+mysiddensitymapwithwhalesasicons <- grid.arrange(arrangeGrob(map_with_inset2019,map_with_inset2020), 
                                 legend, ncol = 2, widths = c(2,0.5))
-ggsave(plot = mysiddensitymapwithwhales, "sample map with whales in SSB inset no crop.pdf",
+ggsave(plot = mysiddensitymapwithwhalesasicons, "sample map with whales in SSB inset no crop icons.pdf",
        width = 9, height  = 9, device='pdf', dpi=700)
 
 ## Species catch comp plot
