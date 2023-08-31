@@ -126,6 +126,7 @@ library(magick)
 library(ggimage)
 
 ss.whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
+whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
 
 # bounds for underlying area map
 long1 <- -124.72
@@ -160,6 +161,7 @@ ss_ter <- get_stamenmap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss)
 tows <- tows[order(-tows$Mysids),]
 tows$Month <- factor(tows$Month, levels = c("June", "July", "August", "September", "October", "November"))
 ss.whale$Month <- as.factor(ss.whale$Month)
+whale$Month <- as.factor(whale$Month)
 
 # filter tow data by year
 tows2019 <- dplyr::filter(tows, Year == 2019)
@@ -168,6 +170,9 @@ tows2020 <- dplyr::filter(tows, Year == 2020)
 # filter whale data by year
 ss.w2019 <- dplyr::filter(ss.whale, Year == 2019)
 ss.w2020 <- dplyr::filter(ss.whale, Year == 2020)
+
+w2019 <- dplyr::filter(whale, Year == 2019)
+w2020 <- dplyr::filter(whale, Year == 2020)
 
 # load terrain map
 tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, 
@@ -223,8 +228,9 @@ map2020 <- ggmap(tow_ter) +
 ss.insetmap2020 <- ggmap(ss_ter) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
-  geom_image(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, image = image),
-             alpha = 1) +
+  geom_image(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
+                                  image = image, color = Month),
+             alpha = 0.7) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2020,
              alpha = 0.5) +
@@ -265,6 +271,147 @@ mysiddensitymapwithwhalesasicons <- grid.arrange(arrangeGrob(map_with_inset2019,
                                 legend, ncol = 2, widths = c(2,0.5))
 ggsave(plot = mysiddensitymapwithwhalesasicons, "sample map with whales in SSB inset no crop icons.pdf",
        width = 9, height  = 9, device='pdf', dpi=700)
+
+### Four panel mysids and whales map
+
+# 2019 Mysids
+map2019 <- ggmap(tow_ter) +
+  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
+             data = tows2019,
+             alpha = 0.5) +
+  lims(size = c(0,800)) +
+  labs(x = "Longitude", y = "Latitude", title = "2019 Mysids") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14)) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
+            linewidth = 0.8)
+ss.insetmap2019 <- ggmap(ss_ter) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
+             data = tows2019,
+             alpha = 0.5) +
+  lims(size = c(0,800)) +
+  labs(x = "", y = "") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.title = element_text(size = 14))
+
+map_with_inset2019 <- ggdraw() + 
+  draw_plot(map2019) + 
+  draw_plot(ss.insetmap2019, x = 0.45, y = 0.1, 
+            width = 0.4, height=0.4)
+map_with_inset2019
+
+# 2020 Mysid map
+map2020 <- ggmap(tow_ter) +
+  geom_point(data = tows2020,
+             alpha = 0.5,
+             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
+  labs(x = "Longitude", y = "Latitude", title = "2020 Mysids") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  lims(size = c(0,2000)) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14)) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
+            linewidth = 0.7)
+ss.insetmap2020 <- ggmap(ss_ter) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
+             data = tows2020,
+             alpha = 0.5) +
+  lims(size = c(0,2000)) +
+  labs(x = "", y = "") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.title = element_text(size = 14))
+
+map_with_inset2020 <- ggdraw() + 
+  draw_plot(map2020) + 
+  draw_plot(ss.insetmap2020, x = 0.45, y = 0.1, 
+            width = 0.4, height=0.4)
+map_with_inset2020
+
+# 2019 Whale map
+whalemap2019 <- ggmap(tow_ter) +
+  geom_image(data = w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
+                                  image = image, color = Month),
+             size = 0.03) +
+  lims(size = c(0,800)) +
+  labs(x = "Longitude", y = "Latitude", title = "2019 Whales") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14)) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
+            linewidth = 0.8)
+ss.whalemap2019 <- ggmap(ss_ter) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_image(data = ss.w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
+                                  image = image, color = Month),
+             size = 0.09) +
+  lims(size = c(0,800)) +
+  labs(x = "", y = "") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.title = element_text(size = 14))
+
+whalemap_with_inset2019 <- ggdraw() + 
+  draw_plot(whalemap2019) + 
+  draw_plot(ss.whalemap2019, x = 0.45, y = 0.1, 
+            width = 0.4, height=0.4)
+whalemap_with_inset2019
+
+# 2020 Whale map
+whalemap2020 <- ggmap(tow_ter) +
+  geom_image(data = w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
+                               image = image, color = Month),
+             size = 0.03) +
+  lims(size = c(0,800)) +
+  labs(x = "Longitude", y = "Latitude", title = "2020 Whales") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14)) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
+            linewidth = 0.8)
+ss.whalemap2020 <- ggmap(ss_ter) +
+  theme_void() +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_image(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
+                                  image = image, color = Month),
+             size = 0.09) +
+  lims(size = c(0,800)) +
+  labs(x = "", y = "") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.title = element_text(size = 14))
+
+whalemap_with_inset2020 <- ggdraw() + 
+  draw_plot(whalemap2020) + 
+  draw_plot(ss.whalemap2020, x = 0.45, y = 0.1, 
+            width = 0.4, height=0.4)
+whalemap_with_inset2020
+
+# Create the composite
+panels <- grid.arrange(map_with_inset2019,
+                       map_with_inset2020, 
+                       whalemap_with_inset2019,
+                       whalemap_with_inset2020, ncol = 2)
+fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(2,0.25))
+ggsave(path = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Final R Docs/Maps",
+       plot = fourpanelwithlegend, 
+       filename = "four panel composite map with legend.pdf",
+       width = 11, height  = 7, device='pdf', dpi=700)
 
 ## Species catch comp plot
 
