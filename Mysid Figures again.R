@@ -284,7 +284,12 @@ map2019 <- ggmap(tow_ter) +
              alpha = 0.7) +
   lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019 Mysids") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14)) +
@@ -298,7 +303,12 @@ ss.insetmap2019 <- ggmap(ss_ter) +
              alpha = 0.7) +
   lims(size = c(0,800)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
@@ -315,7 +325,12 @@ map2020 <- ggmap(tow_ter) +
              alpha = 0.5,
              aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
   labs(x = "Longitude", y = "Latitude", title = "2020 Mysids") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   lims(size = c(0,2000)) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
@@ -330,7 +345,12 @@ ss.insetmap2020 <- ggmap(ss_ter) +
              alpha = 0.5) +
   lims(size = c(0,2000)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
