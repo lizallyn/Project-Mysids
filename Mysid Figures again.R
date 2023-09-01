@@ -278,10 +278,10 @@ ggsave(plot = mysiddensitymapwithwhalesasicons, "sample map with whales in SSB i
 map2019 <- ggmap(tow_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
-             alpha = 0.5) +
+             alpha = 0.7) +
   lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019 Mysids") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14)) +
@@ -292,10 +292,10 @@ ss.insetmap2019 <- ggmap(ss_ter) +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
-             alpha = 0.5) +
+             alpha = 0.7) +
   lims(size = c(0,800)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
@@ -327,7 +327,7 @@ ss.insetmap2020 <- ggmap(ss_ter) +
              alpha = 0.5) +
   lims(size = c(0,2000)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
@@ -345,7 +345,7 @@ whalemap2019 <- ggmap(tow_ter) +
              size = 0.03) +
   lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019 Whales") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14)) +
@@ -359,7 +359,7 @@ ss.whalemap2019 <- ggmap(ss_ter) +
              size = 0.09) +
   lims(size = c(0,800)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
