@@ -128,11 +128,31 @@ library(ggimage)
 ss.whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
 whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
 
+# sort tow data, month as factor
+tows <- tows[order(-tows$Mysids),]
+tows$Month <- factor(tows$Month, levels = c("June", "July", "August", "September", "October", "November"))
+ss.whale$Month <- as.factor(ss.whale$Month)
+whale$Month <- as.factor(whale$Month)
+
+# filter tow data by year
+tows2019 <- dplyr::filter(tows, Year == 2019)
+tows2020 <- dplyr::filter(tows, Year == 2020)
+
+# filter whale data by year
+ss.w2019 <- dplyr::filter(ss.whale, Year == 2019)
+ss.w2020 <- dplyr::filter(ss.whale, Year == 2020)
+
+w2019 <- dplyr::filter(whale, Year == 2019)
+w2020 <- dplyr::filter(whale, Year == 2020)
+
+# remove whale on cape flattery
+w2019 <- w2019[-which(w2019$Start_Dec_Long == -124.7101),]
+
 # bounds for underlying area map
-long1 <- -124.72
-lat1 <- 48.15
-long2 <- -124.17
-lat2 <- 48.45
+long1 <- -124.8
+lat1 <- 48.12
+long2 <- -124.35
+lat2 <- 48.43
 
 # bounds for ss inset map creation
 insleft.ss <- -124.575
@@ -157,26 +177,9 @@ outline <- data.frame(cbind(outline.lat, outline.long))
 ss_ter <- get_stamenmap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss),
                         zoom=13, maptype = "terrain")
 
-# sort tow data
-tows <- tows[order(-tows$Mysids),]
-tows$Month <- factor(tows$Month, levels = c("June", "July", "August", "September", "October", "November"))
-ss.whale$Month <- as.factor(ss.whale$Month)
-whale$Month <- as.factor(whale$Month)
-
-# filter tow data by year
-tows2019 <- dplyr::filter(tows, Year == 2019)
-tows2020 <- dplyr::filter(tows, Year == 2020)
-
-# filter whale data by year
-ss.w2019 <- dplyr::filter(ss.whale, Year == 2019)
-ss.w2020 <- dplyr::filter(ss.whale, Year == 2020)
-
-w2019 <- dplyr::filter(whale, Year == 2019)
-w2020 <- dplyr::filter(whale, Year == 2020)
-
 # load terrain map
 tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, 
-                         maptype = "terrain", crop = F)
+                         maptype = "terrain")
 
 map2019 <- ggmap(tow_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
@@ -207,7 +210,7 @@ ss.insetmap2019 <- ggmap(ss_ter) +
 
 map_with_inset2019 <- ggdraw() + 
   draw_plot(map2019) + 
-  draw_plot(ss.insetmap2019, x = 0.45, y = 0.1, 
+  draw_plot(ss.insetmap2019, x = 0.5, y = 0.05, 
             width = 0.4, height=0.4)
 map_with_inset2019
 
@@ -302,7 +305,7 @@ ss.insetmap2019 <- ggmap(ss_ter) +
 
 map_with_inset2019 <- ggdraw() + 
   draw_plot(map2019) + 
-  draw_plot(ss.insetmap2019, x = 0.45, y = 0.1, 
+  draw_plot(ss.insetmap2019, x = 0.45, y = 0.15, 
             width = 0.4, height=0.4)
 map_with_inset2019
 
@@ -334,7 +337,7 @@ ss.insetmap2020 <- ggmap(ss_ter) +
 
 map_with_inset2020 <- ggdraw() + 
   draw_plot(map2020) + 
-  draw_plot(ss.insetmap2020, x = 0.45, y = 0.1, 
+  draw_plot(ss.insetmap2020, x = 0.45, y = 0.15, 
             width = 0.4, height=0.4)
 map_with_inset2020
 
@@ -342,10 +345,15 @@ map_with_inset2020
 whalemap2019 <- ggmap(tow_ter) +
   geom_image(data = w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                   image = image, color = Month),
-             size = 0.03) +
+             size = 0.05) +
   lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019 Whales") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14)) +
@@ -359,14 +367,19 @@ ss.whalemap2019 <- ggmap(ss_ter) +
              size = 0.09) +
   lims(size = c(0,800)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna1", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
 
 whalemap_with_inset2019 <- ggdraw() + 
   draw_plot(whalemap2019) + 
-  draw_plot(ss.whalemap2019, x = 0.45, y = 0.1, 
+  draw_plot(ss.whalemap2019, x = 0.45, y = 0.15, 
             width = 0.4, height=0.4)
 whalemap_with_inset2019
 
@@ -374,10 +387,15 @@ whalemap_with_inset2019
 whalemap2020 <- ggmap(tow_ter) +
   geom_image(data = w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                image = image, color = Month),
-             size = 0.03) +
+             size = 0.05) +
   lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2020 Whales") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14)) +
@@ -391,14 +409,19 @@ ss.whalemap2020 <- ggmap(ss_ter) +
              size = 0.09) +
   lims(size = c(0,800)) +
   labs(x = "", y = "") +
-  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  scale_color_manual(values = c("June" = "mediumblue", 
+                                "July" = "dodgerblue2", 
+                                "August" ="yellow2", 
+                                "September" = "sienna1", 
+                                "October" = "red2", 
+                                "November" = "magenta2")) +
   theme(legend.position = "none",
         axis.text = element_blank(),
         axis.title = element_text(size = 14))
 
 whalemap_with_inset2020 <- ggdraw() + 
   draw_plot(whalemap2020) + 
-  draw_plot(ss.whalemap2020, x = 0.45, y = 0.1, 
+  draw_plot(ss.whalemap2020, x = 0.45, y = 0.15, 
             width = 0.4, height=0.4)
 whalemap_with_inset2020
 
@@ -407,10 +430,10 @@ panels <- grid.arrange(map_with_inset2019,
                        whalemap_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
-fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(2,0.25))
+fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
 ggsave(path = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Final R Docs/Maps",
        plot = fourpanelwithlegend, 
-       filename = "four panel composite map with legend.pdf",
+       filename = "four panel composite map with legend no land whale bigger whales.pdf",
        width = 11, height  = 7, device='pdf', dpi=700)
 
 ## Species catch comp plot
