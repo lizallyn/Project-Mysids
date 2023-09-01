@@ -535,3 +535,7 @@ plot.Speciesym <-
                     values = pal)
 plot(plot.Speciesym)
 
+ggsave(plot = plot.Speciesym,
+       path = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Final R Docs/Maps",
+       filename = "species comp by month italic legend no outline.pdf",
+       width = 9, height = 5, device='pdf', dpi=700)
