@@ -252,6 +252,8 @@ summary(model.bin)
 
 full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
 sites <- read.csv("Sample site coords for R.csv")
+tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
+whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
 
 coordmatch <- data.frame(matrix(nrow= nrow(full.whales)))
 # add sighting coords and IDs
@@ -387,18 +389,20 @@ daily <- data %>%
             size <- mean(Avg.length, na.rm = T))
 colnames(daily) <- c("Date", "n.tows", "mysids", "size")
 
-# add daily whale summaries
+## add daily whale summaries
 
 data$Date <- as.factor(data$Date)
 sample.days <- levels(data$Date)
 # pull out survey days when tows happened
 whales.on.mysid.days <- slice(.data = whales, which(whales$Date %in% sample.days))
+# add unique daily whales and unique daily feeding whales
+daily$daily.whales <- whales.on.mysid.days$Unique.Daily
+daily$feed.whales <- whales.on.mysid.days$Unique.Feed
 
-daily$whales <- NA
-daily$whales[which(daily$Date %in% whale.days$Date)] <- 
-  whale.days$total.IDs[which(whale.days$Date %in% daily$Date)]
+colnames(daily) <- c("Date", "n.tows", "mysids", "size", "daily.whales", "feed.whales")
 
-colnames(daily) <- c("Date", "n.tows", "mysids", "size", "min.whales")
+plot(daily$mysids, daily$daily.whales)
+plot(daily$mysids, daily$feed.whales)
+plot(daily$size, daily$daily.whales)
+plot(daily$size, daily$feed.whales)
 
-plot(daily$mysids, daily$min.whales)
-plot(daily$size, daily$min.whales)
