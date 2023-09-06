@@ -337,7 +337,6 @@ coordmatch$site.lat[which(between(coordmatch$lat, coordmatch$SR.lat.min, coordma
 coordmatch$site.lat[which(between(coordmatch$lat, coordmatch$SS.lat.min, coordmatch$SS.lat.max))] <- "Seal and Sail Rocks"
 coordmatch$site.lat[which(between(coordmatch$lat, coordmatch$SK.lat.min, coordmatch$SK.lat.max))] <- "Skagway Rocks"
 coordmatch$site.lat[which(between(coordmatch$lat, coordmatch$SL.lat.min, coordmatch$SL.lat.max))] <- "Slant Rock"
-
 # add min long columns
 coordmatch$AR.long.min <- sites$Min.long[which(sites$Location=="Anderson Rocks")]
 coordmatch$BB.long.min <- sites$Min.long[which(sites$Location=="Bullman Beach")]
@@ -395,3 +394,11 @@ problems <- coordmatch[which(coordmatch$r.site == "Not Assigned"),]
 # with 300m square, 28 with conflicting assignations, 184 with None
 # 13 of those 28 are actually far from each other
 # The other 15 are close calls that might be encompassed with a larger buffer area
+sightings.300m <- coordmatch$sighting[which(coordmatch$site.lat == coordmatch$site.long)]
+# only 27 at the moment...
+# pull out rows of full.whales that are at-site sightings
+at.sites <- full.whales[which(full.whales$Date_S %in% sightings.300m),]
+
+# Pull out only feeding whales from full.whales
+behaviors <- c("Feeding", "")
+feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
