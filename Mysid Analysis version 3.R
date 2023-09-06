@@ -405,4 +405,5 @@ feed.at.sites <- at.sites[which(at.sites$Group_Beh %in% behaviors),]
 # Pull out only feeding whales from full.whales
 behaviors <- c("Feeding", "")
 feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
+# 184 sightings
 
