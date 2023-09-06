@@ -241,6 +241,7 @@ SS.data$whalepres[which(SS.data$whalecount > 0)] <- 1
 SS.data$whalepres[which(SS.data$whalecount == 0)] <- 0
 
 plot(SS.data$MysidCount, SS.data$whalepres)
+# looks so so similar this is probably not worth it
 
 model.bin <- glm(data = SS.data, formula = whalepres ~ scale(MysidCount),
                  family = "binomial")
@@ -406,3 +407,19 @@ plot(daily$mysids, daily$feed.whales)
 plot(daily$size, daily$daily.whales)
 plot(daily$size, daily$feed.whales)
 
+### ok now some models
+# this time with avg mysid size
+# just unique feeding whales
+# just tackling the daily first
+
+hist(daily$feed.whales)
+# definitely still same distribution issues
+
+m.daily.feed.mysids <- glmmTMB(data = daily, feed.whales ~ scale(mysids), 
+                   family = truncated_nbinom1, ziformula = ~.)
+summary(m.daily.feed.mysids)
+m.daily.feed.size <- glmmTMB(data = daily, feed.whales ~ scale(size), 
+                   family = truncated_nbinom1, ziformula = ~.)
+summary(m.daily.feed.size)
+glmm.mo <- glmmTMB(data = data, whalecount ~ Month, 
+                   family = truncated_nbinom1, ziformula = ~.)
