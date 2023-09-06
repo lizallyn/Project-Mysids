@@ -387,16 +387,13 @@ daily <- data %>%
             size <- mean(Avg.length, na.rm = T))
 colnames(daily) <- c("Date", "n.tows", "mysids", "size")
 
+# add daily whale summaries
+
 data$Date <- as.factor(data$Date)
 sample.days <- levels(data$Date)
+# pull out survey days when tows happened
+whales.on.mysid.days <- slice(.data = whales, which(whales$Date %in% sample.days))
 
-whales.on.mysid.days <- slice(.data = feeding, which(feeding$Date %in% sample.days))
-whale.days <- whales.on.mysid.days %>%
-  group_by(Date) %>%
-  summarise(total.IDs <- sum(IDs, na.rm = T))
-colnames(whale.days) <- c("Date", "total.IDs")
-# some days are 0 bc no IDs but we know at least 1 whale present
-whale.days$total.IDs[which(whale.days$total.IDs == 0)] <- 1
 daily$whales <- NA
 daily$whales[which(daily$Date %in% whale.days$Date)] <- 
   whale.days$total.IDs[which(whale.days$Date %in% daily$Date)]
@@ -405,17 +402,3 @@ colnames(daily) <- c("Date", "n.tows", "mysids", "size", "min.whales")
 
 plot(daily$mysids, daily$min.whales)
 plot(daily$size, daily$min.whales)
-
-# model with the random effect of Site
-model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month + Avg.length + (1|Site), 
-                      family = truncated_nbinom1, ziformula = ~.)
-
-summary(model.rand)
-model.matrix(model.rand)
-# returns design matrix
-
-# model without the random effect of Site
-model.norand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month, 
-                        family = truncated_nbinom1, ziformula = ~.)
-summary(model.norand)
-model.matrix(model.norand)
