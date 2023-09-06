@@ -389,6 +389,7 @@ daily <- data %>%
             mysids <- mean(MysidCount),
             size <- mean(Avg.length, na.rm = T))
 colnames(daily) <- c("Date", "n.tows", "mysids", "size")
+daily$size[which(is.nan(daily$size))] <- NA
 
 ## add daily whale summaries
 
@@ -421,5 +422,14 @@ summary(m.daily.feed.mysids)
 m.daily.feed.size <- glmmTMB(data = daily, feed.whales ~ scale(size), 
                    family = truncated_nbinom1, ziformula = ~.)
 summary(m.daily.feed.size)
-glmm.mo <- glmmTMB(data = data, whalecount ~ Month, 
-                   family = truncated_nbinom1, ziformula = ~.)
+
+size.range <- data.frame(size = 4:14)
+plot(size.range$size, predict(object = m.daily.feed.size, type = "response", 
+                              newdata = size.range))
+# definitely not for use predicting beyond size ranges observed
+
+mys.abundances <- data.frame(mysids = seq(0, 4000, 100))
+plot(mys.abundances$mysids, predict(object = m.daily.feed.mysids,
+                                    type = "response", newdata = mys.abundances))
+# interesting, predicts fewer whales for 0 mysids than for many? Still messy
+
