@@ -398,7 +398,11 @@ sightings.300m <- coordmatch$sighting[which(coordmatch$site.lat == coordmatch$si
 # only 27 at the moment...
 # pull out rows of full.whales that are at-site sightings
 at.sites <- full.whales[which(full.whales$Date_S %in% sightings.300m),]
+# only feeding or no behavior - 
+feed.at.sites <- at.sites[which(at.sites$Group_Beh %in% behaviors),]
+# only 19 sightings then
 
 # Pull out only feeding whales from full.whales
 behaviors <- c("Feeding", "")
 feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
+
