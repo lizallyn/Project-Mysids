@@ -15,7 +15,7 @@ all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/
 
 # Pull out useful clean mysid data columns to simplify data frame
 
-data <- data.full[,c(1,2,4,6,7,11,17:25,30)]
+data <- data.full[,c(1,2,4,6,7,11,17:25,30,31)]
 # as.data.frame(data)
 
 data$Site <- factor(data$Site, 
@@ -38,7 +38,7 @@ sex.summ <- all %>%
 
 ### Inspect Distribution
 
-hist(data$whalecount) 
+hist(data$whalecount)
 # zero-inflated
 # will need hurdle model to account for this
 
@@ -245,3 +245,61 @@ plot(SS.data$MysidCount, SS.data$whalepres)
 model.bin <- glm(data = SS.data, formula = whalepres ~ scale(MysidCount),
                  family = "binomial")
 summary(model.bin)
+
+### Adrianne's extras
+
+## Avg Mysid size
+
+data$counter <- rep(1, nrow(data))
+
+daily <- data %>%
+  group_by(Date) %>%
+  summarize(n.tows <- sum(counter),
+            mysids <- mean(MysidCount),
+            size <- mean(Avg.length, na.rm = T))
+colnames(daily) <- c("Date", "n.tows", "mysids", "size")
+
+sample.days <- which(whales$Date %in% data$Date)
+whale.days <- slice(.data = whales, sample.days)
+daily$whales <- whale.days$Unique
+
+colnames(daily) <- c("Date", "n.tows", "mysids", "whales")
+
+# model with the random effect of Site
+model.rand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month + (1|Site), 
+                      family = truncated_nbinom1, ziformula = ~.)
+
+summary(model.rand)
+model.matrix(model.rand)
+# returns design matrix
+
+# model without the random effect of Site
+model.norand <- glmmTMB(data = data, whalecount ~ scale(MysidCount) + Month, 
+                        family = truncated_nbinom1, ziformula = ~.)
+summary(model.norand)
+model.matrix(model.norand)
+
+# Whale sightings within 300m of tow sites
+
+full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
+sites <- read.csv("Sample site coords for R.csv")
+
+full.whales %>%
+  group_by()
+between(x = sites$Dec.lat, left = sites$Min.lat, right = sites$Max.lat)
+
+coordmatch <- data.frame(matrix(nrow= nrow(full.whales)))
+coordmatch$site <- "Error"
+# add sighting coords and IDs
+coordmatch$sighting <- full.whales$Date_S
+coordmatch$lat <- full.whales$Start_Dec_Lat
+# add min lat columns
+coordmatch$AR.lat.min <- sites$Min.lat[which(sites$Location=="Anderson Rocks")]
+coordmatch$BB.lat.min <- sites$Min.lat[which(sites$Location=="Bullman Beach")]
+coordmatch$SB.lat.min <- sites$Min.lat[which(sites$Location=="South of Bodeltehs")]
+# add max lat columns
+coordmatch$AR.lat.max <- sites$Max.lat[which(sites$Location=="Anderson Rocks")]
+coordmatch$BB.lat.max <- sites$Max.lat[which(sites$Location=="Bullman Beach")]
+coordmatch$SB.lat.max <- sites$Max.lat[which(sites$Location=="South of Bodeltehs")]
+
+coordmatch$site[which(between(coordmatch$lat, coordmatch$AR.lat.min, coordmatch$AR.lat.max))] <- "Anderson"
