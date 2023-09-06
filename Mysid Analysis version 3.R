@@ -291,7 +291,7 @@ coordmatch$lat <- full.whales$Start_Dec_Lat
 coordmatch$long <- full.whales$Start_Dec_Long
 # create columns for assigned site names
 coordmatch$site.lat <- "Error"
-coordmatch$site.long <- "Error"
+coordmatch$site.long <- "Error2"
 # add min lat columns
 coordmatch$AR.lat.min <- sites$Min.lat[which(sites$Location=="Anderson Rocks")]
 coordmatch$BB.lat.min <- sites$Min.lat[which(sites$Location=="Bullman Beach")]
@@ -383,3 +383,15 @@ coordmatch$site.long[which(between(coordmatch$long, coordmatch$SR.long.min, coor
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SS.long.min, coordmatch$SS.long.max))] <- "Seal and Sail Rocks"
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SK.long.min, coordmatch$SK.long.max))] <- "Skagway Rocks"
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SL.long.min, coordmatch$SL.long.max))] <- "Slant Rock"
+# assign all errors to "None"
+coordmatch$r.site <- "Not Assigned"
+coordmatch$r.site[which(coordmatch$site.lat == "Error")] <- "None"
+coordmatch$r.site[which(coordmatch$site.long == "Error2")] <- "None"
+# assign ones that matched
+coordmatch$r.site[which(coordmatch$site.lat == coordmatch$site.long)] <- 
+  coordmatch$site.lat[which(coordmatch$site.lat == coordmatch$site.long)]
+# look at Not Assigned rows
+problems <- coordmatch[which(coordmatch$r.site == "Not Assigned"),]
+# with 300m square, 28 with conflicting assignations, 184 with None
+# 13 of those 28 are actually far from each other
+# The other 15 are close calls that might be encompassed with a larger buffer area
