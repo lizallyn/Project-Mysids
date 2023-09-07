@@ -261,7 +261,7 @@ full.whales$Start_Dec_Lat[which(full.whales$Date_S == "20191107_15")] <- 48.3416
 full.whales$Start_Dec_Long[which(full.whales$Date_S == "20191107_15")] <- -124.7105
 
 # Assign whale sightings to a region
-# E Strait: E of 
+
 ES.Eastof <- -124.6008
 WS.Eastof <- -124.726
 WS.Northof <- 48.37437
@@ -376,7 +376,7 @@ coordmatch$site.long[which(between(coordmatch$long, coordmatch$SR.long.min, coor
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SS.long.min, coordmatch$SS.long.max))] <- "Seal and Sail Rocks"
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SK.long.min, coordmatch$SK.long.max))] <- "Skagway Rocks"
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SL.long.min, coordmatch$SL.long.max))] <- "Slant Rock"
-# assign all errors to "None"
+# assign all "errors" to "None"
 coordmatch$r.site <- "Not Assigned"
 coordmatch$r.site[which(coordmatch$site.lat == "Error")] <- "None"
 coordmatch$r.site[which(coordmatch$site.long == "Error2")] <- "None"
@@ -418,7 +418,14 @@ daily$size[which(is.nan(daily$size))] <- NA
 data$Date <- as.factor(data$Date)
 sample.days <- levels(data$Date)
 # pull out survey days when tows happened
-whales.on.mysid.days <- slice(.data = whales, which(whales$Date %in% sample.days))
+whales.on.mysid.days <- slice(.data = full.whales, which(full.whales$Date %in% sample.days))
+# summarize by day and region
+daily.region.whales <- whales.on.mysid.days %>%
+  group_by(Date, Region) %>%
+  summarize(n.sights <- length(Date),
+            daily.whales <- mean(dailyID),
+            )
+
 # add unique daily whales and unique daily feeding whales
 daily$daily.whales <- whales.on.mysid.days$Unique.Daily
 daily$feed.whales <- whales.on.mysid.days$Unique.Feed
