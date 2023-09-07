@@ -15,7 +15,7 @@ all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/
 
 # Pull out useful clean mysid data columns to simplify data frame
 
-data <- data.full[,c(1,2,4,6,7,11,17:25,30,31)]
+data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
 # as.data.frame(data)
 
 data$Site <- factor(data$Site, 
@@ -249,14 +249,38 @@ summary(model.bin)
 
 ### Adrianne's extras
 
-# Whale sightings within 300m of tow sites
-
 full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
 sites <- read.csv("Sample site coords for R.csv")
 tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
 
 library(dplyr)
+
+# this sighting is on land, use sight end coords instead
+full.whales$Start_Dec_Lat[which(full.whales$Date_S == "20191107_15")] <- 48.34167
+full.whales$Start_Dec_Long[which(full.whales$Date_S == "20191107_15")] <- -124.7105
+
+# Assign whale sightings to a region
+# E Strait: E of 
+ES.Eastof <- -124.6008
+WS.Eastof <- -124.726
+WS.Northof <- 48.37437
+O.Southof <- 48.38615
+O.Westof <- -124.6529
+# create dataframe to store assignments in
+regionmatch <- data.frame(matrix(nrow= nrow(full.whales)))
+# add sighting coords and IDs
+regionmatch$sighting <- full.whales$Date_S
+regionmatch$lat <- full.whales$Start_Dec_Lat
+regionmatch$long <- full.whales$Start_Dec_Long
+# assign regions
+regionmatch$region <- "Error"
+regionmatch$region[regionmatch$long > ES.Eastof] <- "East Strait"
+regionmatch$region[between(regionmatch$long, left = WS.Eastof, right = ES.Eastof) & 
+                     regionmatch$lat > WS.Northof] <- "West Strait"
+regionmatch$region[which(regionmatch$long < O.Westof & regionmatch$lat < O.Southof)] <- "Ocean"
+
+# Whale sightings within 300m of tow sites
 
 coordmatch <- data.frame(matrix(nrow= nrow(full.whales)))
 # add sighting coords and IDs
@@ -382,14 +406,15 @@ feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
 # 184 sightings
 
 ## Avg Mysid size
-
+library(tidyr)
+library(dplyr)
 data$counter <- rep(1, nrow(data))
 daily <- data %>%
-  group_by(Date) %>%
+  group_by(Date, Region) %>%
   summarize(n.tows <- sum(counter),
             mysids <- mean(MysidCount),
             size <- mean(Avg.length, na.rm = T))
-colnames(daily) <- c("Date", "n.tows", "mysids", "size")
+colnames(daily) <- c("Date", "region", "n.tows", "mysids", "size")
 daily$size[which(is.nan(daily$size))] <- NA
 
 ## add daily whale summaries
@@ -402,7 +427,7 @@ whales.on.mysid.days <- slice(.data = whales, which(whales$Date %in% sample.days
 daily$daily.whales <- whales.on.mysid.days$Unique.Daily
 daily$feed.whales <- whales.on.mysid.days$Unique.Feed
 
-colnames(daily) <- c("Date", "n.tows", "mysids", "size", "daily.whales", "feed.whales")
+colnames(daily) <- c("Date","region", "n.tows", "mysids", "size", "daily.whales", "feed.whales")
 
 plot(daily$mysids, daily$daily.whales)
 plot(daily$mysids, daily$feed.whales)
