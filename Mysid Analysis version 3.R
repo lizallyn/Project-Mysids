@@ -410,7 +410,7 @@ plot(daily$size, daily$feed.whales)
 
 ### ok now some models
 # this time with avg mysid size
-# just unique feeding whales
+# just unique ID, feeding whales
 # just tackling the daily first
 
 hist(daily$feed.whales)
