@@ -19,9 +19,9 @@ data <- data.full[,c(1,2,4,6,7,11,17:25,30,31)]
 # as.data.frame(data)
 
 data$Site <- factor(data$Site, 
-                    levels = c("Chito Beach", "Bullman Beach", "Seal and Sail",
+                    levels = c("Chito Beach", "Bullman Beach", "Seal And Sail",
                                "Sail River", "First Beach", "Koitlah", 
-                               "Slant Rock", "Skagway Rocks", "Anderson Rocks", 
+                               "Slant Rock", "Skagway", "Anderson Rocks", 
                                "Portage Head", "Duk Point", "North of Bodelteh Islands", 
                                "South of Bodelteh Islands", "Ozette Island"))
 
@@ -256,6 +256,8 @@ sites <- read.csv("Sample site coords for R.csv")
 tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
 
+library(dplyr)
+
 coordmatch <- data.frame(matrix(nrow= nrow(full.whales)))
 # add sighting coords and IDs
 coordmatch$sighting <- full.whales$Date_S
@@ -371,18 +373,17 @@ sightings.300m <- coordmatch$sighting[which(coordmatch$site.lat == coordmatch$si
 # pull out rows of full.whales that are at-site sightings
 at.sites <- full.whales[which(full.whales$Date_S %in% sightings.300m),]
 # only feeding or no behavior - 
+behaviors <- c("Feeding", "")
 feed.at.sites <- at.sites[which(at.sites$Group_Beh %in% behaviors),]
 # only 19 sightings then
 
 # Pull out only feeding whales from full.whales
-behaviors <- c("Feeding", "")
 feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
 # 184 sightings
 
 ## Avg Mysid size
 
 data$counter <- rep(1, nrow(data))
-
 daily <- data %>%
   group_by(Date) %>%
   summarize(n.tows <- sum(counter),
@@ -412,6 +413,7 @@ plot(daily$size, daily$feed.whales)
 # this time with avg mysid size
 # just unique ID, feeding whales
 # just tackling the daily first
+library(glmmTMB)
 
 hist(daily$feed.whales)
 # definitely still same distribution issues
@@ -422,14 +424,37 @@ summary(m.daily.feed.mysids)
 m.daily.feed.size <- glmmTMB(data = daily, feed.whales ~ scale(size), 
                    family = truncated_nbinom1, ziformula = ~.)
 summary(m.daily.feed.size)
+m.daily.feed.ms <- glmmTMB(data = daily, feed.whales ~ scale(size) + scale(mysids), 
+                           family = truncated_nbinom1, ziformula = ~.)
+summary(m.daily.feed.ms)
+confint(m.daily.feed.ms)
 
+m.daily.feed.0 <- glmmTMB(data = daily, feed.whales ~ 1, 
+                           family = truncated_nbinom1, ziformula = ~.)
+summary(m.daily.feed.0)
+
+# Plot predictions
 size.range <- data.frame(size = 4:14)
 plot(size.range$size, predict(object = m.daily.feed.size, type = "response", 
                               newdata = size.range))
 # definitely not for use predicting beyond size ranges observed
-
 mys.abundances <- data.frame(mysids = seq(0, 4000, 100))
 plot(mys.abundances$mysids, predict(object = m.daily.feed.mysids,
                                     type = "response", newdata = mys.abundances))
-# interesting, predicts fewer whales for 0 mysids than for many? Still messy
+# interesting, predicts fewer whales for 0 mysids than for many, still messy
+
+## AICc model selection
+library(wiqid) # for AICc
+rows <- c("Mysids + Size", "Mysids", "Size", "Null")
+columns <- c("AIC", "delta", "weight")
+AICc.feed.area <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.daily.feed.ms),
+                                                               AICc(m.daily.feed.mysids),
+                                                               AICc(m.daily.feed.size),
+                                                               AICc(m.daily.feed.0)), 
+                                  dimnames = list(rows, columns)))
+AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
+AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
+AICc.feed.area
+# It likes the mysids + size one!!
+
 
