@@ -267,18 +267,14 @@ WS.Eastof <- -124.726
 WS.Northof <- 48.37437
 O.Southof <- 48.38615
 O.Westof <- -124.6529
-# create dataframe to store assignments in
-regionmatch <- data.frame(matrix(nrow= nrow(full.whales)))
-# add sighting coords and IDs
-regionmatch$sighting <- full.whales$Date_S
-regionmatch$lat <- full.whales$Start_Dec_Lat
-regionmatch$long <- full.whales$Start_Dec_Long
 # assign regions
-regionmatch$region <- "Error"
-regionmatch$region[regionmatch$long > ES.Eastof] <- "East Strait"
-regionmatch$region[between(regionmatch$long, left = WS.Eastof, right = ES.Eastof) & 
-                     regionmatch$lat > WS.Northof] <- "West Strait"
-regionmatch$region[which(regionmatch$long < O.Westof & regionmatch$lat < O.Southof)] <- "Ocean"
+full.whales$region <- "Error"
+full.whales$region[full.whales$Start_Dec_Long > ES.Eastof] <- "East Strait"
+full.whales$region[between(full.whales$Start_Dec_Long, left = WS.Eastof, 
+                           right = ES.Eastof) & 
+                     full.whales$Start_Dec_Lat > WS.Northof] <- "West Strait"
+full.whales$region[which(full.whales$Start_Dec_Long < O.Westof & 
+                           full.whales$Start_Dec_Lat < O.Southof)] <- "Ocean"
 
 # Whale sightings within 300m of tow sites
 
