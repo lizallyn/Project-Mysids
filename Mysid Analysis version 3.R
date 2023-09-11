@@ -401,7 +401,7 @@ feed.at.sites <- at.sites[which(at.sites$Group_Beh %in% behaviors),]
 feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
 # 184 sightings
 
-## Avg Mysid size
+## Avg Mysid size and daily summary
 library(tidyr)
 library(dplyr)
 data$counter <- rep(1, nrow(data))
@@ -413,24 +413,25 @@ daily <- data %>%
 colnames(daily) <- c("Date", "region", "n.tows", "mysids", "size")
 daily$size[which(is.nan(daily$size))] <- NA
 
-## add daily whale summaries
-
+## daily whale summaries
 data$Date <- as.factor(data$Date)
 sample.days <- levels(data$Date)
 # pull out survey days when tows happened
 whales.on.mysid.days <- slice(.data = full.whales, which(full.whales$Date %in% sample.days))
 # summarize by day and region
+whales.on.mysid.days$dailyID <- as.numeric(whales.on.mysid.days$dailyID)
 daily.region.whales <- whales.on.mysid.days %>%
-  group_by(Date, Region) %>%
+  group_by(Date, region) %>%
   summarize(n.sights <- length(Date),
-            daily.whales <- mean(dailyID),
-            )
+            reg.IDs <- sum(IDs),
+            reg.feed.IDs <- sum(feed.IDs),
+            reg.daily.IDs <- mean(dailyID),
+            reg.daily.f.IDs <- mean(feed.dailyID))
+colnames(daily.region.whales) <- c("Date", "Region", "N.Sights", "reg.IDs", 
+                                   "reg.feed.IDs", "reg.daily.IDs", 
+                                   "reg.daily.f.IDs")
+## combine mysid and whale daily summaries
 
-# add unique daily whales and unique daily feeding whales
-daily$daily.whales <- whales.on.mysid.days$Unique.Daily
-daily$feed.whales <- whales.on.mysid.days$Unique.Feed
-
-colnames(daily) <- c("Date","region", "n.tows", "mysids", "size", "daily.whales", "feed.whales")
 
 plot(daily$mysids, daily$daily.whales)
 plot(daily$mysids, daily$feed.whales)
