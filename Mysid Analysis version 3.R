@@ -405,19 +405,21 @@ feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
 library(tidyr)
 library(dplyr)
 data$counter <- rep(1, nrow(data))
-daily <- data %>%
+daily.mysids <- data %>%
   group_by(Date, Region) %>%
   summarize(n.tows <- sum(counter),
             mysids <- mean(MysidCount),
             size <- mean(Avg.length, na.rm = T))
-colnames(daily) <- c("Date", "region", "n.tows", "mysids", "size")
-daily$size[which(is.nan(daily$size))] <- NA
+colnames(daily.mysids) <- c("Date", "Region", "n.tows", "mysids", "size")
+daily.mysids$Date_R <- paste(daily.mysids$Date, daily.mysids$Region, sep = "_")
+daily.mysids$size[which(is.nan(daily.mysids$size))] <- NA
 
 ## daily whale summaries
 data$Date <- as.factor(data$Date)
 sample.days <- levels(data$Date)
 # pull out survey days when tows happened
-whales.on.mysid.days <- slice(.data = full.whales, which(full.whales$Date %in% sample.days))
+whales.on.mysid.days <- slice(.data = full.whales, 
+                              which(full.whales$Date %in% sample.days))
 # summarize by day and region
 whales.on.mysid.days$dailyID <- as.numeric(whales.on.mysid.days$dailyID)
 daily.region.whales <- whales.on.mysid.days %>%
@@ -430,13 +432,23 @@ daily.region.whales <- whales.on.mysid.days %>%
 colnames(daily.region.whales) <- c("Date", "Region", "N.Sights", "reg.IDs", 
                                    "reg.feed.IDs", "reg.daily.IDs", 
                                    "reg.daily.f.IDs")
+daily.region.whales$Date_R <- paste(daily.region.whales$Date, 
+                                    daily.region.whales$Region, sep = "_")
+
+
 ## combine mysid and whale daily summaries
+daily <- merge(x = daily.mysids, y = daily.region.whales, all.x = T)
+# make NA whale region-days 0s
+daily$N.Sights[which(is.na(daily$N.Sights))] <- 0
+daily$reg.IDs[which(is.na(daily$reg.IDs))] <- 0
+daily$reg.feed.IDs[which(is.na(daily$reg.feed.IDs))] <- 0
+daily$reg.daily.IDs[which(is.na(daily$reg.daily.IDs))] <- 0
+daily$reg.daily.f.IDs[which(is.na(daily$reg.daily.f.IDs))] <- 0
 
-
-plot(daily$mysids, daily$daily.whales)
-plot(daily$mysids, daily$feed.whales)
-plot(daily$size, daily$daily.whales)
-plot(daily$size, daily$feed.whales)
+plot(daily$mysids, daily$reg.feed.IDs)
+plot(daily$size, daily$reg.feed.IDs)
+plot(daily$mysids, daily$reg.daily.f.IDs)
+plot(daily$size, daily$reg.daily.f.IDs)
 
 ### ok now some models
 # this time with avg mysid size
