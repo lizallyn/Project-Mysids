@@ -1,6 +1,8 @@
 ### Mysid Analysis, Take 3
 ### Including corrections from QERM 514 feedback
 ### July 25, 2023
+# separated into two files on Sept 13, 2023 for continued work
+# "Mysid Analysis 4 daily.R" and "Mysid Analysis 4 sites.R"
 
 ### Read In Data
 
