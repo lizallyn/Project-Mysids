@@ -170,6 +170,56 @@ whales.and.mysids$feed.IDs[which(is.na(whales.and.mysids$feed.IDs))] <- 0
 whales.and.mysids$dailyID[which(is.na(whales.and.mysids$dailyID))] <- 0
 whales.and.mysids$feed.dailyID[which(is.na(whales.and.mysids$feed.dailyID))] <- 0
 
+# construct some models!!
+# check region as a random effect
+
+m.rand <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(Avg.length) + 
+                    scale(MysidCount) + (1|Region), 
+                  family = truncated_nbinom1, ziformula = ~.)
+summary(m.rand)
+m.norand <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(Avg.length) + 
+                    scale(MysidCount), 
+                  family = truncated_nbinom1, ziformula = ~.)
+summary(m.norand)
+lrtest(m.rand, m.norand)
+# doesn't want it again...
+# try without first
+# worried we don't have enough data to do this...
+
+m.feed.mysids.site <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(MysidCount), 
+                         family = truncated_nbinom1, ziformula = ~.)
+# not converging, estimating binom intercept as basically 0
+summary(m.feed.mysids.site)
+fixef(m.feed.mysids.site)
+
+m.feed.size.site <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(Avg.length), 
+                              family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.size.site)
+fixef(m.feed.size.site)
+
+m.feed.ms.site <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(Avg.length) + scale(MysidCount), 
+                            family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.ms.site)
+fixef(m.feed.ms.site)
+confint(m.feed.ms.site)
+
+m.feed.0.site <- glmmTMB(data = whales.and.mysids, feed.IDs ~ 1, 
+                          family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.0.site)
+
+# compare models
+library(wiqid) # for AICc
+rows <- c("Mysids + Size", "Size", "Null")
+columns <- c("AIC", "delta", "weight")
+AICc.feed <-  data.frame(matrix(nrow = 3, ncol = 3, data = c(AICc(m.feed.ms.site),
+                                                             AICc(m.feed.size.site),
+                                                             AICc(m.feed.0.site)), 
+                                dimnames = list(rows, columns)))
+AICc.feed[,2] <- AICc.feed[,1] - min(AICc.feed)
+AICc.feed[,3] <- exp(-0.5*AICc.feed[,2])/sum(exp(-0.5*AICc.feed[,2]))
+AICc.feed
+
+## I think everything down here isn't useful anymore, but waiting a couple days
 # sightings where site was assigned
 sightings.300m <- coordmatch$sighting[which(coordmatch$site.lat == coordmatch$site.long)]
 # only 27 at the moment...
