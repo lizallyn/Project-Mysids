@@ -1,19 +1,24 @@
 # Mysid Analysis 4 sites
+# separated from full analysis file on Sept 13, 2023
 
 # read in data
 full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
 sites <- read.csv("Sample site coords for R.csv")
-tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
 data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
-data$Site <- factor(data$Site, 
-                    levels = c("Chito Beach", "Bullman Beach", "Seal And Sail",
-                               "Sail River", "First Beach", "Koitlah", 
-                               "Slant Rock", "Skagway", "Anderson Rocks", 
-                               "Portage Head", "Duk Point", "North of Bodelteh Islands", 
-                               "South of Bodelteh Islands", "Ozette Island"))
+data <- data.frame(data)
+# remove single rasmussen tow
+data <- data[-which(data$Site == "Rasmussen"),]
+# make names match whale data for sites
+data$Site[which(data$Site == "North of Bodelteh Islands")] <- "North of Bodeltehs"
+data$Site[which(data$Site == "South of Bodelteh Islands")] <- "South of Bodeltehs"
+data$Site[which(data$Site == "Seal And Sail")] <- "Seal and Sail Rocks"
+data$Site <- as.factor(data$Site)
+data$Date_site <- paste(data$Date, data$Site, sep="_")
+# simplified version of data
+data.simple <- data[, c("Date", "Region", "MysidCount", "Avg.length", "Date_site")]
 
 # Packages
 library(tidyr)
@@ -27,19 +32,20 @@ WS.Northof <- 48.37437
 O.Southof <- 48.38615
 O.Westof <- -124.6529
 # assign regions
-full.whales$region <- "Error"
-full.whales$region[full.whales$Start_Dec_Long > ES.Eastof] <- "East Strait"
-full.whales$region[between(full.whales$Start_Dec_Long, left = WS.Eastof, 
+full.whales$Region <- "Error"
+full.whales$Region[full.whales$Start_Dec_Long > ES.Eastof] <- "East Strait"
+full.whales$Region[between(full.whales$Start_Dec_Long, left = WS.Eastof, 
                            right = ES.Eastof) & 
                      full.whales$Start_Dec_Lat > WS.Northof] <- "West Strait"
-full.whales$region[which(full.whales$Start_Dec_Long < O.Westof & 
+full.whales$Region[which(full.whales$Start_Dec_Long < O.Westof & 
                            full.whales$Start_Dec_Lat < O.Southof)] <- "Ocean"
 
 # Whale sightings within 600m grid square of tow sites
 
 coordmatch <- data.frame(matrix(nrow= nrow(full.whales)))
 # add sighting coords and IDs
-coordmatch$sighting <- full.whales$Date_S
+coordmatch$Date <- full.whales$Date
+coordmatch$Date_S <- full.whales$Date_S
 coordmatch$lat <- full.whales$Start_Dec_Lat
 coordmatch$long <- full.whales$Start_Dec_Long
 # create columns for assigned site names
@@ -136,7 +142,7 @@ coordmatch$site.long[which(between(coordmatch$long, coordmatch$SS.long.min, coor
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SK.long.min, coordmatch$SK.long.max))] <- "Skagway Rocks"
 coordmatch$site.long[which(between(coordmatch$long, coordmatch$SL.long.min, coordmatch$SL.long.max))] <- "Slant Rock"
 # assign all "errors" to "None"
-coordmatch$r.site <- "Not Assigned"
+coordmatch$r.site <- "Not Assigned" # both assigned but not to matching sites
 coordmatch$r.site[which(coordmatch$site.lat == "Error")] <- "None"
 coordmatch$r.site[which(coordmatch$site.long == "Error2")] <- "None"
 # assign ones that matched
@@ -147,6 +153,24 @@ problems <- coordmatch[which(coordmatch$r.site == "Not Assigned"),]
 # with 300m square, 28 with conflicting assignations, 184 with None
 # 13 of those 28 are actually far from each other
 # The other 15 are close calls that might be encompassed with a larger buffer area
+# moving forward without assigning them for now
+# pull out version of coordmatch with useful columns
+site.assigned <- coordmatch[, c("Date", "Date_S", "lat", "long", "r.site")]
+# create column of date_site
+site.assigned$Date_site <- paste(site.assigned$Date, site.assigned$r.site, sep = "_")
+# pull out full.whales useful columns
+whale.info <- full.whales[, c("Date", "Date_S", "Group_Beh", "IDs", "feed.IDs", "dailyID", "feed.dailyID", "Region")]
+# merge with site.assigned
+whales.with.sites <- merge(site.assigned, whale.info, all = T)
+# merge with mysid info using Date_site
+whales.and.mysids <- merge(whales.with.sites, data.simple, all.y = T, all.x = F)
+# make whale NAs 0s
+whales.and.mysids$IDs[which(is.na(whales.and.mysids$IDs))] <- 0
+whales.and.mysids$feed.IDs[which(is.na(whales.and.mysids$feed.IDs))] <- 0
+whales.and.mysids$dailyID[which(is.na(whales.and.mysids$dailyID))] <- 0
+whales.and.mysids$feed.dailyID[which(is.na(whales.and.mysids$feed.dailyID))] <- 0
+
+# sightings where site was assigned
 sightings.300m <- coordmatch$sighting[which(coordmatch$site.lat == coordmatch$site.long)]
 # only 27 at the moment...
 # pull out rows of full.whales that are at-site sightings
@@ -158,3 +182,4 @@ feed.at.sites <- at.sites[which(at.sites$Group_Beh %in% behaviors),]
 # Pull out only feeding whales from full.whales
 feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
 # 184 sightings
+
