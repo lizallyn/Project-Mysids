@@ -307,12 +307,12 @@ size.range <- data.frame(size = 4:14)
 plot(size.range$size, predict(object = m.feed.size, type = "response", 
                               newdata = size.range))
 # definitely not for use predicting beyond size ranges observed
-mys.abundances <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait")
-plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
+mys.abundances <- data.frame(mysids = seq(0, 4000, 100))
+plot(mys.abundances$mysids, predict(object = m.feed.mysids,
                                     type = "response", newdata = mys.abundances))
 # interesting, predicts fewer whales for 0 mysids than for many, still messy
-mys.input <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait", size = 14)
-plot(mys.input$mysids, predict(object = m.reg.feed.ms,
+mys.input <- data.frame(mysids = seq(0, 4000, 100), size = 9)
+plot(mys.input$mysids, predict(object = m.feed.ms,
                                type = "response", newdata = mys.input))
 
 ## AICc model selection
