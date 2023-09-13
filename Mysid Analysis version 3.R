@@ -523,7 +523,7 @@ AICc.feed.area
 
 # Mysid size gradients per region
 # East Strait
-plot(daily$size, daily$reg.feed.IDs, main = "East Strait")
+plot(daily$size[which(daily$Region == "East Strait")], daily$reg.feed.IDs[which(daily$Region == "East Strait")], main = "East Strait")
 size.input.10 <- data.frame(size = 4:14, mysids = 10, Region = "East Strait")
 size.input.100 <- data.frame(size = 4:14, mysids = 100, Region = "East Strait")
 size.input.1000 <- data.frame(size = 4:14, mysids = 1000, Region = "East Strait")
@@ -537,7 +537,7 @@ lines(size.input.1000$size, predict(object = m.reg.feed.ms,
                                   type = "response", newdata = size.input.1000), 
       col = "dodgerblue3", lwd = 2)
 # west Strait
-plot(daily$size, daily$reg.feed.IDs, main = "West Strait")
+plot(daily$size[which(daily$Region == "West Strait")], daily$reg.feed.IDs[which(daily$Region == "West Strait")], main = "West Strait")
 size.input.10 <- data.frame(size = 4:14, mysids = 10, Region = "West Strait")
 size.input.100 <- data.frame(size = 4:14, mysids = 100, Region = "West Strait")
 size.input.1000 <- data.frame(size = 4:14, mysids = 1000, Region = "West Strait")
@@ -551,7 +551,7 @@ lines(size.input.1000$size, predict(object = m.reg.feed.ms,
                                     type = "response", newdata = size.input.1000), 
       col = "dodgerblue3", lwd = 2)
 # ocean
-plot(daily$size, daily$reg.feed.IDs, main = "Ocean")
+plot(daily$size[which(daily$Region == "Ocean")], daily$reg.feed.IDs[which(daily$Region == "Ocean")], main = "Ocean")
 size.input.10 <- data.frame(size = 4:14, mysids = 10, Region = "Ocean")
 size.input.100 <- data.frame(size = 4:14, mysids = 100, Region = "Ocean")
 size.input.1000 <- data.frame(size = 4:14, mysids = 1000, Region = "Ocean")
@@ -567,7 +567,7 @@ lines(size.input.1000$size, predict(object = m.reg.feed.ms,
 
 # Mysid abundance gradients per region
 # East Strait
-plot(daily$mysids, daily$reg.feed.IDs, main = "East Strait")
+plot(daily$mysids[which(daily$Region == "East Strait")], daily$reg.feed.IDs[which(daily$Region == "East Strait")], main = "East Strait")
 mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "East Strait")
 mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "East Strait")
 mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "East Strait")
@@ -581,7 +581,7 @@ lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
                                     type = "response", newdata = mys.input.14), 
       col = "magenta2", lwd = 2)
 # west Strait
-plot(daily$mysids, daily$reg.feed.IDs, main = "West Strait")
+plot(daily$mysids[which(daily$Region == "West Strait")], daily$reg.feed.IDs[which(daily$Region == "West Strait")], main = "West Strait")
 mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "West Strait")
 mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "West Strait")
 mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "West Strait")
@@ -595,7 +595,7 @@ lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
                                    type = "response", newdata = mys.input.14), 
       col = "magenta2", lwd = 2)
 # ocean
-plot(daily$mysids, daily$reg.feed.IDs, main = "Ocean")
+plot(daily$mysids[which(daily$Region == "Ocean")], daily$reg.feed.IDs[which(daily$Region == "Ocean")], main = "Ocean")
 mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "Ocean")
 mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "Ocean")
 mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "Ocean")
