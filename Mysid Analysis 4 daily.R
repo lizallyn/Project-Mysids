@@ -1,5 +1,5 @@
 # Mysid Analysis 4 - daily summaries
-
+# separated from full analysis file on Sept 13, 2023
 
 # read in data
 
@@ -128,10 +128,6 @@ plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
 mys.input <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait", size = 14)
 plot(mys.input$mysids, predict(object = m.reg.feed.ms,
                                type = "response", newdata = mys.input))
-size.input <- data.frame(size = 4:14, mysids = 10, Region = "Ocean")
-plot(size.input$size, predict(object = m.reg.feed.ms,
-                              type = "response", newdata = size.input), main = "East Strait")
-# the messiness goes away when size = bigger? just an increase with abundance?
 
 ## AICc model selection
 library(wiqid) # for AICc
