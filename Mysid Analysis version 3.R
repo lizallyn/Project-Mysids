@@ -481,6 +481,8 @@ fixef(m.reg.feed.size)
 m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                            family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.ms)
+ranef(m.reg.feed.ms)
+fixef(m.reg.feed.ms)
 confint(m.reg.feed.ms)
 
 m.reg.feed.0 <- glmmTMB(data = daily, reg.feed.IDs ~ 1, 
@@ -499,9 +501,9 @@ plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
 mys.input <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait", size = 14)
 plot(mys.input$mysids, predict(object = m.reg.feed.ms,
                               type = "response", newdata = mys.input))
-size.input <- data.frame(size = 4:14, mysids = 1000, Region = "East Strait")
+size.input <- data.frame(size = 4:14, mysids = 10, Region = "Ocean")
 plot(size.input$size, predict(object = m.reg.feed.ms,
-                                    type = "response", newdata = size.input))
+                                    type = "response", newdata = size.input), main = "East Strait")
 # the messiness goes away when size = bigger? just an increase with abundance?
 
 ## AICc model selection
@@ -517,3 +519,48 @@ AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
 AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
 AICc.feed.area
 
+# More Exploration Plots
+
+# Mysid size gradients per region
+# East Strait
+plot(daily$size, daily$reg.feed.IDs, main = "East Strait")
+size.input.10 <- data.frame(size = 4:14, mysids = 10, Region = "East Strait")
+size.input.100 <- data.frame(size = 4:14, mysids = 100, Region = "East Strait")
+size.input.1000 <- data.frame(size = 4:14, mysids = 1000, Region = "East Strait")
+lines(size.input.10$size, predict(object = m.reg.feed.ms,
+                               type = "response", newdata = size.input.10), 
+      col = "lightblue2", lwd = 2)
+lines(size.input.100$size, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = size.input.100), 
+      col = "skyblue2", lwd = 2)
+lines(size.input.1000$size, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = size.input.1000), 
+      col = "dodgerblue3", lwd = 2)
+# west Strait
+plot(daily$size, daily$reg.feed.IDs, main = "West Strait")
+size.input.10 <- data.frame(size = 4:14, mysids = 10, Region = "West Strait")
+size.input.100 <- data.frame(size = 4:14, mysids = 100, Region = "West Strait")
+size.input.1000 <- data.frame(size = 4:14, mysids = 1000, Region = "West Strait")
+lines(size.input.10$size, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = size.input.10), 
+      col = "lightblue2", lwd = 2)
+lines(size.input.100$size, predict(object = m.reg.feed.ms,
+                                   type = "response", newdata = size.input.100), 
+      col = "skyblue2", lwd = 2)
+lines(size.input.1000$size, predict(object = m.reg.feed.ms,
+                                    type = "response", newdata = size.input.1000), 
+      col = "dodgerblue3", lwd = 2)
+# ocean
+plot(daily$size, daily$reg.feed.IDs, main = "Ocean")
+size.input.10 <- data.frame(size = 4:14, mysids = 10, Region = "Ocean")
+size.input.100 <- data.frame(size = 4:14, mysids = 100, Region = "Ocean")
+size.input.1000 <- data.frame(size = 4:14, mysids = 1000, Region = "Ocean")
+lines(size.input.10$size, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = size.input.10), 
+      col = "lightblue2", lwd = 2)
+lines(size.input.100$size, predict(object = m.reg.feed.ms,
+                                   type = "response", newdata = size.input.100), 
+      col = "skyblue2", lwd = 2)
+lines(size.input.1000$size, predict(object = m.reg.feed.ms,
+                                    type = "response", newdata = size.input.1000), 
+      col = "dodgerblue3", lwd = 2)
