@@ -462,7 +462,8 @@ plot(daily$size, daily$daily.f.IDs)
 
 ### ok now some models
 # this time with avg mysid size
-# just unique ID, feeding whales
+# just regional unique IDs, feeding whales only
+# sightings from mysid survey area only
 # just tackling the daily first
 library(glmmTMB)
 
@@ -475,7 +476,7 @@ summary(m.reg.feed.mysids)
 fixef(m.reg.feed.mysids)
 m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size), 
                    family = truncated_nbinom1, ziformula = ~.)
-summary(m.reg.feed.size) # not converging properly
+summary(m.reg.feed.size) # not converging properly unless size is scaled
 fixef(m.reg.feed.size)
 m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                            family = truncated_nbinom1, ziformula = ~.)
@@ -495,6 +496,13 @@ mys.abundances <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait")
 plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
                                     type = "response", newdata = mys.abundances))
 # interesting, predicts fewer whales for 0 mysids than for many, still messy
+mys.input <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait", size = 14)
+plot(mys.input$mysids, predict(object = m.reg.feed.ms,
+                              type = "response", newdata = mys.input))
+size.input <- data.frame(size = 4:14, mysids = 1000, Region = "East Strait")
+plot(size.input$size, predict(object = m.reg.feed.ms,
+                                    type = "response", newdata = size.input))
+# the messiness goes away when size = bigger? just an increase with abundance?
 
 ## AICc model selection
 library(wiqid) # for AICc
@@ -508,5 +516,4 @@ AICc.feed.area <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.reg.fee
 AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
 AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
 AICc.feed.area
-
 
