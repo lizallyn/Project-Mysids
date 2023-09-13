@@ -249,11 +249,24 @@ summary(model.bin)
 
 ### Adrianne's extras
 
+# read in data
+
 full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
 sites <- read.csv("Sample site coords for R.csv")
 tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+# Pull out useful clean mysid data columns to simplify data frame
+data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
+data$Site <- factor(data$Site, 
+                    levels = c("Chito Beach", "Bullman Beach", "Seal And Sail",
+                               "Sail River", "First Beach", "Koitlah", 
+                               "Slant Rock", "Skagway", "Anderson Rocks", 
+                               "Portage Head", "Duk Point", "North of Bodelteh Islands", 
+                               "South of Bodelteh Islands", "Ozette Island"))
 
+# Packages
+library(tidyr)
 library(dplyr)
 
 # this sighting is on land, use sight end coords instead
@@ -396,14 +409,11 @@ at.sites <- full.whales[which(full.whales$Date_S %in% sightings.300m),]
 behaviors <- c("Feeding", "")
 feed.at.sites <- at.sites[which(at.sites$Group_Beh %in% behaviors),]
 # only 19 sightings then
-
 # Pull out only feeding whales from full.whales
 feeding <- full.whales[which(full.whales$Group_Beh %in% behaviors),]
 # 184 sightings
 
 ## Avg Mysid size and daily summary
-library(tidyr)
-library(dplyr)
 data$counter <- rep(1, nrow(data))
 daily.mysids <- data %>%
   group_by(Date, Region) %>%
@@ -430,8 +440,8 @@ daily.region.whales <- whales.on.mysid.days %>%
             reg.daily.IDs <- mean(dailyID),
             reg.daily.f.IDs <- mean(feed.dailyID))
 colnames(daily.region.whales) <- c("Date", "Region", "N.Sights", "reg.IDs", 
-                                   "reg.feed.IDs", "reg.daily.IDs", 
-                                   "reg.daily.f.IDs")
+                                   "reg.feed.IDs", "daily.IDs", 
+                                   "daily.f.IDs")
 daily.region.whales$Date_R <- paste(daily.region.whales$Date, 
                                     daily.region.whales$Region, sep = "_")
 
@@ -442,13 +452,13 @@ daily <- merge(x = daily.mysids, y = daily.region.whales, all.x = T)
 daily$N.Sights[which(is.na(daily$N.Sights))] <- 0
 daily$reg.IDs[which(is.na(daily$reg.IDs))] <- 0
 daily$reg.feed.IDs[which(is.na(daily$reg.feed.IDs))] <- 0
-daily$reg.daily.IDs[which(is.na(daily$reg.daily.IDs))] <- 0
-daily$reg.daily.f.IDs[which(is.na(daily$reg.daily.f.IDs))] <- 0
+daily$daily.IDs[which(is.na(daily$daily.IDs))] <- 0
+daily$daily.f.IDs[which(is.na(daily$daily.f.IDs))] <- 0
 
 plot(daily$mysids, daily$reg.feed.IDs)
 plot(daily$size, daily$reg.feed.IDs)
-plot(daily$mysids, daily$reg.daily.f.IDs)
-plot(daily$size, daily$reg.daily.f.IDs)
+plot(daily$mysids, daily$daily.f.IDs)
+plot(daily$size, daily$daily.f.IDs)
 
 ### ok now some models
 # this time with avg mysid size
@@ -456,31 +466,32 @@ plot(daily$size, daily$reg.daily.f.IDs)
 # just tackling the daily first
 library(glmmTMB)
 
-hist(daily$feed.whales)
+hist(daily$reg.feed.IDs)
 # definitely still same distribution issues
 
-m.daily.feed.mysids <- glmmTMB(data = daily, feed.whales ~ scale(mysids), 
+m.reg.feed.mysids <- glmmTMB(data = daily, reg.feed.IDs ~ scale(mysids) + (1|Region), 
                    family = truncated_nbinom1, ziformula = ~.)
-summary(m.daily.feed.mysids)
-m.daily.feed.size <- glmmTMB(data = daily, feed.whales ~ scale(size), 
+summary(m.reg.feed.mysids)
+m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size), 
                    family = truncated_nbinom1, ziformula = ~.)
-summary(m.daily.feed.size)
-m.daily.feed.ms <- glmmTMB(data = daily, feed.whales ~ scale(size) + scale(mysids), 
+summary(m.reg.feed.size) # not converging properly
+fixef(m.reg.feed.size)
+m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                            family = truncated_nbinom1, ziformula = ~.)
-summary(m.daily.feed.ms)
-confint(m.daily.feed.ms)
+summary(m.reg.feed.ms)
+confint(m.reg.feed.ms)
 
-m.daily.feed.0 <- glmmTMB(data = daily, feed.whales ~ 1, 
+m.reg.feed.0 <- glmmTMB(data = daily, reg.feed.IDs ~ 1, 
                            family = truncated_nbinom1, ziformula = ~.)
-summary(m.daily.feed.0)
+summary(m.reg.feed.0)
 
 # Plot predictions
 size.range <- data.frame(size = 4:14)
-plot(size.range$size, predict(object = m.daily.feed.size, type = "response", 
+plot(size.range$size, predict(object = m.reg.feed.size, type = "response", 
                               newdata = size.range))
 # definitely not for use predicting beyond size ranges observed
-mys.abundances <- data.frame(mysids = seq(0, 4000, 100))
-plot(mys.abundances$mysids, predict(object = m.daily.feed.mysids,
+mys.abundances <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait")
+plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
                                     type = "response", newdata = mys.abundances))
 # interesting, predicts fewer whales for 0 mysids than for many, still messy
 
@@ -488,10 +499,10 @@ plot(mys.abundances$mysids, predict(object = m.daily.feed.mysids,
 library(wiqid) # for AICc
 rows <- c("Mysids + Size", "Mysids", "Size", "Null")
 columns <- c("AIC", "delta", "weight")
-AICc.feed.area <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.daily.feed.ms),
-                                                               AICc(m.daily.feed.mysids),
-                                                               AICc(m.daily.feed.size),
-                                                               AICc(m.daily.feed.0)), 
+AICc.feed.area <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.reg.feed.ms),
+                                                               AICc(m.reg.feed.mysids),
+                                                               AICc(m.reg.feed.size),
+                                                               AICc(m.reg.feed.0)), 
                                   dimnames = list(rows, columns)))
 AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
 AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
