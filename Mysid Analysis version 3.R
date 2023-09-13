@@ -564,3 +564,47 @@ lines(size.input.100$size, predict(object = m.reg.feed.ms,
 lines(size.input.1000$size, predict(object = m.reg.feed.ms,
                                     type = "response", newdata = size.input.1000), 
       col = "dodgerblue3", lwd = 2)
+
+# Mysid abundance gradients per region
+# East Strait
+plot(daily$mysids, daily$reg.feed.IDs, main = "East Strait")
+mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "East Strait")
+mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "East Strait")
+mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "East Strait")
+lines(mys.input.4$mysids, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = mys.input.4), 
+      col = "thistle2", lwd = 2)
+lines(mys.input.9$mysids, predict(object = m.reg.feed.ms,
+                                   type = "response", newdata = mys.input.9), 
+      col = "orchid1", lwd = 2)
+lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
+                                    type = "response", newdata = mys.input.14), 
+      col = "magenta2", lwd = 2)
+# west Strait
+plot(daily$mysids, daily$reg.feed.IDs, main = "West Strait")
+mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "West Strait")
+mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "West Strait")
+mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "West Strait")
+lines(mys.input.4$mysids, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = mys.input.4), 
+      col = "thistle2", lwd = 2)
+lines(mys.input.9$mysids, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = mys.input.9), 
+      col = "orchid1", lwd = 2)
+lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
+                                   type = "response", newdata = mys.input.14), 
+      col = "magenta2", lwd = 2)
+# ocean
+plot(daily$mysids, daily$reg.feed.IDs, main = "Ocean")
+mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "Ocean")
+mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "Ocean")
+mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "Ocean")
+lines(mys.input.4$mysids, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = mys.input.4), 
+      col = "thistle2", lwd = 2)
+lines(mys.input.9$mysids, predict(object = m.reg.feed.ms,
+                                  type = "response", newdata = mys.input.9), 
+      col = "orchid1", lwd = 2)
+lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
+                                   type = "response", newdata = mys.input.14), 
+      col = "magenta2", lwd = 2)
