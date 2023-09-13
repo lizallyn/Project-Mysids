@@ -96,15 +96,22 @@ library(glmmTMB)
 hist(daily$reg.feed.IDs)
 # use same model structure
 
+# check Region real quick
+m.feed.rand <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
+                         family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.rand)
+m.feed.norand <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids), 
+                       family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.norand)
+library(lmtest)
+lrtest(m.feed.rand, m.feed.norand)
+# doesn't favor having Region as a random effect...including anyway here...
+
 m.reg.feed.mysids <- glmmTMB(data = daily, reg.feed.IDs ~ scale(mysids) + (1|Region), 
                              family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.mysids)
 fixef(m.reg.feed.mysids)
-m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size), 
-                           family = truncated_nbinom1, ziformula = ~.)
-# not converging properly unless size is scaled and reg removed
-summary(m.reg.feed.size) 
-fixef(m.reg.feed.size)
+
 m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                          family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.ms)
@@ -112,7 +119,7 @@ ranef(m.reg.feed.ms)
 fixef(m.reg.feed.ms)
 confint(m.reg.feed.ms)
 
-m.reg.feed.0 <- glmmTMB(data = daily, reg.feed.IDs ~ 1, 
+m.reg.feed.0 <- glmmTMB(data = daily, reg.feed.IDs ~ 1 + (1|Region), 
                         family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.0)
 
@@ -231,3 +238,92 @@ lines(mys.input.9$mysids, predict(object = m.reg.feed.ms,
 lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
                                    type = "response", newdata = mys.input.14), 
       col = "magenta2", lwd = 2)
+
+## Without Region as a random effect
+
+# create daily summaries without region
+
+## Avg Mysid size and daily summary
+data$counter <- rep(1, nrow(data))
+just.daily.mysids <- data %>%
+  group_by(Date) %>%
+  summarize(n.tows <- sum(counter),
+            mysids <- mean(MysidCount),
+            size <- mean(Avg.length, na.rm = T))
+colnames(just.daily.mysids) <- c("Date", "n.tows", "mysids", "size")
+just.daily.mysids$size[which(is.nan(just.daily.mysids$size))] <- NA
+## daily whale summaries
+data$Date <- as.factor(data$Date)
+sample.days <- levels(data$Date)
+# pull out survey days when tows happened
+whales.on.mysid.days <- slice(.data = full.whales, 
+                              which(full.whales$Date %in% sample.days))
+# summarize by day and region
+whales.on.mysid.days$dailyID <- as.numeric(whales.on.mysid.days$feed.dailyID)
+daily.whales <- whales.on.mysid.days %>%
+  group_by(Date) %>%
+  summarize(n.sights <- length(Date),
+            IDs <- sum(IDs),
+            feed.IDs <- sum(feed.IDs),
+            daily.IDs <- mean(dailyID),
+            daily.f.IDs <- mean(feed.dailyID))
+colnames(daily.whales) <- c("Date", "N.Sights", "IDs", 
+                                   "feed.IDs", "daily.IDs", 
+                                   "daily.f.IDs")
+## combine mysid and whale daily summaries
+just.daily <- merge(x = just.daily.mysids, y = daily.whales, all.x = T)
+# make NA whale region-days 0s
+just.daily$N.Sights[which(is.na(just.daily$N.Sights))] <- 0
+just.daily$IDs[which(is.na(just.daily$IDs))] <- 0
+just.daily$feed.IDs[which(is.na(just.daily$feed.IDs))] <- 0
+just.daily$daily.IDs[which(is.na(just.daily$daily.IDs))] <- 0
+just.daily$daily.f.IDs[which(is.na(just.daily$daily.f.IDs))] <- 0
+
+# input here is just daily whale summaries (just.daily$daily.f.IDs)
+
+m.feed.mysids <- glmmTMB(data = just.daily, daily.f.IDs ~ scale(mysids), 
+                             family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.mysids)
+fixef(m.feed.mysids)
+
+m.feed.size <- glmmTMB(data = just.daily, daily.f.IDs ~ scale(size), 
+                           family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.size) 
+fixef(m.feed.size)
+
+m.feed.ms <- glmmTMB(data = just.daily, daily.f.IDs ~ scale(size) + scale(mysids), 
+                         family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.ms)
+ranef(m.feed.ms)
+fixef(m.feed.ms)
+confint(m.feed.ms)
+
+m.feed.0 <- glmmTMB(data = just.daily, daily.f.IDs ~ 1, 
+                        family = truncated_nbinom1, ziformula = ~.)
+summary(m.feed.0)
+
+# Plot predictions
+size.range <- data.frame(size = 4:14)
+plot(size.range$size, predict(object = m.feed.size, type = "response", 
+                              newdata = size.range))
+# definitely not for use predicting beyond size ranges observed
+mys.abundances <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait")
+plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
+                                    type = "response", newdata = mys.abundances))
+# interesting, predicts fewer whales for 0 mysids than for many, still messy
+mys.input <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait", size = 14)
+plot(mys.input$mysids, predict(object = m.reg.feed.ms,
+                               type = "response", newdata = mys.input))
+
+## AICc model selection
+library(wiqid) # for AICc
+rows <- c("Mysids + Size", "Mysids", "Size", "Null")
+columns <- c("AIC", "delta", "weight")
+AICc.feed <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.feed.ms),
+                                                                  AICc(m.feed.mysids),
+                                                                  AICc(m.feed.size),
+                                                                  AICc(m.feed.0)), 
+                                     dimnames = list(rows, columns)))
+AICc.feed[,2] <- AICc.feed[,1] - min(AICc.feed)
+AICc.feed[,3] <- exp(-0.5*AICc.feed[,2])/sum(exp(-0.5*AICc.feed[,2]))
+AICc.feed
