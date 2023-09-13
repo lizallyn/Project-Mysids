@@ -472,6 +472,7 @@ hist(daily$reg.feed.IDs)
 m.reg.feed.mysids <- glmmTMB(data = daily, reg.feed.IDs ~ scale(mysids) + (1|Region), 
                    family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.mysids)
+fixef(m.reg.feed.mysids)
 m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size), 
                    family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.size) # not converging properly
@@ -507,6 +508,5 @@ AICc.feed.area <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.reg.fee
 AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
 AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
 AICc.feed.area
-# It likes the mysids + size one!!
 
 
