@@ -3,9 +3,7 @@
 
 # read in data
 
-full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
-sites <- read.csv("Sample site coords for R.csv")
-tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
+full.whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whales%20in%20full%20survey%20area%202019%202020.csv")
 whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
 data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 # Pull out useful clean mysid data columns to simplify data frame
@@ -137,16 +135,16 @@ plot(size.input$size, predict(object = m.reg.feed.ms,
 
 ## AICc model selection
 library(wiqid) # for AICc
-rows <- c("Mysids + Size", "Mysids", "Size", "Null")
+rows <- c("Mysids + Size", "Mysids", "Null")
 columns <- c("AIC", "delta", "weight")
-AICc.feed.area <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.reg.feed.ms),
+AICc.feed.area <-  data.frame(matrix(nrow = 3, ncol = 3, data = c(AICc(m.reg.feed.ms),
                                                                   AICc(m.reg.feed.mysids),
-                                                                  AICc(m.reg.feed.size),
                                                                   AICc(m.reg.feed.0)), 
                                      dimnames = list(rows, columns)))
 AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
 AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
 AICc.feed.area
+# prefers mysids + size, but not comparing to a size only model right now
 
 # More Exploration Plots
 
