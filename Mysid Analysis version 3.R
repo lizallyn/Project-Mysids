@@ -468,7 +468,7 @@ plot(daily$size, daily$daily.f.IDs)
 library(glmmTMB)
 
 hist(daily$reg.feed.IDs)
-# definitely still same distribution issues
+# use same model structure
 
 m.reg.feed.mysids <- glmmTMB(data = daily, reg.feed.IDs ~ scale(mysids) + (1|Region), 
                    family = truncated_nbinom1, ziformula = ~.)
@@ -476,7 +476,8 @@ summary(m.reg.feed.mysids)
 fixef(m.reg.feed.mysids)
 m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size), 
                    family = truncated_nbinom1, ziformula = ~.)
-summary(m.reg.feed.size) # not converging properly unless size is scaled
+# not converging properly unless size is scaled and reg removed
+summary(m.reg.feed.size) 
 fixef(m.reg.feed.size)
 m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                            family = truncated_nbinom1, ziformula = ~.)
