@@ -174,12 +174,25 @@ whales.and.mysids$dailyID[which(is.na(whales.and.mysids$dailyID))] <- 0
 whales.and.mysids$feed.dailyID[which(is.na(whales.and.mysids$feed.dailyID))] <- 0
 
 # construct some models!!
-# check region as a random effect
 
+# zero-inflation - yes
+hist(whales.and.mysids$feed.IDs)
+# check for overdispersion
+library(VGAM)
+nonzero <- whales.and.mysids[which(whales.and.mysids$feed.IDs != 0),]
+whales.and.mysids$Region <- as.factor(whales.and.mysids$Region)
+# construct zero-truncated Poisson model with mysid count
+m.zt.pois <- vglm(feed.IDs ~ MysidCount, data = nonzero, 
+                  family = "pospoisson")
+pchisq(sum(residuals(m.zt.pois, type = "pearson")^2), nrow(nonzero)-2, lower.tail = FALSE)
+# this isn't converging right either...ugh
+
+# check region as a random effect
 m.rand <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(Avg.length) + 
                     scale(MysidCount) + (1|Region), 
                   family = truncated_nbinom1, ziformula = ~.)
 summary(m.rand)
+vcov(m.rand)
 m.norand <- glmmTMB(data = whales.and.mysids, feed.IDs ~ scale(Avg.length) + 
                     scale(MysidCount), 
                   family = truncated_nbinom1, ziformula = ~.)
