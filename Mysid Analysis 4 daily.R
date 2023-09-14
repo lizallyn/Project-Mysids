@@ -354,3 +354,6 @@ AICc.feed <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(AICc(m.feed.ms),
 AICc.feed[,2] <- AICc.feed[,1] - min(AICc.feed)
 AICc.feed[,3] <- exp(-0.5*AICc.feed[,2])/sum(exp(-0.5*AICc.feed[,2]))
 AICc.feed
+
+# Matching up east and west strait tows
+
