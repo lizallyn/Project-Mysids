@@ -15,6 +15,7 @@ data <- data[-which(data$Site == "Rasmussen"),]
 data$Site[which(data$Site == "North of Bodelteh Islands")] <- "North of Bodeltehs"
 data$Site[which(data$Site == "South of Bodelteh Islands")] <- "South of Bodeltehs"
 data$Site[which(data$Site == "Seal And Sail")] <- "Seal and Sail Rocks"
+data$Site[which(data$Site == "Skagway")] <- "Skagway Rocks"
 data$Site <- as.factor(data$Site)
 data$Date_site <- paste(data$Date, data$Site, sep="_")
 # simplified version of data
@@ -157,9 +158,11 @@ problems <- coordmatch[which(coordmatch$r.site == "Not Assigned"),]
 # pull out version of coordmatch with useful columns
 site.assigned <- coordmatch[, c("Date", "Date_S", "lat", "long", "r.site")]
 # create column of date_site
-site.assigned$Date_site <- paste(site.assigned$Date, site.assigned$r.site, sep = "_")
+site.assigned$Date_site <- paste(site.assigned$Date, site.assigned$r.site, 
+                                 sep = "_")
 # pull out full.whales useful columns
-whale.info <- full.whales[, c("Date", "Date_S", "Group_Beh", "IDs", "feed.IDs", "dailyID", "feed.dailyID", "Region")]
+whale.info <- full.whales[, c("Date", "Date_S", "Group_Beh", "IDs", "feed.IDs", 
+                              "dailyID", "feed.dailyID", "Region")]
 # merge with site.assigned
 whales.with.sites <- merge(site.assigned, whale.info, all = T)
 # merge with mysid info using Date_site
@@ -221,8 +224,9 @@ AICc.feed
 
 ## I think everything down here isn't useful anymore, but waiting a couple days
 # sightings where site was assigned
-sightings.300m <- coordmatch$sighting[which(coordmatch$site.lat == coordmatch$site.long)]
+sightings.300m <- coordmatch$Date_S[which(coordmatch$site.lat == coordmatch$site.long)]
 # only 27 at the moment...
+site.assigned$Date_site[which(coordmatch$site.lat == coordmatch$site.long)]
 # pull out rows of full.whales that are at-site sightings
 at.sites <- full.whales[which(full.whales$Date_S %in% sightings.300m),]
 # only feeding or no behavior - 
