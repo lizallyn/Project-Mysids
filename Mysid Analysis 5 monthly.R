@@ -1,4 +1,4 @@
-# Mysid Analysis 4 Monthly
+# Mysid Analysis 4 Monthly, Regionally
 
 ## read in data
 CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
@@ -35,11 +35,12 @@ data$Region.2[which(data$Region %in% straits)] <- "Strait"
 data$Region.2[which(data$Date %in% no.pair.days)] <- "Not Complete"
 
 mys.region.month <- data %>%
-  group_by(Y_M, Region) %>%
+  group_by(Y_M, Region.2) %>%
   summarize(n.tows <- length(Sample),
             mysids <- mean(MysidCount, na.rm = T),
             size <- mean(Avg.length, na.rm = T))
-colnames(mys.region.month) <- c("Y_M", "Region", "n.tows", "mysids", "size")
+colnames(mys.region.month) <- c("Y_M", "Region.2", "n.tows", "mysids", "size")
+mys.region.month <- mys.region.month[which(mys.region.month$Region.2 != "Not Complete"),]
 
 ## Whale summary
 
@@ -61,7 +62,7 @@ CRC$Region[which(CRC$Start.Dec.Long < O.Westof &
 CRC$Region.2 <- NA
 CRC$Region.2[which(CRC$Region %in% straits)] <- "Strait"
 CRC$Region.2[which(CRC$Region == "Ocean")] <- "Ocean"
-
+CRC$Region.2 <- as.factor(CRC$Region.2)
 
 # remove blank IDs
 CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
@@ -71,16 +72,16 @@ CRC.feed <- CRC[which(CRC$Group.Beh %in% feed.behaviors),]
 
 # list crc ids per region per day
 CRC.region.day <- CRC.feed %>%
-  group_by(Date, Region, CRC.ID) %>%
+  group_by(Date, Region.2, CRC.ID) %>%
   summarize(count <- 1,
             n.sights <- length(Date_S))
-colnames(CRC.region.day) <- c("Date", "Region", "CRC.ID", "count", "n.sights")
+colnames(CRC.region.day) <- c("Date", "Region.2", "CRC.ID", "count", "n.sights")
 # sum CRC IDs per region perday
 IDs.region.day <- CRC.region.day %>%
-  group_by(Date, Region) %>%
+  group_by(Date, Region.2) %>%
   summarize(IDs <- sum(count),
             n.sights <- sum(n.sights))
-colnames(IDs.region.day) <- c("Date", "Region", "IDs", "n.sights")
+colnames(IDs.region.day) <- c("Date", "Region.2", "IDs", "n.sights")
 
 # format the date as yyyymmdd and extract Y_M into column
 IDs.region.day$Date <- as.Date(as.character(IDs.region.day$Date), format="%Y%m%d")
@@ -89,10 +90,10 @@ IDs.region.day$Date <- format(IDs.region.day$Date, format="%Y%m%d")
 
 # Monthly ID summaries
 IDs.region.month <- IDs.region.day %>%
-  group_by(Y_M, Region) %>%
-  summarize(IDs <- sum(IDs),
+  group_by(Y_M, Region.2) %>%
+  summarize(IDs <- mean(IDs),
             n.sights <- sum(n.sights))
-colnames(IDs.region.month) <- c("Y_M", "Region", "IDs", "n.sights")
+colnames(IDs.region.month) <- c("Y_M", "Region.2", "IDs", "n.sights")
 
 ## Merge Whale and Mysid Summaries
 wm.region.ym <- merge(x = mys.region.month, y = IDs.region.month, all.x = T)
@@ -109,9 +110,14 @@ plot(wm.region.ym$size, wm.region.ym$IDs)
 ## Models
 
 hist(wm.region.ym$IDs)
-# still zero inflated
+str(wm.region.ym$IDs)
+# still zero inflated, but more of a distribution to the right to work with
+nonzero <- wm.region.ym[which(wm.region.ym$IDs != 0),]
+m.zt.pois <- vglm(IDs ~ scale(mysids) + scale(size), data = nonzero, 
+                  family = "pospoisson")
+pchisq(sum(residuals(m.zt.pois, type = "pearson")^2), nrow(nonzero)-2, lower.tail = FALSE)
 
 # global model
 m.region.ym.full <- glmmTMB(data = wm.region.ym, formula = IDs ~ scale(mysids) + 
-                              scale(size) + (1|Region))
+                              scale(size) + (1|Region.2))
 summary(m.region.ym.full)
