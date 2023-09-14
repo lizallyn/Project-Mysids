@@ -21,7 +21,18 @@ data$Site <- factor(data$Site,
 # format date and make Y_M column
 data$Date <- as.Date(as.character(data$Date), format="%Y%m%d")
 data$Y_M <- format(data$Date, format = "%Y_%m")
+# 20200902 is paired with 20200824 - assign it to 2020_08
+data$Y_M[which(data$Date == 20200902)] <- "2020_08"
+# back to character format
 data$Date <- format(data$Date, format="%Y%m%d")
+
+# second region column for combined Strait category
+no.pair.days <- c("20190603", "20190709", "20190830", "20200626")
+straits <- c("East Strait", "West Strait")
+data$Region.2 <- NA
+data$Region.2[which(data$Region == "Ocean")] <- "Ocean"
+data$Region.2[which(data$Region %in% straits)] <- "Strait"
+data$Region.2[which(data$Date %in% no.pair.days)] <- "Not Complete"
 
 mys.region.month <- data %>%
   group_by(Y_M, Region) %>%
@@ -89,3 +100,13 @@ wm.region.ym$size[which(is.nan(wm.region.ym$size))] <- NA
 # look at it
 plot(wm.region.ym$mysids, wm.region.ym$IDs)
 plot(wm.region.ym$size, wm.region.ym$IDs)
+
+## Models
+
+hist(wm.region.ym$IDs)
+# still zero inflated
+
+# global model
+m.region.ym.full <- glmmTMB(data = wm.region.ym, formula = IDs ~ scale(mysids) + 
+                              scale(size) + (1|Region))
+summary(m.region.ym.full)
