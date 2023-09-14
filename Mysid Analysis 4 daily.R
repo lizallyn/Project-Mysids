@@ -104,13 +104,18 @@ m.feed.norand <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids
                        family = truncated_nbinom1, ziformula = ~.)
 summary(m.feed.norand)
 library(lmtest)
-lrtest(m.feed.rand, m.feed.norand)
+lmtest::lrtest(m.feed.rand, m.feed.norand)
 # doesn't favor having Region as a random effect...including anyway here...
 
 m.reg.feed.mysids <- glmmTMB(data = daily, reg.feed.IDs ~ scale(mysids) + (1|Region), 
                              family = truncated_nbinom1, ziformula = ~.)
 summary(m.reg.feed.mysids)
 fixef(m.reg.feed.mysids)
+
+# m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + (1|Region), 
+#                              family = truncated_nbinom1, ziformula = ~.)
+# summary(m.reg.feed.size)
+# fixef(m.reg.feed.size)
 
 m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                          family = truncated_nbinom1, ziformula = ~.)
@@ -124,9 +129,9 @@ m.reg.feed.0 <- glmmTMB(data = daily, reg.feed.IDs ~ 1 + (1|Region),
 summary(m.reg.feed.0)
 
 # Plot predictions
-size.range <- data.frame(size = 4:14)
-plot(size.range$size, predict(object = m.reg.feed.size, type = "response", 
-                              newdata = size.range))
+# size.range <- data.frame(size = 4:14)
+# plot(size.range$size, predict(object = m.reg.feed.size, type = "response", 
+#                               newdata = size.range))
 # definitely not for use predicting beyond size ranges observed
 mys.abundances <- data.frame(mysids = seq(0, 4000, 100), Region = "East Strait")
 plot(mys.abundances$mysids, predict(object = m.reg.feed.mysids,
@@ -140,9 +145,9 @@ plot(mys.input$mysids, predict(object = m.reg.feed.ms,
 library(wiqid) # for AICc
 rows <- c("Mysids + Size", "Mysids", "Null")
 columns <- c("AIC", "delta", "weight")
-AICc.feed.area <-  data.frame(matrix(nrow = 3, ncol = 3, data = c(AICc(m.reg.feed.ms),
-                                                                  AICc(m.reg.feed.mysids),
-                                                                  AICc(m.reg.feed.0)), 
+AICc.feed.area <-  data.frame(matrix(nrow = 3, ncol = 3, data = c(wiqid::AICc(m.reg.feed.ms),
+                                                                  wiqid::AICc(m.reg.feed.mysids),
+                                                                  wiqid::AICc(m.reg.feed.0)), 
                                      dimnames = list(rows, columns)))
 AICc.feed.area[,2] <- AICc.feed.area[,1] - min(AICc.feed.area)
 AICc.feed.area[,3] <- exp(-0.5*AICc.feed.area[,2])/sum(exp(-0.5*AICc.feed.area[,2]))
