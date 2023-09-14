@@ -1,4 +1,4 @@
-Date,Sighting,Date_S,CRC ID,Group Beh,Region,Start Dec Lat,Start Dec Long
+Date,Sighting,Date_S,CRC ID,Group Beh,Region.old,Start Dec Lat,Start Dec Long
 20190709,6,20190709_6,2243,Feeding,East Strait,48.363,-124.5568
 20190712,8,20190712_8,532,Feeding,Ocean,48.3528,-124.7113
 20190712,10,20190712_10,1118,Feeding,Ocean,48.3556,-124.7155
