@@ -64,6 +64,11 @@ CRC$Region.2[which(CRC$Region %in% straits)] <- "Strait"
 CRC$Region.2[which(CRC$Region == "Ocean")] <- "Ocean"
 CRC$Region.2 <- as.factor(CRC$Region.2)
 
+# format the date as yyyymmdd and extract Y_M into column
+CRC$Date <- as.Date(as.character(CRC$Date), format="%Y%m%d")
+CRC$Y_M <- format(CRC$Date, format = "%Y_%m")
+CRC$Date <- format(CRC$Date, format="%Y%m%d")
+
 # remove blank IDs
 CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
 # only feeding whales
@@ -71,53 +76,83 @@ feed.behaviors <- c("Feeding", "")
 CRC.feed <- CRC[which(CRC$Group.Beh %in% feed.behaviors),]
 
 # list crc ids per region per day
-CRC.region.day <- CRC.feed %>%
-  group_by(Date, Region.2, CRC.ID) %>%
-  summarize(count <- 1,
-            n.sights <- length(Date_S))
-colnames(CRC.region.day) <- c("Date", "Region.2", "CRC.ID", "count", "n.sights")
-# sum CRC IDs per region perday
-IDs.region.day <- CRC.region.day %>%
-  group_by(Date, Region.2) %>%
-  summarize(IDs <- sum(count),
-            n.sights <- sum(n.sights))
-colnames(IDs.region.day) <- c("Date", "Region.2", "IDs", "n.sights")
-
-# format the date as yyyymmdd and extract Y_M into column
-IDs.region.day$Date <- as.Date(as.character(IDs.region.day$Date), format="%Y%m%d")
-IDs.region.day$Y_M <- format(IDs.region.day$Date, format = "%Y_%m")
-IDs.region.day$Date <- format(IDs.region.day$Date, format="%Y%m%d")
+# CRC.region.day <- CRC.feed %>%
+#   group_by(Date, Region.2, CRC.ID) %>%
+#   summarize(count = 1,
+#             n.sights = length(Date_S))
+# # sum CRC IDs per region perday
+# IDs.region.day <- CRC.region.day %>%
+#   group_by(Date, Region.2) %>%
+#   summarize(IDs = sum(count),
+#             n.sights = sum(n.sights))
 
 # Monthly ID summaries
-IDs.region.month <- IDs.region.day %>%
+# IDs.region.month <- IDs.region.day %>%
+#   group_by(Y_M, Region.2) %>%
+#   summarize(IDs = mean(IDs),
+#             n.sights = sum(n.sights))
+
+# try one that is total IDs per Y_M region
+CRC.regionYM <- CRC.feed %>%
+  group_by(Y_M, Region.2, CRC.ID) %>%
+  summarize(count = 1,
+            n.sights = length(Date_S))
+IDs.regionYM <- CRC.regionYM %>%
   group_by(Y_M, Region.2) %>%
-  summarize(IDs <- mean(IDs),
-            n.sights <- sum(n.sights))
-colnames(IDs.region.month) <- c("Y_M", "Region.2", "IDs", "n.sights")
+  summarize(IDs = sum(count),
+            n.sights = sum(n.sights))
 
 ## Merge Whale and Mysid Summaries
-wm.region.ym <- merge(x = mys.region.month, y = IDs.region.month, all.x = T)
+wm.regionYM <- merge(x = mys.region.month, y = IDs.regionYM, all.x = T)
 # NA whales and sightings to 0s
-wm.region.ym$IDs[which(is.na(wm.region.ym$IDs))] <- 0
-wm.region.ym$n.sights[which(is.na(wm.region.ym$n.sights))] <- 0
+wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
+wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
 # NaN size to NAs
-wm.region.ym$size[which(is.nan(wm.region.ym$size))] <- NA
+wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
 
 # look at it
-plot(wm.region.ym$mysids, wm.region.ym$IDs)
-plot(wm.region.ym$size, wm.region.ym$IDs)
+plot(wm.regionYM$mysids, wm.regionYM$IDs)
+plot(wm.regionYM$size, wm.regionYM$IDs)
 
 ## Models
 
-hist(wm.region.ym$IDs)
-str(wm.region.ym$IDs)
-# still zero inflated, but more of a distribution to the right to work with
-nonzero <- wm.region.ym[which(wm.region.ym$IDs != 0),]
-m.zt.pois <- vglm(IDs ~ scale(mysids) + scale(size), data = nonzero, 
-                  family = "pospoisson")
-pchisq(sum(residuals(m.zt.pois, type = "pearson")^2), nrow(nonzero)-2, lower.tail = FALSE)
+hist(wm.regionYM$IDs, breaks = c(-1:20))
+# maybe not zero-inflated anymore?
+library(lme4)
+# nonzero <- wm.region.ym[which(wm.region.ym$IDs != 0),]
+m.pois <- glmer(IDs ~ scale(mysids) + scale(size) + (1|Region.2), data = wm.regionYM, 
+                  family = "poisson")
+pchisq(sum(residuals(m.pois, type = "pearson")^2), nrow(nonzero)-2, 
+       lower.tail = FALSE)
+# not overdispersed??
 
-# global model
-m.region.ym.full <- glmmTMB(data = wm.region.ym, formula = IDs ~ scale(mysids) + 
-                              scale(size) + (1|Region.2))
+# candidate models
+m.region.ym.full <- glmer(data = wm.regionYM, formula = IDs ~ scale(mysids) + 
+                            scale(size) + (1|Region.2), family = "poisson")
 summary(m.region.ym.full)
+
+m.region.ym.mys <- glmer(data = wm.regionYM, formula = IDs ~ scale(mysids) +
+                             (1|Region.2), family = "poisson")
+summary(m.region.ym.mys)
+
+m.region.ym.size <- glmer(data = wm.regionYM, formula = IDs ~ scale(size) + 
+                              (1|Region.2), family = "poisson")
+summary(m.region.ym.size)
+
+m.region.ym.0 <- glmer(data = wm.regionYM, formula = IDs ~ 1 + 
+                         (1|Region.2), family = "poisson")
+summary(m.region.ym.0)
+
+## AICc model selection
+library(wiqid) # for AICc
+rows <- c("Mysids + Size", "Mysids", "Size", "Null")
+columns <- c("AIC", "delta", "weight")
+AICc.regionYM <-  data.frame(matrix(nrow = 4, ncol = 3, data = c(wiqid::AICc(m.region.ym.full),
+                                                                 wiqid::AICc(m.region.ym.mys),
+                                                                 wiqid::AICc(m.region.ym.size),
+                                                                 wiqid::AICc(m.region.ym.0)), 
+                                     dimnames = list(rows, columns)))
+AICc.regionYM[,2] <- AICc.regionYM[,1] - min(AICc.regionYM)
+AICc.regionYM[,3] <- exp(-0.5*AICc.regionYM[,2])/sum(exp(-0.5*AICc.regionYM[,2]))
+AICc.regionYM
+# prefers size, mysids + size delta = 5
