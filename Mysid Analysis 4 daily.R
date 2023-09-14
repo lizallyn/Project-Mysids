@@ -112,10 +112,18 @@ m.reg.feed.mysids <- glmmTMB(data = daily, reg.feed.IDs ~ scale(mysids) + (1|Reg
 summary(m.reg.feed.mysids)
 fixef(m.reg.feed.mysids)
 
-# m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + (1|Region), 
-#                              family = truncated_nbinom1, ziformula = ~.)
+m.reg.feed.size <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size),
+                             family = truncated_nbinom1, ziformula = ~.)
 # summary(m.reg.feed.size)
 # fixef(m.reg.feed.size)
+# probably complete separation, only NAs for a category?
+checking.separation <- daily %>%
+  group_by(Region) %>%
+  summarize(avg.size <- mean(size, na.rm = T),
+            avg.mysids <- mean(mysids),
+            avg.whales <- mean(reg.feed.IDs))
+# doesn't look like it?
+
 
 m.reg.feed.ms <- glmmTMB(data = daily, reg.feed.IDs ~ scale(size) + scale(mysids) + (1|Region), 
                          family = truncated_nbinom1, ziformula = ~.)
@@ -203,9 +211,9 @@ lines(size.input.1000$size, predict(object = m.reg.feed.ms,
 # Mysid abundance gradients per region
 # East Strait
 plot(daily$mysids[which(daily$Region == "East Strait")], daily$reg.feed.IDs[which(daily$Region == "East Strait")], main = "East Strait")
-mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "East Strait")
-mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "East Strait")
-mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "East Strait")
+mys.input.4 <- data.frame(size = 4, mysids = seq(0, 500, 100), Region = "East Strait")
+mys.input.9 <- data.frame(size = 9, mysids = seq(0, 500, 100), Region = "East Strait")
+mys.input.14 <- data.frame(size = 14, mysids = seq(0, 500, 100), Region = "East Strait")
 lines(mys.input.4$mysids, predict(object = m.reg.feed.ms,
                                   type = "response", newdata = mys.input.4), 
       col = "thistle2", lwd = 2)
@@ -217,9 +225,9 @@ lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
       col = "magenta2", lwd = 2)
 # west Strait
 plot(daily$mysids[which(daily$Region == "West Strait")], daily$reg.feed.IDs[which(daily$Region == "West Strait")], main = "West Strait")
-mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "West Strait")
-mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "West Strait")
-mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "West Strait")
+mys.input.4 <- data.frame(size = 4, mysids = seq(0, 500, 100), Region = "West Strait")
+mys.input.9 <- data.frame(size = 9, mysids = seq(0, 500, 100), Region = "West Strait")
+mys.input.14 <- data.frame(size = 14, mysids = seq(0, 500, 100), Region = "West Strait")
 lines(mys.input.4$mysids, predict(object = m.reg.feed.ms,
                                   type = "response", newdata = mys.input.4), 
       col = "thistle2", lwd = 2)
@@ -231,9 +239,9 @@ lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
       col = "magenta2", lwd = 2)
 # ocean
 plot(daily$mysids[which(daily$Region == "Ocean")], daily$reg.feed.IDs[which(daily$Region == "Ocean")], main = "Ocean")
-mys.input.4 <- data.frame(size = 4, mysids = seq(0, 4000, 100), Region = "Ocean")
-mys.input.9 <- data.frame(size = 9, mysids = seq(0, 4000, 100), Region = "Ocean")
-mys.input.14 <- data.frame(size = 14, mysids = seq(0, 4000, 100), Region = "Ocean")
+mys.input.4 <- data.frame(size = 4, mysids = seq(0, 500, 100), Region = "Ocean")
+mys.input.9 <- data.frame(size = 9, mysids = seq(0, 500, 100), Region = "Ocean")
+mys.input.14 <- data.frame(size = 14, mysids = seq(0, 500, 100), Region = "Ocean")
 lines(mys.input.4$mysids, predict(object = m.reg.feed.ms,
                                   type = "response", newdata = mys.input.4), 
       col = "thistle2", lwd = 2)
@@ -243,6 +251,20 @@ lines(mys.input.9$mysids, predict(object = m.reg.feed.ms,
 lines(mys.input.14$mysids, predict(object = m.reg.feed.ms,
                                    type = "response", newdata = mys.input.14), 
       col = "magenta2", lwd = 2)
+
+plot(daily$mysids, daily$reg.feed.IDs, main = "Mysid Model")
+lines(seq(0, 500, by = 100), predict(object = m.reg.feed.mysids, type = "response", 
+                                     newdata = data.frame(mysids = seq(0, 500, 100), 
+                                                          Region = "East Strait")),
+      col = "palegreen1", lwd = 2)
+lines(seq(0, 500, by = 100), predict(object = m.reg.feed.mysids, type = "response", 
+                                     newdata = data.frame(mysids = seq(0, 500, 100), 
+                                                          Region = "West Strait")),
+      col = "green3", lwd = 2)
+lines(seq(0, 500, by = 100), predict(object = m.reg.feed.mysids, type = "response", 
+                                     newdata = data.frame(mysids = seq(0, 500, 100), 
+                                                          Region = "Ocean")),
+      col = "darkgreen", lwd = 2)
 
 ## Without Region as a random effect
 
