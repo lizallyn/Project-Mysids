@@ -64,11 +64,6 @@ CRC$Region.2[which(CRC$Region %in% straits)] <- "Strait"
 CRC$Region.2[which(CRC$Region == "Ocean")] <- "Ocean"
 CRC$Region.2 <- as.factor(CRC$Region.2)
 
-# format the date as yyyymmdd and extract Y_M into column
-CRC$Date <- as.Date(as.character(CRC$Date), format="%Y%m%d")
-CRC$Y_M <- format(CRC$Date, format = "%Y_%m")
-CRC$Date <- format(CRC$Date, format="%Y%m%d")
-
 # remove blank IDs
 CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
 # only feeding whales
@@ -76,21 +71,56 @@ feed.behaviors <- c("Feeding", "")
 CRC.feed <- CRC[which(CRC$Group.Beh %in% feed.behaviors),]
 
 # list crc ids per region per day
-# CRC.region.day <- CRC.feed %>%
-#   group_by(Date, Region.2, CRC.ID) %>%
-#   summarize(count = 1,
-#             n.sights = length(Date_S))
+CRC.region.day <- CRC.feed %>%
+  group_by(Date, Region.2, CRC.ID) %>%
+  summarize(count = 1,
+            n.sights = length(Date_S))
 # # sum CRC IDs per region perday
-# IDs.region.day <- CRC.region.day %>%
-#   group_by(Date, Region.2) %>%
-#   summarize(IDs = sum(count),
-#             n.sights = sum(n.sights))
+IDs.region.day <- CRC.region.day %>%
+  group_by(Date, Region.2) %>%
+  summarize(IDs = sum(count),
+            n.sights = sum(n.sights))
+# format the date as yyyymmdd and extract Y_M into column
+IDs.region.day$Date <- as.Date(as.character(IDs.region.day$Date), format="%Y%m%d")
+IDs.region.day$Y_M <- format(IDs.region.day$Date, format = "%Y_%m")
+IDs.region.day$Date <- format(IDs.region.day$Date, format="%Y%m%d")
 
 # Monthly ID summaries
-# IDs.region.month <- IDs.region.day %>%
-#   group_by(Y_M, Region.2) %>%
-#   summarize(IDs = mean(IDs),
-#             n.sights = sum(n.sights))
+IDs.region.month <- IDs.region.day %>%
+  group_by(Y_M, Region.2) %>%
+  summarize(IDs = mean(IDs),
+            n.sights = sum(n.sights))
+
+## Merge Whale and Mysid Summaries
+wm.regionYM <- merge(x = mys.region.month, y = IDs.region.month, all.x = T)
+# NA whales and sightings to 0s
+wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
+wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
+# NaN size to NAs
+wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
+
+plot(wm.regionYM$mysids, wm.regionYM$IDs)
+plot(wm.regionYM$size, wm.regionYM$IDs)
+hist(wm.regionYM$IDs, breaks = c(-1:12))
+# still maybe zero-inflated, still separate processes? ignoring for now
+
+m.region.ym.mysids <- lmer(data = wm.regionYM, IDs ~
+                    scale(mysids) + (1|Region.2))
+summary(m.region.ym.mysids)
+plot(wm.regionYM$mysids, predict(m.region.ym.mysids, type = "response"))
+
+m.region.ym.size <- lmer(data = wm.regionYM, IDs ~
+                             scale(size) + (1|Region.2))
+##### need to figure out the NA size values - add overall average??
+summary(m.region.ym.size)
+plot(wm.regionYM$size, predict(m.region.ym.size, type = "response"))
+
+## If we stick with count data, see below
+
+# format the date as yyyymmdd and extract Y_M into column
+CRC$Date <- as.Date(as.character(CRC$Date), format="%Y%m%d")
+CRC$Y_M <- format(CRC$Date, format = "%Y_%m")
+CRC$Date <- format(CRC$Date, format="%Y%m%d")
 
 # try one that is total IDs per Y_M region
 CRC.regionYM <- CRC.feed %>%
