@@ -57,6 +57,11 @@ CRC$Region[between(CRC$Start.Dec.Long, left = WS.Eastof,
              CRC$Start.Dec.Lat > WS.Northof] <- "West Strait"
 CRC$Region[which(CRC$Start.Dec.Long < O.Westof & 
                    CRC$Start.Dec.Lat < O.Southof)] <- "Ocean"
+# assign Region.2
+CRC$Region.2 <- NA
+CRC$Region.2[which(CRC$Region %in% straits)] <- "Strait"
+CRC$Region.2[which(CRC$Region == "Ocean")] <- "Ocean"
+
 
 # remove blank IDs
 CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
