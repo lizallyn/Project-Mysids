@@ -98,6 +98,8 @@ wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
 wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
 # NaN size to NAs
 wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
+# add year column
+wm.regionYM$Year <- c(rep(2019, 8), rep(2020, 6))
 
 plot(wm.regionYM$mysids, wm.regionYM$IDs)
 plot(wm.regionYM$size, wm.regionYM$IDs)
@@ -157,14 +159,50 @@ halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
 library(ggplot2)
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDs, color = Region.2))
-model2 <- lmer(data = wm.regionYM, IDs ~
-                    scale(mysids) + (1|Region.2))
+model2 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) + (1|Region.2))
+model3 <- lmer(data = wm.regionYM, IDs ~ 1 + (mysids|Region.2))
 summary(model2)
 ranef(model2)
 fixef(model2)
+confint(model2)
 
-qqnorm(unlist(ranef(model2)$plot),main = "Random Effects")
+plot(fitted(model2), resid(model2))
+qqnorm(unlist(ranef(model2)$Region.2),main = "Random Effects")
 abline(0, 1)
+# not sure how a random effect with only two groups can be normal?
+model.test <- lm(I(sqrt(abs(resid(model2)))) ~ I(fitted(model2)))
+sumary(model.test)
+# slope not significant so maybe ok?
+acf(resid(model2))
+# no autocorrelation
+# check unusual observations
+hv <- hatvalues(model2)
+th <- 2 * (5 / length(hv))
+which(hv > th)
+# none
+cook <- cooks.distance(model2)
+halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
+# 2020_09, 2019_11
+# visualize
+straitdata <- data.frame(Region.2 = "Strait", mysids = seq(from = 0, to = 400, by = 25))
+oceandata <- data.frame(Region.2 = "Ocean", mysids = seq(from = 0, to = 400, by = 25))
+plot(wm.regionYM$mysids[which(wm.regionYM$Region.2 == "Strait")], 
+     wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Strait")], 
+     main = "whales ~ mysids + (1|Region)", sub = "Strait - pink, Ocean - blue",
+     ylab = "avg. IDs per region per day per month", 
+     xlab = "avg. mysids per tow per region per month",
+     pch = 19, col = "orchid3", ylim = c(0,10))
+lines(straitdata$mysids, predict(object = model2,
+                                type = "response", newdata = straitdata), 
+      col = "orchid2", lwd = 2)
+points(wm.regionYM$mysids[which(wm.regionYM$Region.2 == "Ocean")], 
+       wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Ocean")], pch = 19, col = "skyblue3")
+lines(oceandata$mysids, predict(object = model2,
+                                type = "response", newdata = oceandata), 
+      col = "skyblue2", lwd = 2)
+
+
+
 
 
 
