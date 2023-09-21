@@ -153,6 +153,20 @@ halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
 # unusual obs are 2020_08 and 2020_09 where IDs and mysids are 0
 # so the model isn't doing 0,0 well
 
+# try with random effect Region.2
+library(ggplot2)
+ggplot(data = wm.regionYM) +
+  geom_point(aes(x = mysids, y = IDs, color = Region.2))
+model2 <- lmer(data = wm.regionYM, IDs ~
+                    scale(mysids) + (1|Region.2))
+summary(model2)
+ranef(model2)
+fixef(model2)
+
+qqnorm(unlist(ranef(model2)$plot),main = "Random Effects")
+abline(0, 1)
+
+
 
 
 ##### need to figure out the NA size values - add overall average??
