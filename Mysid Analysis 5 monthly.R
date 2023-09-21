@@ -183,6 +183,7 @@ which(hv > th)
 cook <- cooks.distance(model2)
 halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
 # 2020_09, 2019_11
+
 # visualize
 straitdata <- data.frame(Region.2 = "Strait", mysids = seq(from = 0, to = 400, by = 25))
 oceandata <- data.frame(Region.2 = "Ocean", mysids = seq(from = 0, to = 400, by = 25))
