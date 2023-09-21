@@ -102,15 +102,59 @@ wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
 plot(wm.regionYM$mysids, wm.regionYM$IDs)
 plot(wm.regionYM$size, wm.regionYM$IDs)
 hist(wm.regionYM$IDs, breaks = c(-1:12))
-# still maybe zero-inflated, still separate processes? ignoring for now
+# checking to see if we can just use lmer
 
-m.region.ym.mysids <- lmer(data = wm.regionYM, IDs ~
-                    scale(mysids) + (1|Region.2))
-summary(m.region.ym.mysids)
-plot(wm.regionYM$mysids, predict(m.region.ym.mysids, type = "response"))
+## Diagnostics
 
-m.region.ym.size <- lmer(data = wm.regionYM, IDs ~
-                             scale(size) + (1|Region.2))
+library(lme4)
+library(faraway)
+library(car)
+
+# Initial model
+wm.regionYM$Region.2 <- as.factor(wm.regionYM$Region.2)
+model1 <- lm(data = wm.regionYM, IDs ~
+                    scale(mysids) + Region.2)
+summary(model1)
+
+# check residuals - constant variance
+plot(model1$fitted, model1$residuals, xlab = "Fitted Values", 
+     ylab = "Residuals",ylim = c(-max(model1$residuals)-1,
+                                 max(model1$residuals)+1), pch = 19)
+# errors heteroscedactic
+plot(model1$fitted, sqrt(abs(model1$residuals)), xlab = "Fitted Values", 
+     ylab = "Residuals", pch = 19)
+model.test <- lm(I(sqrt(abs(model1$residuals))) ~ I(model1$fitted))
+sumary(model.test)
+# slope not significant? so maybe ok?
+error <- model1$residuals
+leveneTest(error ~ Region.2, data = wm.regionYM)
+# seems like somehow our variance is homo? Even tho it doesn't look it??
+
+# check qq - normality
+qqnorm(residuals(model1))
+qqline(residuals(model1))
+# looks kinda ok
+# maybe a lttle left-skewed if anyting, but not a lot
+# maybe bootstrap CIs anyway to be safe
+
+# check independent errors
+acf(resid(model1))
+# no autocorrelation of errors
+
+# check unusual observations
+hv <- hatvalues(model1)
+th <- 2 * (5 / length(hv))
+which(hv > th)
+# none
+# don't expect outliers
+plot(wm.regionYM$mysids, wm.regionYM$IDs)
+cook <- cooks.distance(model1)
+halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
+# unusual obs are 2020_08 and 2020_09 where IDs and mysids are 0
+# so the model isn't doing 0,0 well
+
+
+
 ##### need to figure out the NA size values - add overall average??
 summary(m.region.ym.size)
 plot(wm.regionYM$size, predict(m.region.ym.size, type = "response"))
