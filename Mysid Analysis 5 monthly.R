@@ -100,6 +100,8 @@ wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
 wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
 # add year column
 wm.regionYM$Year <- c(rep(2019, 8), rep(2020, 6))
+# add Y_M_Reg column
+wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
 
 plot(wm.regionYM$mysids, wm.regionYM$IDs)
 plot(wm.regionYM$size, wm.regionYM$IDs)
@@ -115,14 +117,14 @@ library(car)
 # Initial model
 wm.regionYM$Region.2 <- as.factor(wm.regionYM$Region.2)
 model1 <- lm(data = wm.regionYM, IDs ~
-                    scale(mysids) + Region.2)
+                    scale(mysids) + scale(size) + Region.2)
 summary(model1)
 
 # check residuals - constant variance
 plot(model1$fitted, model1$residuals, xlab = "Fitted Values", 
      ylab = "Residuals",ylim = c(-max(model1$residuals)-1,
                                  max(model1$residuals)+1), pch = 19)
-# errors heteroscedactic
+# errors heteroscedactic, though there's a funky gap in the middle
 plot(model1$fitted, sqrt(abs(model1$residuals)), xlab = "Fitted Values", 
      ylab = "Residuals", pch = 19)
 model.test <- lm(I(sqrt(abs(model1$residuals))) ~ I(model1$fitted))
@@ -152,8 +154,7 @@ which(hv > th)
 plot(wm.regionYM$mysids, wm.regionYM$IDs)
 cook <- cooks.distance(model1)
 halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
-# unusual obs are 2020_08 and 2020_09 where IDs and mysids are 0
-# so the model isn't doing 0,0 well
+# unusual obs are 2020_07, really big mysids
 
 # try with random effect Region.2
 library(ggplot2)
@@ -161,28 +162,31 @@ ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDs, color = Region.2))
 model2 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) + (1|Region.2))
 model3 <- lmer(data = wm.regionYM, IDs ~ 1 + (mysids|Region.2))
-summary(model2)
+model4 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) + scale(size) + (1|Region.2))
+# use this full one I think (model4)
+summary(model4)
 ranef(model2)
 fixef(model2)
 confint(model2)
 
-plot(fitted(model2), resid(model2))
-qqnorm(unlist(ranef(model2)$Region.2),main = "Random Effects")
+plot(fitted(model4), resid(model4))
+# ok, still weird gap in the middle tho
+qqnorm(unlist(ranef(model4)$Region.2),main = "Random Effects")
 abline(0, 1)
 # not sure how a random effect with only two groups can be normal?
-model.test <- lm(I(sqrt(abs(resid(model2)))) ~ I(fitted(model2)))
+model.test <- lm(I(sqrt(abs(resid(model4)))) ~ I(fitted(model4)))
 sumary(model.test)
-# slope not significant so maybe ok?
-acf(resid(model2))
+# slope not significant
+acf(resid(model4))
 # no autocorrelation
 # check unusual observations
-hv <- hatvalues(model2)
+hv <- hatvalues(model4)
 th <- 2 * (5 / length(hv))
 which(hv > th)
 # none
-cook <- cooks.distance(model2)
-halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M)
-# 2020_09, 2019_11
+cook <- cooks.distance(model4)
+halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M_Reg)
+# 2020_07, 2019_11 big mysids or large whales
 
 # visualize
 straitdata <- data.frame(Region.2 = "Strait", mysids = seq(from = 0, to = 400, by = 25))
