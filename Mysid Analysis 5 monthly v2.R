@@ -115,17 +115,25 @@ library(lme4)
 library(faraway)
 library(car)
 library(ggplot2)
+library(AICcmodavg)
 
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDs, color = Region.2))
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = size, y = IDs, color = Region.2))
+ggplot(data = wm.regionYM) +
+  geom_point(aes(x = mysids, y = size, color = Region.2))
 
 model4 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) + scale(size) + (1|Region.2))
+model5 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) * scale(size) + (1|Region.2))
+AICc(model4)
+AICc(model5)
 # use this full one I think (model4)
-summary(model4)
+summary(model5)
 # effect of mysids is positive
+# effect of size is negative
 ranef(model4)
+# more whales in ocean
 fixef(model4)
 confint(model4)
 # confidence intervals include 0
