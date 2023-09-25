@@ -99,14 +99,22 @@ wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
 wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
 # NaN size to NAs
 wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
+# correct IDs per km surveyed
+straitkm <- 17
+oceankm <- 23
+wm.regionYM$IDskm <- NA
+wm.regionYM$IDskm[which(wm.regionYM$Region.2 == "Strait")] <- 
+  wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Strait")]/straitkm
+wm.regionYM$IDskm[which(wm.regionYM$Region.2 == "Ocean")] <- 
+  wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Ocean")]/oceankm
 # add year column
 wm.regionYM$Year <- c(rep(2019, 8), rep(2020, 6))
 # add Y_M_Reg column
 wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
 
-plot(wm.regionYM$mysids, wm.regionYM$IDs)
-plot(wm.regionYM$size, wm.regionYM$IDs)
-hist(wm.regionYM$IDs, breaks = c(-1:12))
+plot(wm.regionYM$mysids, wm.regionYM$IDskm)
+plot(wm.regionYM$size, wm.regionYM$IDskm)
+hist(wm.regionYM$IDskm)
 # let's see how it goes with just basic lmer
 
 ## Diagnostics
@@ -118,18 +126,26 @@ library(ggplot2)
 library(AICcmodavg)
 
 ggplot(data = wm.regionYM) +
-  geom_point(aes(x = mysids, y = IDs, color = Region.2))
+  geom_point(aes(x = mysids, y = IDskm, color = Region.2))
 ggplot(data = wm.regionYM) +
-  geom_point(aes(x = size, y = IDs, color = Region.2))
+  geom_point(aes(x = size, y = IDskm, color = Region.2))
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = size, color = Region.2))
 
-model4 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) + scale(size) + (1|Region.2))
-model5 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) * scale(size) + (1|Region.2))
-AICc(model4)
-AICc(model5)
-# use this full one I think (model4)
+model4 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) + scale(size) + (1|Region.2))
+summary(model4)
+model5 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) + (1|Region.2))
 summary(model5)
+model6 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) * Region.2)
+summary(model6)
+model7 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) + Region.2)
+summary(model7)
+model8 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size))
+summary(model8)
+AICc(model6)
+AICc(model7)
+AICc(model8)
+# use model4 moving forward
 # effect of mysids is positive
 # effect of size is negative
 ranef(model4)
