@@ -107,25 +107,28 @@ wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
 plot(wm.regionYM$mysids, wm.regionYM$IDs)
 plot(wm.regionYM$size, wm.regionYM$IDs)
 hist(wm.regionYM$IDs, breaks = c(-1:12))
-# checking to see if we can just use lmer
-
+# let's see how it goes with just basic lmer
 
 ## Diagnostics
 
 library(lme4)
 library(faraway)
 library(car)
-
 library(ggplot2)
+
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDs, color = Region.2))
+ggplot(data = wm.regionYM) +
+  geom_point(aes(x = size, y = IDs, color = Region.2))
 
 model4 <- lmer(data = wm.regionYM, IDs ~ scale(mysids) + scale(size) + (1|Region.2))
 # use this full one I think (model4)
 summary(model4)
-ranef(model2)
-fixef(model2)
-confint(model2)
+# effect of mysids is positive
+ranef(model4)
+fixef(model4)
+confint(model4)
+# confidence intervals include 0
 
 plot(fitted(model4), resid(model4))
 # ok, still weird gap in the middle tho
@@ -145,6 +148,7 @@ which(hv > th)
 cook <- cooks.distance(model4)
 halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M_Reg)
 # 2020_07, 2019_11 big mysids or large whales
+# going to keep them in tho
 
 # visualize
 straitdata <- data.frame(mysids = seq(from = 0, to = 400, by = 25),
