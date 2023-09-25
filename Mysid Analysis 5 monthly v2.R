@@ -151,15 +151,17 @@ halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M_Reg)
 # going to keep them in tho
 
 # visualize
+# by mysids
 straitdata <- data.frame(mysids = seq(from = 0, to = 400, by = 25),
                          Region.2 = "Strait", 
-                         size = 9)
+                         size = 12)
 oceandata <- data.frame(Region.2 = "Ocean", 
                         mysids = seq(from = 0, to = 400, by = 25),
-                        size = 9)
+                        size = 12)
 plot(wm.regionYM$mysids[which(wm.regionYM$Region.2 == "Strait")], 
      wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Strait")], 
-     main = "whales ~ mysids + size + (1|Region)", sub = "Strait - pink, Ocean - blue, size = 9mm",
+     main = "whales ~ mysids + size + (1|Region)", 
+     sub = "Strait - pink, Ocean - blue, size = 12mm",
      ylab = "avg. IDs per region per day per month", 
      xlab = "avg. mysids per tow per region per month",
      pch = 19, col = "orchid3", ylim = c(0,10))
@@ -169,5 +171,27 @@ lines(straitdata$mysids, predict(object = model4,
 points(wm.regionYM$mysids[which(wm.regionYM$Region.2 == "Ocean")], 
        wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Ocean")], pch = 19, col = "skyblue3")
 lines(oceandata$mysids, predict(object = model4,
+                                type = "response", newdata = oceandata), 
+      col = "skyblue2", lwd = 2)
+# by size
+straitdata <- data.frame(mysids = 1000,
+                         Region.2 = "Strait", 
+                         size = 4:13)
+oceandata <- data.frame(Region.2 = "Ocean", 
+                        mysids = 1000,
+                        size = 4:13)
+plot(wm.regionYM$size[which(wm.regionYM$Region.2 == "Strait")], 
+     wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Strait")], 
+     main = "whales ~ mysids + size + (1|Region)", 
+     sub = "Strait - pink, Ocean - blue, mysids = 1000",
+     ylab = "avg. IDs per region per day per month", 
+     xlab = "avg. msize in mm per region per month",
+     pch = 19, col = "orchid3", ylim = c(0,15))
+lines(straitdata$size, predict(object = model4,
+                                 type = "response", newdata = straitdata), 
+      col = "orchid2", lwd = 2)
+points(wm.regionYM$size[which(wm.regionYM$Region.2 == "Ocean")], 
+       wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Ocean")], pch = 19, col = "skyblue3")
+lines(oceandata$size, predict(object = model4,
                                 type = "response", newdata = oceandata), 
       col = "skyblue2", lwd = 2)
