@@ -16,7 +16,6 @@ library(PNWColors)
 library(colorspace)
 
 #### Read in Data
-setwd("~/Box Sync/Makah Fisheries Management/Er prey/Final R Docs")
 sites <- read.csv("Sample site coords for R.csv")
 data <- read.csv("All obs for R.csv")
 data2 <- read.csv("Er prey analysis for R fixed whale presence.csv")
@@ -42,6 +41,22 @@ insetbox.lat <- c(minlat, minlat, maxlat, maxlat, minlat)
 insetbox.long <- c(minlong, maxlong, maxlong, minlong, minlong)
 insetbox.shape <- data.frame(cbind(insetbox.lat, insetbox.long))
 
+asurv1 <- 48.13
+asurv2 <- 48.13
+asurv3 <- 48.45
+asurv4 <- 48.38
+asurv5 <- 48.28
+
+osurv1 <- -124.71
+osurv2 <- -124.82
+osurv3 <- -124.82
+osurv4 <- -124.4
+osurv5 <- -124.4
+
+survlat <- c(asurv1, asurv2, asurv3, asurv4, asurv5)
+survlong <- c(osurv1, osurv2, osurv3, osurv4, osurv5)
+survpath <- data.frame(cbind(survlat, survlong))
+
 outline.lat <- c(insbott, insbott, instop, instop, insbott)
 outline.long <- c(insleft, insright, insright, insleft, insleft)
 outline <- data.frame(cbind(outline.lat, outline.long))
@@ -59,6 +74,7 @@ map1 <- ggmap(base_ter) +
   geom_point(data = sites, 
              aes(x = Dec.long, y = Dec.lat), 
              color = "white") +
+  geom_path(data = survpath, aes(x = survlong, y = survlat), size = 1, color = "gray") + 
   labs(x = "Longitude", y = "Latitude") +
   geom_text_repel(data = sites,
                   alpha = 0.8,
