@@ -111,11 +111,12 @@ wm.regionYM$IDskm[which(wm.regionYM$Region.2 == "Ocean")] <-
 wm.regionYM$Year <- c(rep(2019, 8), rep(2020, 6))
 # add Y_M_Reg column
 wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
+# Region as factor
+wm.regionYM$Region.2 <- as.factor(wm.regionYM$Region.2)
 
 plot(wm.regionYM$mysids, wm.regionYM$IDskm)
 plot(wm.regionYM$size, wm.regionYM$IDskm)
 hist(wm.regionYM$IDskm)
-# let's see how it goes with just basic lmer
 
 ## Diagnostics
 
@@ -124,7 +125,19 @@ library(faraway)
 library(car)
 library(ggplot2)
 library(AICcmodavg)
+library(AER)
 
+# tobit interlude real quick
+tobit <- tobit(formula = IDskm ~ scale(mysids) * scale(size) + Region.2, data = wm.regionYM)
+summary(tobit)
+glmm <- glmmTMB(formula = IDskm ~ scale(size) + scale(mysids) + (1|Region.2), 
+                data = wm.regionYM, family = "gaussian", 
+                ziformula = ~ scale(mysids) + (1|Region.2))
+summary(glmm)
+
+nonzeros <- 
+
+# lmer and lm attempts
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDskm, color = Region.2))
 ggplot(data = wm.regionYM) +
