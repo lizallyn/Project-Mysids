@@ -29,18 +29,20 @@ insetbox.shape <- data.frame(cbind(insetbox.lat, insetbox.long))
 
 asurv1 <- 48.13
 asurv2 <- 48.13
-asurv3 <- 48.45
-asurv4 <- 48.38
-asurv5 <- 48.28
+asurv3 <- 48.43
+asurv4 <- 48.43
+asurv5 <- 48.36
+asurv6 <- 48.29
 
 osurv1 <- -124.71
 osurv2 <- -124.82
 osurv3 <- -124.82
-osurv4 <- -124.4
+osurv4 <- -124.6
 osurv5 <- -124.4
+osurv6 <- -124.4
 
-survlat <- c(asurv1, asurv2, asurv3, asurv4, asurv5)
-survlong <- c(osurv1, osurv2, osurv3, osurv4, osurv5)
+survlat <- c(asurv1, asurv2, asurv3, asurv4, asurv5, asurv6)
+survlong <- c(osurv1, osurv2, osurv3, osurv4, osurv5, osurv6)
 survpath <- data.frame(cbind(survlat, survlong))
 
 outline.lat <- c(insbott, insbott, instop, instop, insbott)
