@@ -142,9 +142,14 @@ model7 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) + Region.2)
 summary(model7)
 model8 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size))
 summary(model8)
+model9 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) + Region.2)
+summary(model9)
 AICc(model6)
 AICc(model7)
 AICc(model8)
+AICc(model9)
+
+plot(wm.regionYM$mysids, predict(model6, type = "response"))
 # use model4 moving forward
 # effect of mysids is positive
 # effect of size is negative
