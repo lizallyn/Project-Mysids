@@ -97,7 +97,7 @@ wm.regionYM <- merge(x = mys.region.month, y = IDs.region.month, all.x = T)
 # NA whales and sightings to 0s
 wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
 wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
-# NaN size to NAs
+# NaN size to mean(size)
 wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
 # correct IDs per km surveyed
 straitkm <- 17
@@ -132,7 +132,8 @@ ggplot(data = wm.regionYM) +
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = size, color = Region.2))
 
-model4 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) + scale(size) + (1|Region.2))
+model4 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) + scale(size) + 
+                 (1|Region.2))
 summary(model4)
 model5 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) + (1|Region.2))
 summary(model5)
@@ -144,6 +145,9 @@ model8 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size))
 summary(model8)
 model9 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) + Region.2)
 summary(model9)
+AICc(model4)
+AICc(model5)
+
 AICc(model6)
 AICc(model7)
 AICc(model8)
