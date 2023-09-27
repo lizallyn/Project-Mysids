@@ -89,4 +89,28 @@ IDs.region.mon <- CRC.region.mon %>%
   summarize(IDs = sum(count),
             n.sights = sum(n.sights))
 
+## Merge Whale and Mysid Summaries
+wm.regionYM <- merge(x = mys.region.month, y = IDs.region.mon, all.x = T)
+# NA whales and sightings to 0s
+wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
+wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
+# NaN size to NA
+wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
+# add year column
+wm.regionYM$Year <- c(rep(2019, 8), rep(2020, 6))
+# add Y_M_Reg column
+wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
 
+plot(wm.regionYM$mysids, wm.regionYM$IDs)
+plot(wm.regionYM$size, wm.regionYM$IDs)
+hist(wm.regionYM$IDs, breaks = 10)
+# looks zi to me
+
+## build some models
+
+library(glmmTMB)
+
+m.feed.rand <- glmmTMB(data = wm.regionYM, IDs ~ scale(size) + scale(mysids) + Region.2, 
+                       family = truncated_nbinom1, ziformula = ~ scale(mysids) + Region.2)
+summary(m.feed.rand)
+predict(m.feed.rand)
