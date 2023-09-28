@@ -100,8 +100,8 @@ wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
 # NaN size to mean(size)
 wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
 # correct IDs per km surveyed
-straitkm <- 17
-oceankm <- 23
+straitkm <- 27
+oceankm <- 37
 wm.regionYM$IDskm <- NA
 wm.regionYM$IDskm[which(wm.regionYM$Region.2 == "Strait")] <- 
   wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Strait")]/straitkm
@@ -127,6 +127,10 @@ library(ggplot2)
 library(AICcmodavg)
 library(AER)
 
+# write.csv(wm.regionYM,
+#           "C:/Users/Elizabeth Allyn/Documents/GitHub/Project-Mysids/monthly_summ_whales_mysids.csv",
+#           row.names = F)
+
 # tobit interlude real quick
 tobit <- tobit(formula = IDskm ~ scale(mysids) * scale(size) + Region.2, data = wm.regionYM)
 summary(tobit)
@@ -135,7 +139,7 @@ glmm <- glmmTMB(formula = IDskm ~ scale(size) + scale(mysids) + (1|Region.2),
                 ziformula = ~ scale(mysids) + (1|Region.2))
 summary(glmm)
 
-nonzeros <- 
+predict(tobit)
 
 # lmer and lm attempts
 ggplot(data = wm.regionYM) +
