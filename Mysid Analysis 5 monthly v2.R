@@ -4,12 +4,23 @@
 ## read in data
 CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
 data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
 
 # Packages
 library(tidyr)
 library(dplyr)
 
 ## Mysid summary
+
+# length-weight from Burdi et al
+constant <- 0.0000116
+exponent <- 3.060
+all$mysid. <- as.factor(all$mysid.)
+mysids <- slice(.data = all, which(all$mysid. == "YES"))
+mysids$length <- as.numeric(mysids$length)
+mysids$weight <- mysids$length*constant^exponent
+
+
 
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
@@ -26,6 +37,11 @@ data$Y_M <- format(data$Date, format = "%Y_%m")
 data$Y_M[which(data$Date == 20200902)] <- "2020_08"
 # back to character format
 data$Date <- format(data$Date, format="%Y%m%d")
+
+# length-weight from Burdi et al
+constant <- 0.0000116
+exponent <- 3.060
+data$weight <- data$Avg.length * constant ^ exponent
 
 # second region column for combined Strait category
 no.pair.days <- c("20190603", "20190709", "20190830", "20200626")
@@ -117,6 +133,7 @@ wm.regionYM$Region.2 <- as.factor(wm.regionYM$Region.2)
 plot(wm.regionYM$mysids, wm.regionYM$IDskm)
 plot(wm.regionYM$size, wm.regionYM$IDskm)
 hist(wm.regionYM$IDskm)
+
 
 ## Diagnostics
 
