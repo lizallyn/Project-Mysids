@@ -12,6 +12,14 @@ library(dplyr)
 
 ## Mysid summary
 
+all$Date <- as.Date(as.character(all$Date), format="%Y%m%d")
+all$Y_M <- format(all$Date, format = "%Y_%m")
+all$Date <- format(all$Date, format="%Y%m%d")
+
+# match column headings to data
+all$Sample <- all$Assigned.ID
+all$Region.2 <- all$Region
+
 # length-weight from Burdi et al
 constant <- 0.0000116
 exponent <- 3.060
@@ -21,14 +29,11 @@ mysids$length <- as.numeric(mysids$length)
 mysids$weight <- constant*mysids$length^exponent
 
 mysid.tow.summ <- mysids %>%
-  group_by(Assigned.ID) %>%
+  group_by(Y_M, Region.2, Sample) %>%
   summarise(count = length(mysid.),
-            avg.length = mean(length, na.rm = T),
-            avg.weight = mean(weight, na.rm = T),
             biomass = sum(weight, na.rm = T))
-plot(mysid.tow.summ$avg.length, mysid.tow.summ$avg.weight)
-hist(mysid.tow.summ$biomass)
-plot(mysid.tow.summ$)
+which(is.na(mysids$weight))
+# not many, should be fine to na.rm = T
 
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
@@ -54,13 +59,22 @@ data$Region.2[which(data$Region == "Ocean")] <- "Ocean"
 data$Region.2[which(data$Region %in% straits)] <- "Strait"
 data$Region.2[which(data$Date %in% no.pair.days)] <- "Not Complete"
 
-mys.region.month <- data %>%
+# add weight column
+data.bio <- merge(x = data, y = mysid.tow.summ, all.x = T)
+# count column was just for verification, ignore, not fixing NAs to 0s
+# fix NA biomass to 0
+data.bio$biomass[which(is.na(data.bio$biomass))] <- 0
+
+mys.region.month <- data.bio %>%
   group_by(Y_M, Region.2) %>%
-  summarize(n.tows <- length(Sample),
-            mysids <- mean(MysidCount, na.rm = T),
-            size <- mean(Avg.length, na.rm = T))
-colnames(mys.region.month) <- c("Y_M", "Region.2", "n.tows", "mysids", "size")
+  summarize(n.tows = length(Sample),
+            mysids = mean(MysidCount, na.rm = T),
+            size = mean(Avg.length, na.rm = T),
+            biomass = mean(biomass))
 mys.region.month <- mys.region.month[which(mys.region.month$Region.2 != "Not Complete"),]
+
+# add biomass
+mys.region.mon.bio <- merge(x = mys.region.month, y = mysid.tow.summ, all.x = T)
 
 ## Whale summary
 
