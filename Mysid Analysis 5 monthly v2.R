@@ -159,20 +159,6 @@ library(ggplot2)
 library(AICcmodavg)
 library(AER)
 
-# write.csv(wm.regionYM,
-#           "C:/Users/Elizabeth Allyn/Documents/GitHub/Project-Mysids/monthly_summ_whales_mysids.csv",
-#           row.names = F)
-
-# tobit interlude real quick
-# tobit <- tobit(formula = IDskm ~ scale(mysids) * scale(size) + Region.2, data = wm.regionYM)
-# summary(tobit)
-# predict(tobit)
-# glmm <- glmmTMB(formula = IDskm ~ scale(size) + scale(mysids) + (1|Region.2), 
-#                 data = wm.regionYM, family = "gaussian", 
-#                 ziformula = ~ scale(mysids) + (1|Region.2))
-# summary(glmm)
-
-
 # lmer and lm attempts
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDskm, color = Region.2))
@@ -247,6 +233,21 @@ cook <- cooks.distance(model4)
 halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M_Reg)
 # 2020_07 Strait big biomass, 2020_09 Ocean zeroes across the board
 # going to keep them in tho
+
+### Recycle Bin
+
+# write.csv(wm.regionYM,
+#           "C:/Users/Elizabeth Allyn/Documents/GitHub/Project-Mysids/monthly_summ_whales_mysids.csv",
+#           row.names = F)
+
+# tobit interlude real quick
+# tobit <- tobit(formula = IDskm ~ scale(mysids) * scale(size) + Region.2, data = wm.regionYM)
+# summary(tobit)
+# predict(tobit)
+# glmm <- glmmTMB(formula = IDskm ~ scale(size) + scale(mysids) + (1|Region.2), 
+#                 data = wm.regionYM, family = "gaussian", 
+#                 ziformula = ~ scale(mysids) + (1|Region.2))
+# summary(glmm)
 
 # visualize
 # by mysids
