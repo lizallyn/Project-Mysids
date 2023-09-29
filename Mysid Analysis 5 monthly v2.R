@@ -22,10 +22,13 @@ mysids$weight <- constant*mysids$length^exponent
 
 mysid.tow.summ <- mysids %>%
   group_by(Assigned.ID) %>%
-  summarise(avg.length = mean(length, na.rm = T),
-            avg.weight = mean(weight, na.rm = T))
+  summarise(count = length(mysid.),
+            avg.length = mean(length, na.rm = T),
+            avg.weight = mean(weight, na.rm = T),
+            biomass = sum(weight, na.rm = T))
 plot(mysid.tow.summ$avg.length, mysid.tow.summ$avg.weight)
-
+hist(mysid.tow.summ$biomass)
+plot(mysid.tow.summ$)
 
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
