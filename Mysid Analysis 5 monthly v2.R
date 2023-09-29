@@ -18,8 +18,13 @@ exponent <- 3.060
 all$mysid. <- as.factor(all$mysid.)
 mysids <- slice(.data = all, which(all$mysid. == "YES"))
 mysids$length <- as.numeric(mysids$length)
-mysids$weight <- mysids$length*constant^exponent
+mysids$weight <- constant*mysids$length^exponent
 
+mysid.tow.summ <- mysids %>%
+  group_by(Assigned.ID) %>%
+  summarise(avg.length = mean(length, na.rm = T),
+            avg.weight = mean(weight, na.rm = T))
+plot(mysid.tow.summ$avg.length, mysid.tow.summ$avg.weight)
 
 
 # Pull out useful clean mysid data columns to simplify data frame
@@ -37,11 +42,6 @@ data$Y_M <- format(data$Date, format = "%Y_%m")
 data$Y_M[which(data$Date == 20200902)] <- "2020_08"
 # back to character format
 data$Date <- format(data$Date, format="%Y%m%d")
-
-# length-weight from Burdi et al
-constant <- 0.0000116
-exponent <- 3.060
-data$weight <- data$Avg.length * constant ^ exponent
 
 # second region column for combined Strait category
 no.pair.days <- c("20190603", "20190709", "20190830", "20200626")
