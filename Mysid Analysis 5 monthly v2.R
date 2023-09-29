@@ -164,14 +164,14 @@ library(AER)
 #           row.names = F)
 
 # tobit interlude real quick
-tobit <- tobit(formula = IDskm ~ scale(mysids) * scale(size) + Region.2, data = wm.regionYM)
-summary(tobit)
-glmm <- glmmTMB(formula = IDskm ~ scale(size) + scale(mysids) + (1|Region.2), 
-                data = wm.regionYM, family = "gaussian", 
-                ziformula = ~ scale(mysids) + (1|Region.2))
-summary(glmm)
+# tobit <- tobit(formula = IDskm ~ scale(mysids) * scale(size) + Region.2, data = wm.regionYM)
+# summary(tobit)
+# predict(tobit)
+# glmm <- glmmTMB(formula = IDskm ~ scale(size) + scale(mysids) + (1|Region.2), 
+#                 data = wm.regionYM, family = "gaussian", 
+#                 ziformula = ~ scale(mysids) + (1|Region.2))
+# summary(glmm)
 
-predict(tobit)
 
 # lmer and lm attempts
 ggplot(data = wm.regionYM) +
@@ -179,44 +179,60 @@ ggplot(data = wm.regionYM) +
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = size, y = IDskm, color = Region.2))
 ggplot(data = wm.regionYM) +
+  geom_point(aes(x = biomass, y = IDskm, color = Region.2))
+ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = size, color = Region.2))
+ggplot(data = wm.regionYM) +
+  geom_point(aes(x = mysids, y = biomass, color = Region.2))
 
-model4 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) + scale(size) + 
-                 (1|Region.2))
+model4 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) + scale(biomass) + Region.2)
 summary(model4)
-model5 <- lmer(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) + (1|Region.2))
+model5 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) + Region.2)
 summary(model5)
-model6 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) * Region.2)
+model6 <- lm(data = wm.regionYM, IDskm ~ scale(biomass) + Region.2)
 summary(model6)
-model7 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size) + Region.2)
+model7 <- lm(data = wm.regionYM, IDskm ~ scale(biomass) + scale(mysids))
 summary(model7)
-model8 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) * scale(size))
+model8 <- lm(data = wm.regionYM, IDskm ~ Region.2)
 summary(model8)
-model9 <- lm(data = wm.regionYM, IDskm ~ scale(mysids) + Region.2)
+model9 <- lm(data = wm.regionYM, IDskm ~ scale(mysids))
 summary(model9)
-AICc(model4)
-AICc(model5)
+model10 <- lm(data = wm.regionYM, IDskm ~ scale(biomass))
+summary(model10)
+model11 <- lm(data = wm.regionYM, IDskm ~ 1)
+summary(model11)
+# Nothing is significant
 
-AICc(model6)
-AICc(model7)
-AICc(model8)
-AICc(model9)
+rows <- c("Mysids + Biomass + Region", "Mysids + Region", "Biomass + Region", 
+          "Mysids + Biomass", "Region", "Mysids", "Biomass", "Null")
+columns <- c("AIC", "delta", "weight")
+AICc.feed <-  data.frame(matrix(nrow = 8, ncol = 3, data = c(AICc(model4),
+                                                             AICc(model5),
+                                                             AICc(model6),
+                                                             AICc(model7),
+                                                             AICc(model8),
+                                                             AICc(model9),
+                                                             AICc(model10),
+                                                             AICc(model11)), 
+                                dimnames = list(rows, columns)))
+AICc.feed[,2] <- AICc.feed[,1] - min(AICc.feed)
+AICc.feed[,3] <- exp(-0.5*AICc.feed[,2])/sum(exp(-0.5*AICc.feed[,2]))
+AICc.feed
+# best model is the null model
 
-plot(wm.regionYM$mysids, predict(model6, type = "response"))
-# use model4 moving forward
-# effect of mysids is positive
-# effect of size is negative
-ranef(model4)
-# more whales in ocean
-fixef(model4)
-confint(model4)
-# confidence intervals include 0
+ggplot(data = wm.regionYM) +
+  geom_point(aes(x = biomass, y = IDskm, color = Region.2)) + 
+  geom_line(aes(y = model11$coefficients, x = biomass), lwd = 1, color = "black") + 
+  geom_line(aes(x = biomass, y = predict(model10, type = "response")), lwd = 1, color = "goldenrod")
+# null model in black, model10 (biomass) in yellow
+
+# run through diagnostics to make sure lm is ok, use model4 (all)
 
 plot(fitted(model4), resid(model4))
-# ok, still weird gap in the middle tho
-qqnorm(unlist(ranef(model4)$Region.2),main = "Random Effects")
-abline(0, 1)
-# not sure how a random effect with only two groups can be normal?
+# looks just like data, not being explained well at all...
+qqnorm(model4$residuals)
+qqline(model4$residuals)
+# actually looks ok, squiggly, maybe left tailed a bit
 model.test <- lm(I(sqrt(abs(resid(model4)))) ~ I(fitted(model4)))
 sumary(model.test)
 # slope not significant
@@ -226,10 +242,10 @@ acf(resid(model4))
 hv <- hatvalues(model4)
 th <- 2 * (5 / length(hv))
 which(hv > th)
-# none
+# 10
 cook <- cooks.distance(model4)
 halfnorm(cook, 2, ylab="Cook’s Distance", labs = wm.regionYM$Y_M_Reg)
-# 2020_07, 2019_11 big mysids or large whales
+# 2020_07 Strait big biomass, 2020_09 Ocean zeroes across the board
 # going to keep them in tho
 
 # visualize
