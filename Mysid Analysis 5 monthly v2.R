@@ -18,7 +18,7 @@ all$Date <- format(all$Date, format="%Y%m%d")
 
 # match column headings to data
 all$Sample <- all$Assigned.ID
-all$Region.2 <- all$Region
+all$Region.3 <- all$Region
 
 # length-weight from Burdi et al
 constant <- 0.0000116
@@ -29,7 +29,7 @@ mysids$length <- as.numeric(mysids$length)
 mysids$weight <- constant*mysids$length^exponent
 
 mysid.tow.summ <- mysids %>%
-  group_by(Y_M, Region.2, Sample) %>%
+  group_by(Y_M, Region.3, Sample) %>%
   summarise(count = length(mysid.),
             biomass = sum(weight, na.rm = T))
 which(is.na(mysids$weight))
@@ -72,9 +72,6 @@ mys.region.month <- data.bio %>%
             size = mean(Avg.length, na.rm = T),
             biomass = mean(biomass))
 mys.region.month <- mys.region.month[which(mys.region.month$Region.2 != "Not Complete"),]
-
-# add biomass
-mys.region.mon.bio <- merge(x = mys.region.month, y = mysid.tow.summ, all.x = T)
 
 ## Whale summary
 
@@ -148,11 +145,12 @@ wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
 wm.regionYM$Region.2 <- as.factor(wm.regionYM$Region.2)
 
 plot(wm.regionYM$mysids, wm.regionYM$IDskm)
+plot(wm.regionYM$biomass, wm.regionYM$IDskm)
 plot(wm.regionYM$size, wm.regionYM$IDskm)
 hist(wm.regionYM$IDskm)
 
 
-## Diagnostics
+## Model Building and Diagnostics
 
 library(lme4)
 library(faraway)
