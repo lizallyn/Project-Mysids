@@ -100,6 +100,7 @@ CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
 # only feeding whales
 feed.behaviors <- c("Feeding", "")
 CRC.feed <- CRC[which(CRC$Group.Beh %in% feed.behaviors),]
+# which(CRC.feed$Group.Beh == "Feeding")
 
 # list crc ids per region per day
 CRC.region.day <- CRC.feed %>%
@@ -189,6 +190,8 @@ model11 <- lm(data = wm.regionYM, IDskm ~ 1)
 summary(model11)
 # Nothing is significant
 
+wm.regionYM$scale.bio
+
 rows <- c("Mysids + Biomass + Region", "Mysids + Region", "Biomass + Region", 
           "Mysids + Biomass", "Region", "Mysids", "Biomass", "Null")
 columns <- c("AIC", "delta", "weight")
@@ -209,7 +212,7 @@ AICc.feed
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = biomass, y = IDskm, color = Region.2)) + 
   geom_line(aes(y = model11$coefficients, x = biomass), lwd = 1, color = "black") + 
-  geom_line(aes(x = biomass, y = predict(model10, type = "response")), lwd = 1, color = "goldenrod")
+  geom_line(aes(x = biomass, y = predict(model10, type = "response")), lwd = 1, color = "goldenrod3")
 # null model in black, model10 (biomass) in yellow
 
 # run through diagnostics to make sure lm is ok, use model4 (all)
