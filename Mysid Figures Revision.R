@@ -1,5 +1,11 @@
 # Mysid figures revision
 
+#### Charts ####
+
+
+
+#### Maps ####
+
 ## Sample sites map with whale survey area outline
 
 sites <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Sample%20site%20coords%20for%20R.csv")
@@ -61,7 +67,7 @@ inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop),
 base_ter <- get_stamenmap(bbox = c(maxlong, minlat, minlong, maxlat), 
                           zoom=11, maptype="terrain-background")
 insetmap <- ggmap(inset) +
-  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), lwd = 0.75) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), lwd = 0.7) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), lwd = 1.5)
 
@@ -85,13 +91,13 @@ map1 <- ggmap(base_ter) +
                   fontface = 1)
 map_with_inset <- ggdraw() + 
   draw_plot(map1) + 
-  draw_plot(insetmap, x = 0.72, y = 0.15, 
+  draw_plot(insetmap, x = 0.72, y = 0.12, 
             width = 0.3, height=0.3)
 map_with_inset
 
-# ggsave(plot = map_with_inset,
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf", 
-#        width = 10, height = 8, device='pdf', dpi=700)
+ggsave(plot = map_with_inset,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
+       width = 10, height = 8, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
 
@@ -356,6 +362,6 @@ panels <- grid.arrange(map_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
-ggsave(plot = fourpanelwithlegend, 
+# ggsave(plot = fourpanelwithlegend, 
        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
        width = 11, height  = 10, device='pdf', dpi=700)
