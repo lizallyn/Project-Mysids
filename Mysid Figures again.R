@@ -117,7 +117,7 @@ tows <- tows[order(-tows$Mysids),]
 whale$Est_Size_Best <- as.numeric(whale$Est_Size_Best)
 
 # load terrain map
-tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, maptype = "terrain")
+tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, maptype = "terrain-background")
 
 mysids.map.combined <- ggmap(tow_ter) +
   geom_point(data = whale, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
@@ -136,62 +136,6 @@ mysids.map.combined
 
 # ggsave(plot = mysiddensitymap, "sample map larger legend dots 3.pdf",
 #        width = 9, height  = 9, device='pdf', dpi=700)
-
-## Other prey map with seal/sail/bullman detail inset
-
-sites <- read.csv("Sample site coords for R.csv")
-
-library(ggrepel)
-library(cowplot)
-
-# bounds for sample map
-maxlong <- -124.9
-minlat <- 48.1
-minlong <- -124
-maxlat <- 48.45
-
-# bounds for inset map
-insleft <- -127
-insright <- -121
-instop <- 50
-insbott <- 45
-
-insetbox.lat <- c(minlat, minlat, maxlat, maxlat, minlat)
-insetbox.long <- c(minlong, maxlong, maxlong, minlong, minlong)
-insetbox.shape <- data.frame(cbind(insetbox.lat, insetbox.long))
-
-outline.lat <- c(insbott, insbott, instop, instop, insbott)
-outline.long <- c(insleft, insright, insright, insleft, insleft)
-outline <- data.frame(cbind(outline.lat, outline.long))
-
-inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop), 
-                       zoom=7, maptype="terrain")
-insetmap <- ggmap(inset) +
-  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), size = 1) +
-  theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1.5)
-
-base_ter <- get_stamenmap(bbox = c(maxlong,minlat,minlong,maxlat), 
-                          zoom=11, maptype="terrain")
-map1 <- ggmap(base_ter) +
-  geom_point(data = sites, 
-             aes(x = Dec.long, y = Dec.lat), 
-             color = "white") +
-  labs(x = "Longitude", y = "Latitude") +
-  geom_text_repel(data = sites,
-                  alpha = 0.8,
-                  color = "black",
-                  aes(x = Dec.long, y = Dec.lat, label = Location),
-                  segment.linetype = 0,
-                  force_pull = 1,
-                  box.padding = 0.1,
-                  size = 3,
-                  fontface = 2)
-map_with_inset <- ggdraw() + 
-  draw_plot(map1) + 
-  draw_plot(insetmap, x = 0.65, y = 0.55, 
-            width = 0.4, height=0.4)
-map_with_inset
 
 #### Fig 2: Prey Density Map
 
@@ -256,11 +200,11 @@ outline.long <- c(insleft.ss, insright.ss, insright.ss, insleft.ss, insleft.ss)
 outline <- data.frame(cbind(outline.lat, outline.long))
 
 ss_ter <- get_stamenmap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss),
-                        zoom=13, maptype = "terrain")
+                        zoom=13, maptype = "terrain-background")
 
 # load terrain map
 tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, 
-                         maptype = "terrain")
+                         maptype = "terrain-background")
 
 map2019 <- ggmap(tow_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
@@ -357,6 +301,8 @@ ggsave(plot = mysiddensitymapwithwhalesasicons, "sample map with whales in SSB i
        width = 9, height  = 9, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
+
+library(gridExtra)
 
 # 2019 Mysids
 map2019 <- ggmap(tow_ter) +
@@ -525,6 +471,28 @@ whalemap_with_inset2020 <- ggdraw() +
   draw_plot(ss.whalemap2020, x = 0.45, y = 0.15, 
             width = 0.4, height=0.4)
 whalemap_with_inset2020
+
+# legend
+
+maplegend <- ggmap(tow_ter) +
+  geom_point(data = tows,
+             alpha = 0.4,
+             aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
+  labs(x = "Longitude", y = "Latitude") +
+  scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
+  theme(legend.position = "right",
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black")) +
+  guides(colour = guide_legend(override.aes = list(size=5, alpha = 0.5)))
+
+get_legend <- function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+legend <- get_legend(maplegend)
 
 # Create the composite
 panels <- grid.arrange(map_with_inset2019, 
