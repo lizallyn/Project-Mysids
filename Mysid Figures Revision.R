@@ -75,9 +75,108 @@ plot(plot.Speciesym)
 #   "EG" = "darkseagreen4",
 #   "U" = "darkgrey")
 
-# ggsave(plot = plot.Speciesym, 
-#        filename = "species comp by month italic legend no outline.pdf", 
+# ggsave(plot = plot.Speciesym,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/species comp by month bar plot.pdf",
 #        width = 9, height = 5, device='pdf', dpi=700)
+
+### Size Distribution Histograms
+
+data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
+
+# pull out mysids with a valid length
+data.mysids <- dplyr::filter(data, mysid.=="YES")
+data.mysids$Monthies <- factor(data.mysids$Monthies, levels = c("Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+data.mysids$length <- as.numeric(data.mysids$length)
+num.lengths <- filter(data.mysids, length>1)
+
+data.mysids$count <- rep(1, nrow(data.mysids))
+
+count.tow <- data.mysids %>%
+  group_by(Year, Month, Assigned.ID) %>%
+  summarize(total = sum(count),
+            n.tows = 1)
+
+count.ym <- length.tow %>%
+  group_by(Year, Month) %>%
+  summarize(avg.count = mean(total, na.rm = T),
+            n.tows = sum(n.tows))
+count.ym$Y_M <- paste(count.ym$Year, "_", count.ym$Month)
+
+length.ym <- data.mysids %>%
+  group_by(Year, Month) %>%
+  summarize(avg.length = mean(length, na.rm = T))
+length.ym$Y_M <- paste(length.ym$Year, "_", length.ym$Month)
+
+ym.length.summ <- merge(x = length.ym, y = count.ym, by = "Y_M")
+
+# build the plot
+
+theme.sizes <- theme_classic() +
+  theme(plot.margin = margin(c(10, 10, 10, 10)),
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 25), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 25),
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 15, colour = "black"), 
+        axis.text.y = element_text(size = 15, colour = "black"),
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 12, colour = "black"), 
+        legend.key.size = unit(2, units = "point"),
+        panel.background = element_rect(fill = "white"))
+pal <- rainbow(9)
+
+plot.length <- 
+  ggplot(data = ym.length.summ) + 
+  geom_point(aes(x = avg.length, y = avg.count, color = Y_M),
+             size = 2) +
+  scale_fill_manual(name = "Year_Month",
+                    values = pal) +
+  labs(x = "Average Length (mm)", y = "Avg. Mysids per Tow") +
+  theme.sizes
+plot.length
+
+plot.sizes.19 <- 
+  ggplot(data = num.lengths.2019, aes(length)) +
+  geom_histogram(aes(fill = Monthies),
+                 binwidth = 2) +
+  scale_fill_manual(name = "Month", 
+                    labels = c("June", "July", "August", "September", "October", "November"),
+                    values = c("dodgerblue2", "skyblue2", "yellow2", "orange1", "indianred2", "violetred3")) + 
+  theme(legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14))
+
+plot.sizes.20 <-
+  ggplot(data = num.lengths.2020, aes(length)) +
+  geom_histogram(aes(fill = Monthies),
+                 binwidth = 2,
+                 color = "black") + 
+  scale_y_continuous(expand = c(0,0), limits = c(0,4500)) +
+  scale_fill_manual(values = c("dodgerblue2", "skyblue2", "yellow2", "orange1", "indianred2", "violetred3")) +
+  labs(x = "Length (mm)", y = "Frequency", fill = "Month", title = "2020") +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        panel.background = element_rect(fill = "white"),
+        axis.line = element_line(color = "black"))
+
+legend.sizes <- get_legend(plot.sizes.19)
+
+plot.sizes.19x <- 
+  ggplot(data = num.lengths.2019, aes(length)) +
+  geom_histogram(aes(fill = Monthies),
+                 binwidth = 2,
+                 color = "black") +
+  scale_y_continuous(expand = c(0,0), limits = c(0,4500)) +
+  scale_fill_manual(values = c("dodgerblue2", "skyblue2", "yellow2", "orange1", "indianred2", "violetred3")) +
+  labs(x = "Length (mm)", y = "Frequency", fill = "Month", title = "2019") +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        panel.background = element_rect(fill = "white"),
+        axis.line = element_line(color = "black"))
+
+mysidsizedistribution <- grid.arrange(arrangeGrob(plot.sizes.19x,plot.sizes.20), legend.sizes, ncol = 2, widths = c(2,0.5))
+
+# ggsave(plot = mysidsizedistribution, "mysid size distribution histogram plot white background legend text bigger full months black outlines final.pdf", width = 9, height = 5, device='pdf', dpi=700)
 
 
 #### Maps ####
@@ -438,6 +537,6 @@ panels <- grid.arrange(map_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
-# ggsave(plot = fourpanelwithlegend, 
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
-       width = 11, height  = 10, device='pdf', dpi=700)
+# # ggsave(plot = fourpanelwithlegend, 
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
+#        width = 11, height  = 10, device='pdf', dpi=700)
