@@ -100,14 +100,18 @@ count.ym <- length.tow %>%
   group_by(Year, Month) %>%
   summarize(avg.count = mean(total, na.rm = T),
             n.tows = sum(n.tows))
-count.ym$Y_M <- paste(count.ym$Year, "_", count.ym$Month)
+count.ym$Y_M <- paste(count.ym$Year, count.ym$Month, sep = "_")
 
 length.ym <- data.mysids %>%
   group_by(Year, Month) %>%
-  summarize(avg.length = mean(length, na.rm = T))
-length.ym$Y_M <- paste(length.ym$Year, "_", length.ym$Month)
+  summarize(avg.length = mean(length, na.rm = T),
+            error = sd(length, na.rm = T)/sqrt(sum(count)))
+length.ym$Y_M <- paste(length.ym$Year, length.ym$Month, sep = "_")
 
 ym.length.summ <- merge(x = length.ym, y = count.ym, by = "Y_M")
+ym.length.summ$Y_M <- factor(ym.length.summ$Y_M, 
+                             levels = c("2019_6", "2019_7", "2019_8", "2019_9", 
+                             "2019_10", "2019_11", "2020_6", "2020_7", "2020_8"))
 
 # build the plot
 
@@ -122,17 +126,16 @@ theme.sizes <- theme_classic() +
         legend.text = element_text(size = 12, colour = "black"), 
         legend.key.size = unit(2, units = "point"),
         panel.background = element_rect(fill = "white"))
-pal <- rainbow(9)
 
-plot.length <- 
+bar.length <- 
   ggplot(data = ym.length.summ) + 
-  geom_point(aes(x = avg.length, y = avg.count, color = Y_M),
-             size = 2) +
-  scale_fill_manual(name = "Year_Month",
-                    values = pal) +
-  labs(x = "Average Length (mm)", y = "Avg. Mysids per Tow") +
+  geom_col(aes(x = Y_M, y = avg.length), fill = "dodgerblue") + 
+  geom_errorbar(aes(x = Y_M, ymin = avg.length - error, 
+                    ymax = avg.length + error),
+                width = 0.2, lwd = 1) +
+  labs(x = "Year_Month", y = "Average Length (mm)") +
   theme.sizes
-plot.length
+bar.length
 
 plot.sizes.19 <- 
   ggplot(data = num.lengths.2019, aes(length)) +
