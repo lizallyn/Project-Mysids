@@ -141,14 +141,14 @@ lat2 <- 48.43
 # bounds for ss inset map creation
 insleft.ss <- -124.575
 instop.ss <- 48.375
-insright.ss <- -124.51
-insbott.ss <- 48.34
+insright.ss <- -124.515
+insbott.ss <- 48.345
 
 # bounds for outline on map of inset area
 maxlong <- -124.575
 minlat <- 48.375
-minlong <- -124.51
-maxlat <- 48.34
+minlong <- -124.515
+maxlat <- 48.345
 
 insetbox.lat <- c(minlat, minlat, maxlat, maxlat, minlat)
 insetbox.long <- c(minlong, maxlong, maxlong, minlong, minlong)
@@ -174,7 +174,6 @@ map2019 <- ggmap(tow_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
              alpha = 0.7) +
-  lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019 Mysids") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -193,7 +192,6 @@ ss.insetmap2019 <- ggmap(ss_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
              alpha = 0.7) +
-  lims(size = c(0,800)) +
   labs(x = "", y = "") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -207,9 +205,8 @@ ss.insetmap2019 <- ggmap(ss_ter) +
 
 map_with_inset2019 <- ggdraw() + 
   draw_plot(map2019) + 
-  draw_plot(ss.insetmap2019, x = 0.45, y = 0.15, 
+  draw_plot(ss.insetmap2019, x = 0.53, y = 0.1, 
             width = 0.4, height=0.4)
-map_with_inset2019
 
 # 2020 Mysid map
 map2020 <- ggmap(tow_ter) +
@@ -223,19 +220,17 @@ map2020 <- ggmap(tow_ter) +
                                 "September" = "sienna1", 
                                 "October" = "red2", 
                                 "November" = "magenta2")) +
-  lims(size = c(0,2000)) +
   theme(legend.position = "none",
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 14)) +
   geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), 
-            linewidth = 0.7)
+            linewidth = 0.8)
 ss.insetmap2020 <- ggmap(ss_ter) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2020,
              alpha = 0.5) +
-  lims(size = c(0,2000)) +
   labs(x = "", y = "") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -249,16 +244,14 @@ ss.insetmap2020 <- ggmap(ss_ter) +
 
 map_with_inset2020 <- ggdraw() + 
   draw_plot(map2020) + 
-  draw_plot(ss.insetmap2020, x = 0.45, y = 0.15, 
+  draw_plot(ss.insetmap2020, x = 0.53, y = 0.1, 
             width = 0.4, height=0.4)
-map_with_inset2020
 
 # 2019 Whale map
 whalemap2019 <- ggmap(tow_ter) +
   geom_image(data = w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                image = image, color = Month),
              size = 0.05) +
-  lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2019 Whales") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -277,7 +270,6 @@ ss.whalemap2019 <- ggmap(ss_ter) +
   geom_image(data = ss.w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                   image = image, color = Month),
              size = 0.09) +
-  lims(size = c(0,800)) +
   labs(x = "", y = "") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -291,16 +283,14 @@ ss.whalemap2019 <- ggmap(ss_ter) +
 
 whalemap_with_inset2019 <- ggdraw() + 
   draw_plot(whalemap2019) + 
-  draw_plot(ss.whalemap2019, x = 0.45, y = 0.15, 
+  draw_plot(ss.whalemap2019, x = 0.53, y = 0.1, 
             width = 0.4, height=0.4)
-whalemap_with_inset2019
 
 # 2020 Whale map
 whalemap2020 <- ggmap(tow_ter) +
   geom_image(data = w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                image = image, color = Month),
              size = 0.05) +
-  lims(size = c(0,800)) +
   labs(x = "Longitude", y = "Latitude", title = "2020 Whales") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -319,7 +309,6 @@ ss.whalemap2020 <- ggmap(ss_ter) +
   geom_image(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                   image = image, color = Month),
              size = 0.09) +
-  lims(size = c(0,800)) +
   labs(x = "", y = "") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
@@ -333,14 +322,16 @@ ss.whalemap2020 <- ggmap(ss_ter) +
 
 whalemap_with_inset2020 <- ggdraw() + 
   draw_plot(whalemap2020) + 
-  draw_plot(ss.whalemap2020, x = 0.45, y = 0.15, 
+  draw_plot(ss.whalemap2020, x = 0.53, y = 0.1, 
             width = 0.4, height=0.4)
 whalemap_with_inset2020
 
 # legend
 
+legend.tows <- tows[-which(tows$Mysids == 0),]
+
 maplegend <- ggmap(tow_ter) +
-  geom_point(data = tows,
+  geom_point(data = legend.tows,
              alpha = 0.4,
              aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month)) +
   labs(x = "Longitude", y = "Latitude") +
