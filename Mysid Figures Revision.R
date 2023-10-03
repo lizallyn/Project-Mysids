@@ -117,14 +117,11 @@ ym.length.summ$Y_M <- factor(ym.length.summ$Y_M,
 
 theme.sizes <- theme_classic() +
   theme(plot.margin = margin(c(10, 10, 10, 10)),
-        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 25), 
-        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 25),
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15),
         plot.title = element_blank(), 
-        axis.text.x = element_text(size = 15, colour = "black"), 
-        axis.text.y = element_text(size = 15, colour = "black"),
-        legend.title = element_text(size = 15, colour = "black"), 
-        legend.text = element_text(size = 12, colour = "black"), 
-        legend.key.size = unit(2, units = "point"),
+        axis.text.x = element_text(size = 12, colour = "black"), 
+        axis.text.y = element_text(size = 12, colour = "black"),
         panel.background = element_rect(fill = "white"))
 
 bar.length <- 
@@ -132,54 +129,14 @@ bar.length <-
   geom_col(aes(x = Y_M, y = avg.length), fill = "dodgerblue") + 
   geom_errorbar(aes(x = Y_M, ymin = avg.length - error, 
                     ymax = avg.length + error),
-                width = 0.2, lwd = 1) +
+                width = 0.2, lwd = 0.5) +
   labs(x = "Year_Month", y = "Average Length (mm)") +
   theme.sizes
 bar.length
 
-plot.sizes.19 <- 
-  ggplot(data = num.lengths.2019, aes(length)) +
-  geom_histogram(aes(fill = Monthies),
-                 binwidth = 2) +
-  scale_fill_manual(name = "Month", 
-                    labels = c("June", "July", "August", "September", "October", "November"),
-                    values = c("dodgerblue2", "skyblue2", "yellow2", "orange1", "indianred2", "violetred3")) + 
-  theme(legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14))
-
-plot.sizes.20 <-
-  ggplot(data = num.lengths.2020, aes(length)) +
-  geom_histogram(aes(fill = Monthies),
-                 binwidth = 2,
-                 color = "black") + 
-  scale_y_continuous(expand = c(0,0), limits = c(0,4500)) +
-  scale_fill_manual(values = c("dodgerblue2", "skyblue2", "yellow2", "orange1", "indianred2", "violetred3")) +
-  labs(x = "Length (mm)", y = "Frequency", fill = "Month", title = "2020") +
-  theme(legend.position = "none",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14),
-        panel.background = element_rect(fill = "white"),
-        axis.line = element_line(color = "black"))
-
-legend.sizes <- get_legend(plot.sizes.19)
-
-plot.sizes.19x <- 
-  ggplot(data = num.lengths.2019, aes(length)) +
-  geom_histogram(aes(fill = Monthies),
-                 binwidth = 2,
-                 color = "black") +
-  scale_y_continuous(expand = c(0,0), limits = c(0,4500)) +
-  scale_fill_manual(values = c("dodgerblue2", "skyblue2", "yellow2", "orange1", "indianred2", "violetred3")) +
-  labs(x = "Length (mm)", y = "Frequency", fill = "Month", title = "2019") +
-  theme(legend.position = "none",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14),
-        panel.background = element_rect(fill = "white"),
-        axis.line = element_line(color = "black"))
-
-mysidsizedistribution <- grid.arrange(arrangeGrob(plot.sizes.19x,plot.sizes.20), legend.sizes, ncol = 2, widths = c(2,0.5))
-
-# ggsave(plot = mysidsizedistribution, "mysid size distribution histogram plot white background legend text bigger full months black outlines final.pdf", width = 9, height = 5, device='pdf', dpi=700)
+ggsave(plot = bar.length, 
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length bar plot.pdf",
+       width = 9, height = 5, device='pdf', dpi=700)
 
 
 #### Maps ####
