@@ -2,6 +2,82 @@
 
 #### Charts ####
 
+### Species Composition Bar Plot
+
+data2 <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(PNWColors)
+
+# data2 wide to long
+long.spp.all <- gather(data2, Species, Count, HS:U)
+
+# create year_month column
+long.spp.all$ym <- paste(long.spp.all$Year, long.spp.all$Month, sep = "_")
+long.spp.all$ym <- factor(long.spp.all$ym, levels = c("2019_6", "2019_7", "2019_8", "2019_9", "2019_10", "2019_11", "2020_6", "2020_7", "2020_8", "2020_9"))
+
+# summarize by year_month and species
+species.counts.ym <- long.spp.all %>%
+  group_by(ym, Species) %>%
+  dplyr::summarise(tows = length(Sample),
+                   Mysids = sum(Count))
+species.counts.ym$Species <- factor(species.counts.ym$Species, 
+                                    levels = c("HS", "NR", "CI", "TC", "HP", "ED", "EG", "U"))
+
+# create avg mysids per tow column
+species.counts.ym$ym <- as.factor(species.counts.ym$ym)
+species.counts.ym$pertow <- species.counts.ym$Mysids/species.counts.ym$tows
+
+# set the theme
+dodge <- position_dodge(width=0.9)
+theme.Speciesym <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 12), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 12), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 10, colour = "black", angle=90), 
+        axis.text.y = element_text(size = 10, colour = "black"),
+        axis.ticks.x = element_blank(),
+        legend.position = "right", 
+        legend.title = element_text(size = 12, colour = "black"), 
+        legend.text = element_text(size = 10, colour = "black", face = "italic"), 
+        legend.key.size = unit(1, "line")) # size of color boxes
+library(RColorBrewer)
+pal <- c(brewer.pal(name = "Set2", n = 7), "darkgray")
+pal2 <- c("dodgerblue", "orchid1", "turquoise2", "goldenrod", "orchid4", "skyblue2", "lightseagreen", "darkgray")
+
+# plot building
+plot.Speciesym <- 
+  ggplot(data = species.counts.ym, aes(x = ym, y = pertow, fill = Species)) + 
+  geom_col(position = "stack") + 
+  labs(x = "Year_Month", y = "Avg. mysids per tow") +
+  theme.Speciesym +
+  guides(color = guide_legend("Species")) +
+  scale_x_discrete(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(name = "Species", 
+                    labels = c("H. sculpta", "N. rayii", "C. ignota", 
+                               "T. columbiae", "H. platypoda", "E. davisi", 
+                               "E. grimaldii", "Unknown"),
+                    values = pal)
+plot(plot.Speciesym)
+
+# This is the old color list. I hate all the options. I am so glad I'm not a designer.
+# c("HS" = "khaki3",
+#   "NR" = "darksalmon",
+#   "CI" = "skyblue2",
+#   "TC" = "darkseagreen2",
+#   "HP" = "skyblue4",
+#   "ED" = "darkslategrey",
+#   "EG" = "darkseagreen4",
+#   "U" = "darkgrey")
+
+# ggsave(plot = plot.Speciesym, 
+#        filename = "species comp by month italic legend no outline.pdf", 
+#        width = 9, height = 5, device='pdf', dpi=700)
 
 
 #### Maps ####
@@ -95,9 +171,9 @@ map_with_inset <- ggdraw() +
             width = 0.3, height=0.3)
 map_with_inset
 
-ggsave(plot = map_with_inset,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
-       width = 10, height = 8, device='pdf', dpi=700)
+# # ggsave(plot = map_with_inset,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
+#        width = 10, height = 8, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
 
