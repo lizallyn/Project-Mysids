@@ -36,15 +36,24 @@ asurv1 <- 48.13
 asurv2 <- 48.13
 asurv3 <- 48.44
 asurv4 <- 48.44
-asurv5 <- 48.35
-asurv6 <- 48.291
+asurv5 <- 48.34
+asurv6 <- 48.29
 
 osurv1 <- -124.705
-osurv2 <- -124.85
-osurv3 <- -124.85
-osurv4 <- -124.6
-osurv5 <- -124.4
+osurv2 <- -124.83
+osurv3 <- -124.83
+osurv4 <- -124.55
+osurv5 <- -124.345
 osurv6 <- -124.4
+
+acape <- 48.3861
+ocape <- -124.72
+aoff <- 48.44
+ooff <- -124.83
+
+region.diag.lat <- c(acape, aoff)
+region.diag.long <- c(ocape, ooff)
+region.diag <- data.frame(cbind(region.diag.lat, region.diag.long))
 
 survlat <- c(asurv1, asurv2, asurv3, asurv4, asurv5, asurv6)
 survlong <- c(osurv1, osurv2, osurv3, osurv4, osurv5, osurv6)
@@ -67,7 +76,10 @@ map1 <- ggmap(base_ter) +
   geom_point(data = sites, 
              aes(x = Dec.long, y = Dec.lat), 
              color = "gray25") +
-  geom_path(data = survpath, aes(x = survlong, y = survlat), lwd = 1, color = "gray25") + 
+  geom_path(data = survpath, aes(x = survlong, y = survlat), lwd = 1, 
+            color = "gray40") + 
+  geom_path(data = region.diag, aes(x = region.diag.long, y = region.diag.lat), 
+            lwd = 1, color = "gray40") +
   labs(x = "Longitude", y = "Latitude") +
   geom_text_repel(data = sites,
                   alpha = 0.8,
@@ -76,8 +88,8 @@ map1 <- ggmap(base_ter) +
                   segment.linetype = 0,
                   force_pull = 1,
                   box.padding = 0.2,
-                  size = 3,
-                  fontface = 2)
+                  size = 3.5,
+                  fontface = 1)
 map_with_inset <- ggdraw() + 
   draw_plot(map1) + 
   draw_plot(insetmap, x = 0.72, y = 0.15, 
@@ -85,7 +97,7 @@ map_with_inset <- ggdraw() +
 map_with_inset
 
 ggsave(plot = map_with_inset, filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf", 
-       width = 10, height = 9, device='pdf', dpi=700)
+       width = 10, height = 8, device='pdf', dpi=700)
 
 ## Prey density map combined years and months
 
@@ -504,12 +516,14 @@ panels <- grid.arrange(map_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
-ggsave(path = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Final R Docs/Maps",
-       plot = fourpanelwithlegend, 
-       filename = "four panel composite map with legend no land whale bigger whales.pdf",
-       width = 11, height  = 7, device='pdf', dpi=700)
+ggsave(plot = fourpanelwithlegend, 
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
+       width = 11, height  = 10, device='pdf', dpi=700)
 
 ## Species catch comp plot
+
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
 
 data$pc.HS <- data$HS/data$MysidCount
 data$pc.NR <- data$NR/data$MysidCount
@@ -519,6 +533,16 @@ data$pc.EG <- data$EG/data$MysidCount
 data$pc.HP <- data$HP/data$MysidCount
 data$pc.TC <- data$TC/data$MysidCount
 data$pc.U <- data$U/data$MysidCount
+
+# fix NaN to 0
+data$pc.HS[which(is.nan(data$pc.HS))] <- 0
+data$pc.NR[which(is.nan(data$pc.NR))] <- 0
+data$pc.CI[which(is.nan(data$pc.CI))] <- 0
+data$pc.ED[which(is.nan(data$pc.ED))] <- 0
+data$pc.EG[which(is.nan(data$pc.EG))] <- 0
+data$pc.HP[which(is.nan(data$pc.HP))] <- 0
+data$pc.TC[which(is.nan(data$pc.TC))] <- 0
+data$pc.U[which(is.nan(data$pc.U))] <- 0
 
 # make data long
 long.spp.all <- gather(data, Species, Count, HS:U)
