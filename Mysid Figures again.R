@@ -304,6 +304,10 @@ ggsave(plot = mysiddensitymapwithwhalesasicons, "sample map with whales in SSB i
 
 library(gridExtra)
 
+# remove 0 mysid rows so they don't plot!
+tows2019 <- tows2019[-which(tows2019$Mysids == 0),]
+tows2020 <- tows2020[-which(tows2020$Mysids == 0),]
+
 # 2019 Mysids
 map2019 <- ggmap(tow_ter) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
