@@ -10,6 +10,17 @@ all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/
 library(tidyr)
 library(dplyr)
 
+## tow effort summary
+
+tow.effort <- data.full %>%
+  group_by(Year.month.reg, Sample) %>%
+  summarize(dummy = sum(MysidCount))
+tow.effort$count <- rep(1, nrow(tow.effort))
+
+tow.effort.ymr <- tow.effort %>%
+  group_by(Year.month.reg) %>%
+  summarize(tows = sum(count))
+
 ## Mysid summary
 
 all$Date <- as.Date(as.character(all$Date), format="%Y%m%d")
@@ -91,9 +102,23 @@ CRC$Region[which(CRC$Start.Dec.Long < O.Westof &
                    CRC$Start.Dec.Lat < O.Southof)] <- "Ocean"
 # assign Region.2
 CRC$Region.2 <- NA
+straits <- c("West Strait", "East Strait")
 CRC$Region.2[which(CRC$Region %in% straits)] <- "Strait"
 CRC$Region.2[which(CRC$Region == "Ocean")] <- "Ocean"
 CRC$Region.2 <- as.factor(CRC$Region.2)
+
+# whale survey effort summary
+
+CRC$Date <- as.Date(as.character(CRC$Date), format="%Y%m%d")
+CRC$Y_M <- format(CRC$Date, format = "%Y_%m")
+CRC$Date <- format(CRC$Date, format="%Y%m%d")
+CRC$Y_M_R <- paste(CRC$Y_M, CRC$Region.2, sep = "_")
+whale.effort <- CRC %>%
+  group_by(Y_M_R, Date) %>%
+  summarise(dummy = 1)
+whale.effort.ymr <- whale.effort %>%
+  group_by(Y_M_R) %>%
+  summarise(surveys = sum(dummy))
 
 # remove blank IDs
 CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
