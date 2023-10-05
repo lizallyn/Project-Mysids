@@ -196,8 +196,6 @@ ggplot(data = wm.regionYM) +
              size = 2) + 
   scale_fill_manual(aesthetics = "color", values = c("dodgerblue", "aquamarine2"))
 
-
-
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = size, color = Region.2))
 ggplot(data = wm.regionYM) +
