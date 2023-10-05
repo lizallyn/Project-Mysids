@@ -190,8 +190,14 @@ ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = IDskm, color = Region.2))
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = size, y = IDskm, color = Region.2))
+
 ggplot(data = wm.regionYM) +
-  geom_point(aes(x = biomass, y = IDskm, color = Region.2))
+  geom_point(aes(x = biomass, y = IDskm, color = Region.2) , 
+             size = 2) + 
+  scale_fill_manual(aesthetics = "color", values = c("dodgerblue", "aquamarine2"))
+
+
+
 ggplot(data = wm.regionYM) +
   geom_point(aes(x = mysids, y = size, color = Region.2))
 ggplot(data = wm.regionYM) +
