@@ -35,15 +35,15 @@ dodge <- position_dodge(width=0.9)
 theme.Speciesym <- theme_classic() +
   theme(plot.margin = margin(t=10,r=10,b=10,l=10),
         axis.title = element_blank(), 
-        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 12), 
-        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 12), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15), 
         plot.title = element_blank(), 
-        axis.text.x = element_text(size = 10, colour = "black", angle=90), 
-        axis.text.y = element_text(size = 10, colour = "black"),
+        axis.text.x = element_text(size = 12, colour = "black", angle=90), 
+        axis.text.y = element_text(size = 12, colour = "black"),
         axis.ticks.x = element_blank(),
         legend.position = "right", 
-        legend.title = element_text(size = 12, colour = "black"), 
-        legend.text = element_text(size = 10, colour = "black", face = "italic"), 
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 12, colour = "black", face = "italic"), 
         legend.key.size = unit(1, "line")) # size of color boxes
 library(RColorBrewer)
 pal <- c(brewer.pal(name = "Set2", n = 7), "darkgray")
@@ -53,7 +53,7 @@ pal2 <- c("dodgerblue", "orchid1", "turquoise2", "goldenrod", "orchid4", "skyblu
 plot.Speciesym <- 
   ggplot(data = species.counts.ym, aes(x = ym, y = pertow, fill = Species)) + 
   geom_col(position = "stack") + 
-  labs(x = "Year_Month", y = "Avg. mysids per tow") +
+  labs(x = "Year_Month", y = "Avg. Mysids per Tow") +
   theme.Speciesym +
   guides(color = guide_legend("Species")) +
   scale_x_discrete(expand = c(0,0)) +
@@ -64,16 +64,6 @@ plot.Speciesym <-
                                "E. grimaldii", "Unknown"),
                     values = pal)
 plot(plot.Speciesym)
-
-# This is the old color list. I hate all the options. I am so glad I'm not a designer.
-# c("HS" = "khaki3",
-#   "NR" = "darksalmon",
-#   "CI" = "skyblue2",
-#   "TC" = "darkseagreen2",
-#   "HP" = "skyblue4",
-#   "ED" = "darkslategrey",
-#   "EG" = "darkseagreen4",
-#   "U" = "darkgrey")
 
 # ggsave(plot = plot.Speciesym,
 #        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/species comp by month bar plot.pdf",
@@ -96,7 +86,7 @@ count.tow <- data.mysids %>%
   summarize(total = sum(count),
             n.tows = 1)
 
-count.ym <- length.tow %>%
+count.ym <- count.tow %>%
   group_by(Year, Month) %>%
   summarize(avg.count = mean(total, na.rm = T),
             n.tows = sum(n.tows))
@@ -120,8 +110,9 @@ theme.sizes <- theme_classic() +
         axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
         axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15),
         plot.title = element_blank(), 
-        axis.text.x = element_text(size = 12, colour = "black"), 
+        axis.text.x = element_text(size = 12, colour = "black", angle = 90), 
         axis.text.y = element_text(size = 12, colour = "black"),
+        axis.ticks.x = element_blank(),
         panel.background = element_rect(fill = "white"))
 
 bar.length <- 
@@ -134,9 +125,9 @@ bar.length <-
   theme.sizes
 bar.length
 
-ggsave(plot = bar.length, 
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length bar plot.pdf",
-       width = 9, height = 5, device='pdf', dpi=700)
+# ggsave(plot = bar.length,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length bar plot.pdf",
+#        width = 9, height = 5, device='pdf', dpi=700)
 
 ### Biomass regional scatterplot
 
@@ -145,24 +136,29 @@ theme.biomass <- theme_classic() +
         axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
         axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15),
         plot.title = element_blank(), 
-        axis.text.x = element_text(size = 13, colour = "black"), 
-        axis.text.y = element_text(size = 13, colour = "black"),
-        axis.line = element_line(size = 1),
-        axis.ticks = element_line(size = 1),
+        axis.text.x = element_text(size = 12, colour = "black"), 
+        axis.text.y = element_text(size = 12, colour = "black"),
+        axis.line = element_line(size = 0.5),
+        axis.ticks = element_line(size = 0.5, colour = "black"),
         panel.background = element_rect(fill = "white"),
         legend.position = "right", 
         legend.title = element_text(size = 15, colour = "black"), 
-        legend.text = element_text(size = 13, colour = "black"))
+        legend.text = element_text(size = 12, colour = "black"),
+        legend.key = element_rect(fill = "transparent", color = "transparent"))
 
 biomass.plot <- ggplot(data = wm.regionYM) +
   geom_point(aes(x = biomass, y = IDskm, color = Region.2) , 
-             size = 3) + 
+             size = 2.5) + 
   scale_fill_manual(name = "Region",
                     aesthetics = "color", values = c("dodgerblue", "salmon")) +
-  labs(x = "Mysid Biomass (g)", y = "Avg. Unique Whales Observed per km Surveyed") +
+  labs(x = "Mysid Biomass (g)", y = "Avg. Unique Whales per km Surveyed") +
   theme.biomass +
-  guides(color = guide_legend(override.aes = list(size = 3)))
+  guides(color = guide_legend(override.aes = list(size = 2.5)))
 biomass.plot
+
+# ggsave(plot = biomass.plot,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
+#        width = 9, height = 5, device='pdf', dpi=700)
 
 #### Maps ####
 
@@ -418,7 +414,7 @@ whalemap2019 <- ggmap(tow_ter) +
   geom_image(data = w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                image = image, color = Month),
              size = 0.05) +
-  labs(x = "Longitude", y = "Latitude", title = "2019 Whales") +
+  labs(x = "Longitude", y = "Latitude", title = "2019 Gray Whales") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
                                 "August" ="yellow2", 
@@ -457,7 +453,7 @@ whalemap2020 <- ggmap(tow_ter) +
   geom_image(data = w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                image = image, color = Month),
              size = 0.05) +
-  labs(x = "Longitude", y = "Latitude", title = "2020 Whales") +
+  labs(x = "Longitude", y = "Latitude", title = "2020 Gray Whales") +
   scale_color_manual(values = c("June" = "mediumblue", 
                                 "July" = "dodgerblue2", 
                                 "August" ="yellow2", 
@@ -504,7 +500,8 @@ maplegend <- ggmap(tow_ter) +
   scale_color_manual(values = c("mediumblue", "dodgerblue2", "yellow2", "sienna2", "red2", "magenta2")) +
   theme(legend.position = "right",
         legend.title = element_text(size = 15, colour = "black"), 
-        legend.text = element_text(size = 13, colour = "black")) +
+        legend.text = element_text(size = 13, colour = "black"),
+        legend.key = element_rect(fill = "transparent", color = "transparent")) +
   guides(colour = guide_legend(override.aes = list(size=5, alpha = 0.5)))
 
 get_legend <- function(myggplot){
