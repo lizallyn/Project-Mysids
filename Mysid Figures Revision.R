@@ -138,6 +138,31 @@ ggsave(plot = bar.length,
        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length bar plot.pdf",
        width = 9, height = 5, device='pdf', dpi=700)
 
+### Biomass regional scatterplot
+
+theme.biomass <- theme_classic() +
+  theme(plot.margin = margin(c(10, 10, 10, 10)),
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15),
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 13, colour = "black"), 
+        axis.text.y = element_text(size = 13, colour = "black"),
+        axis.line = element_line(size = 1),
+        axis.ticks = element_line(size = 1),
+        panel.background = element_rect(fill = "white"),
+        legend.position = "right", 
+        legend.title = element_text(size = 15, colour = "black"), 
+        legend.text = element_text(size = 13, colour = "black"))
+
+biomass.plot <- ggplot(data = wm.regionYM) +
+  geom_point(aes(x = biomass, y = IDskm, color = Region.2) , 
+             size = 3) + 
+  scale_fill_manual(name = "Region",
+                    aesthetics = "color", values = c("dodgerblue", "salmon")) +
+  labs(x = "Mysid Biomass (g)", y = "Avg. Unique Whales Observed per km Surveyed") +
+  theme.biomass +
+  guides(color = guide_legend(override.aes = list(size = 3)))
+biomass.plot
 
 #### Maps ####
 
