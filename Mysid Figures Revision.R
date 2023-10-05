@@ -131,6 +131,153 @@ bar.length
 
 ### Biomass regional scatterplot
 
+# data
+all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
+
+# Packages
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+## Mysid summary
+
+all$Date <- as.Date(as.character(all$Date), format="%Y%m%d")
+all$Y_M <- format(all$Date, format = "%Y_%m")
+all$Date <- format(all$Date, format="%Y%m%d")
+
+# match column headings to data
+all$Sample <- all$Assigned.ID
+all$Region.3 <- all$Region
+
+# length-weight from Burdi et al
+constant <- 0.0000116
+exponent <- 3.060
+all$mysid. <- as.factor(all$mysid.)
+mysids <- slice(.data = all, which(all$mysid. == "YES"))
+mysids$length <- as.numeric(mysids$length)
+mysids$weight <- constant*mysids$length^exponent
+
+mysid.tow.summ <- mysids %>%
+  group_by(Y_M, Region.3, Sample) %>%
+  summarise(count = length(mysid.),
+            biomass = sum(weight, na.rm = T))
+which(is.na(mysids$weight))
+
+# Pull out useful clean mysid data columns to simplify data frame
+data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
+data$Site <- factor(data$Site, 
+                    levels = c("Chito Beach", "Bullman Beach", "Seal And Sail",
+                               "Sail River", "First Beach", "Koitlah", 
+                               "Slant Rock", "Skagway", "Anderson Rocks", 
+                               "Portage Head", "Duk Point", "North of Bodelteh Islands", 
+                               "South of Bodelteh Islands", "Ozette Island"))
+# format date and make Y_M column
+data$Date <- as.Date(as.character(data$Date), format="%Y%m%d")
+data$Y_M <- format(data$Date, format = "%Y_%m")
+# 20200902 is paired with 20200824 - assign it to 2020_08
+data$Y_M[which(data$Date == 20200902)] <- "2020_08"
+# back to character format
+data$Date <- format(data$Date, format="%Y%m%d")
+
+# second region column for combined Strait category
+no.pair.days <- c("20190603", "20190709", "20190830", "20200626")
+straits <- c("East Strait", "West Strait")
+data$Region.2 <- NA
+data$Region.2[which(data$Region == "Ocean")] <- "Ocean"
+data$Region.2[which(data$Region %in% straits)] <- "Strait"
+data$Region.2[which(data$Date %in% no.pair.days)] <- "Not Complete"
+
+# add weight column
+data.bio <- merge(x = data, y = mysid.tow.summ, all.x = T)
+# count column was just for verification, ignore, not fixing NAs to 0s
+# fix NA biomass to 0
+data.bio$biomass[which(is.na(data.bio$biomass))] <- 0
+
+mys.region.month <- data.bio %>%
+  group_by(Y_M, Region.2) %>%
+  summarize(n.tows = length(Sample),
+            mysids = mean(MysidCount, na.rm = T),
+            size = mean(Avg.length, na.rm = T),
+            biomass = mean(biomass))
+mys.region.month <- mys.region.month[which(mys.region.month$Region.2 != "Not Complete"),]
+
+## Whale summary
+
+# Assign whale sightings to a region
+ES.Eastof <- -124.6008
+WS.Eastof <- -124.726
+WS.Northof <- 48.37437
+O.Southof <- 48.38615
+O.Westof <- -124.6529
+# assign regions
+CRC$Region <- "Error"
+CRC$Region[CRC$Start.Dec.Long > ES.Eastof] <- "East Strait"
+CRC$Region[between(CRC$Start.Dec.Long, left = WS.Eastof, 
+                   right = ES.Eastof) & 
+             CRC$Start.Dec.Lat > WS.Northof] <- "West Strait"
+CRC$Region[which(CRC$Start.Dec.Long < O.Westof & 
+                   CRC$Start.Dec.Lat < O.Southof)] <- "Ocean"
+# assign Region.2
+CRC$Region.2 <- NA
+straits <- c("West Strait", "East Strait")
+CRC$Region.2[which(CRC$Region %in% straits)] <- "Strait"
+CRC$Region.2[which(CRC$Region == "Ocean")] <- "Ocean"
+CRC$Region.2 <- as.factor(CRC$Region.2)
+
+# remove blank IDs
+CRC <- CRC[-which(is.na(CRC$CRC.ID)),]
+# only feeding whales
+feed.behaviors <- c("Feeding", "")
+CRC.feed <- CRC[which(CRC$Group.Beh %in% feed.behaviors),]
+# which(CRC.feed$Group.Beh == "Feeding")
+
+# list crc ids per region per day
+CRC.region.day <- CRC.feed %>%
+  group_by(Date, Region.2, CRC.ID) %>%
+  summarize(count = 1,
+            n.sights = length(Date_S))
+# # sum CRC IDs per region perday
+IDs.region.day <- CRC.region.day %>%
+  group_by(Date, Region.2) %>%
+  summarize(IDs = sum(count),
+            n.sights = sum(n.sights))
+# format the date as yyyymmdd and extract Y_M into column
+IDs.region.day$Date <- as.Date(as.character(IDs.region.day$Date), format="%Y%m%d")
+IDs.region.day$Y_M <- format(IDs.region.day$Date, format = "%Y_%m")
+IDs.region.day$Date <- format(IDs.region.day$Date, format="%Y%m%d")
+
+# Monthly ID summaries
+IDs.region.month <- IDs.region.day %>%
+  group_by(Y_M, Region.2) %>%
+  summarize(IDs = mean(IDs),
+            n.sights = sum(n.sights))
+
+## Merge Whale and Mysid Summaries
+wm.regionYM <- merge(x = mys.region.month, y = IDs.region.month, all.x = T)
+# NA whales and sightings to 0s
+wm.regionYM$IDs[which(is.na(wm.regionYM$IDs))] <- 0
+wm.regionYM$n.sights[which(is.na(wm.regionYM$n.sights))] <- 0
+# NaN size to mean(size)
+wm.regionYM$size[which(is.nan(wm.regionYM$size))] <- NA
+# correct IDs per km surveyed
+straitkm <- 27
+oceankm <- 37
+wm.regionYM$IDskm <- NA
+wm.regionYM$IDskm[which(wm.regionYM$Region.2 == "Strait")] <- 
+  wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Strait")]/straitkm
+wm.regionYM$IDskm[which(wm.regionYM$Region.2 == "Ocean")] <- 
+  wm.regionYM$IDs[which(wm.regionYM$Region.2 == "Ocean")]/oceankm
+# add year column
+wm.regionYM$Year <- c(rep(2019, 8), rep(2020, 6))
+# add Y_M_Reg column
+wm.regionYM$Y_M_Reg <- paste(wm.regionYM$Y_M, wm.regionYM$Region.2)
+# Region as factor
+wm.regionYM$Region.2 <- as.factor(wm.regionYM$Region.2)
+
+# build the plot
+
 theme.biomass <- theme_classic() +
   theme(plot.margin = margin(c(10, 10, 10, 10)),
         axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
@@ -218,6 +365,8 @@ outline.lat <- c(insbott, insbott, instop, instop, insbott)
 outline.long <- c(insleft, insright, insright, insleft, insleft)
 outline <- data.frame(cbind(outline.lat, outline.long))
 
+sekiu.pt <- data.frame(x = -124.2959, y = 48.2689, text = "Sekiu Point")
+
 inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop), 
                        zoom=7, maptype="terrain-background")
 base_ter <- get_stamenmap(bbox = c(maxlong, minlat, minlong, maxlat), 
@@ -244,14 +393,15 @@ map1 <- ggmap(base_ter) +
                   force_pull = 1,
                   box.padding = 0.2,
                   size = 3.5,
-                  fontface = 1)
+                  fontface = 1) + 
+  geom_text(data = sekiu.pt, aes(x = x, y = y, label = text))
 map_with_inset <- ggdraw() + 
   draw_plot(map1) + 
   draw_plot(insetmap, x = 0.72, y = 0.12, 
             width = 0.3, height=0.3)
 map_with_inset
 
-# # ggsave(plot = map_with_inset,
+# ggsave(plot = map_with_inset,
 #        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
 #        width = 10, height = 8, device='pdf', dpi=700)
 
@@ -350,7 +500,7 @@ map2019 <- ggmap(tow_ter) +
             linewidth = 0.8)
 ss.insetmap2019 <- ggmap(ss_ter) +
   theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), lwd = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2019,
              alpha = 0.7) +
@@ -519,6 +669,6 @@ panels <- grid.arrange(map_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
-# # ggsave(plot = fourpanelwithlegend, 
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
-#        width = 11, height  = 10, device='pdf', dpi=700)
+ggsave(plot = fourpanelwithlegend,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
+       width = 11, height  = 10, device='pdf', dpi=700)
