@@ -79,6 +79,10 @@ data.mysids$Monthies <- factor(data.mysids$Monthies, levels = c("Jun", "Jul", "A
 data.mysids$length <- as.numeric(data.mysids$length)
 num.lengths <- filter(data.mysids, length>1)
 
+data.mysids$Year.Month <- factor(data.mysids$Year.Month, 
+                             levels = c("2019_6", "2019_7", "2019_8", "2019_9", 
+                                        "2019_10", "2019_11", "2020_6", "2020_7", "2020_8"))
+
 data.mysids$count <- rep(1, nrow(data.mysids))
 
 count.tow <- data.mysids %>%
@@ -125,6 +129,14 @@ bar.length <-
   labs(x = "Year_Month", y = "Average Length (mm)") +
   theme.sizes
 bar.length
+
+whisker.length <- 
+  ggplot(data = data.mysids) +
+  geom_boxplot(aes(Year.Month, length), fill = "skyblue1", lwd = 1) + 
+  labs(x = "Year_Month", y = "Mysid Length (mm)") +
+  theme.sizes
+
+whisker.length
 
 # ggsave(plot = bar.length,
 #        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length bar plot.pdf",
