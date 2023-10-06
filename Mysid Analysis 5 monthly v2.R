@@ -46,6 +46,12 @@ mysid.tow.summ <- mysids %>%
 which(is.na(mysids$weight))
 # not many, should be fine to na.rm = T
 
+# species % by year
+sum(data.full$HS[data.full$Year == 2019])/
+  sum(data.full$MysidCount[data.full$Year == 2019])
+sum(data.full$HS[data.full$Year == 2020])/
+  sum(data.full$MysidCount[data.full$Year == 2020])
+
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
 data$Site <- factor(data$Site, 
