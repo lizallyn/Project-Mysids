@@ -84,6 +84,7 @@ data.mysids$count <- rep(1, nrow(data.mysids))
 count.tow <- data.mysids %>%
   group_by(Year, Month, Assigned.ID) %>%
   summarize(total = sum(count),
+            length = mean(length, na.rm = T),
             n.tows = 1)
 
 count.ym <- count.tow %>%
@@ -307,6 +308,30 @@ biomass.plot
 #        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
 #        width = 9, height = 5, device='pdf', dpi=700)
 
+### Mysid biomass and whale per km double bar plot
+
+wm.forlong <- wm.regionYM["Y_M", ""]
+wm.long <- gather()
+
+plot.biomass.whale <- 
+  ggplot(data = wm.regionYM, aes(x = Year_Month, y = density, fill = animal)) + 
+  geom_bar(stat = "identity", position = dodge, width = 0.8) +
+  scale_y_continuous(expand = c(0,0), name = "Avg. mysids per tow", sec.axis = sec_axis( trans=~.*.1, name = "Avg. whales per day")) +
+  labs(x = "Year_Month") +
+  theme(axis.text.x = element_text(angle = 90, size = 12),
+        axis.text.y = element_text(size = 12),
+        legend.text = element_text(size = 14),
+        axis.title.x = element_text(size = 14, vjust = -0.5),
+        axis.title.y.left = element_text(size = 14, vjust = 2),
+        axis.title.y.right = element_text(size = 14, vjust = 2),
+        title = element_text(size = 14),
+        panel.background = element_rect(fill = "white"),
+        axis.line = element_line(color = "black")) +
+  guides(color = guide_legend("Animal")) +
+  scale_fill_manual(name = "", 
+                    labels = c("Mysids", "Whales"), 
+                    values = c("mysids" = "darkgoldenrod3", "whales" = "skyblue3"))
+
 #### Maps ####
 
 ## Sample sites map with whale survey area outline
@@ -372,7 +397,7 @@ inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop),
 base_ter <- get_stamenmap(bbox = c(maxlong, minlat, minlong, maxlat), 
                           zoom=11, maptype="terrain-background")
 insetmap <- ggmap(inset) +
-  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), lwd = 0.7) +
+  geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), lwd = 0.5) +
   theme_void() +
   geom_path(data = outline, aes(x = outline.long, y = outline.lat), lwd = 1.5)
 
@@ -394,16 +419,18 @@ map1 <- ggmap(base_ter) +
                   box.padding = 0.2,
                   size = 3.5,
                   fontface = 1) + 
-  geom_text(data = sekiu.pt, aes(x = x, y = y, label = text))
+  geom_text(data = sekiu.pt, aes(x = x, y = y, label = text)) +
+  geom_text(aes(x = -124.42, y = 48.4, label = "Strait")) +
+  geom_text(aes(x = -124.87, y = 48.28, label = "Ocean"))
 map_with_inset <- ggdraw() + 
   draw_plot(map1) + 
   draw_plot(insetmap, x = 0.72, y = 0.12, 
             width = 0.3, height=0.3)
 map_with_inset
 
-# ggsave(plot = map_with_inset,
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
-#        width = 10, height = 8, device='pdf', dpi=700)
+ggsave(plot = map_with_inset,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
+       width = 10, height = 8, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
 
@@ -415,9 +442,6 @@ whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/mai
 # whale icon
 # install.packages("tidyverse")
 library(tidyverse)
-library(readr)
-library(proj4)
-library(magick)
 library(ggimage)
 library(gridExtra)
 
