@@ -402,7 +402,7 @@ whadaym$whales <- whadaym$whaday*10
 whadaym.long <- gather(whadaym, animal, density, mysids:whales, factor_key=T)
 
 plot.whasnmysbarssolo <- 
-  ggplot(data = whadaym.long, aes(x = Year_Month, y = density, fill = animal)) + 
+  ggplot(data = whadaym.long, aes(x = Y_M, y = density, fill = animal)) + 
   geom_bar(stat = "identity", position = dodge, width = 0.8) +
   scale_y_continuous(expand = c(0,0), name = "Avg. mysids per tow", sec.axis = sec_axis( trans=~.*.1, name = "Avg. whales per day")) +
   labs(x = "Year_Month") +
