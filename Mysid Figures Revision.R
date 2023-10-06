@@ -132,15 +132,15 @@ bar.length
 
 whisker.length <- 
   ggplot(data = data.mysids) +
-  geom_boxplot(aes(Year.Month, length), fill = "skyblue1", lwd = 1) + 
+  geom_boxplot(aes(Year.Month, length), fill = "skyblue") + 
   labs(x = "Year_Month", y = "Mysid Length (mm)") +
   theme.sizes
 
 whisker.length
 
-# ggsave(plot = bar.length,
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length bar plot.pdf",
-#        width = 9, height = 5, device='pdf', dpi=700)
+ggsave(plot = whisker.length,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length whisker plot.pdf",
+       width = 9, height = 5, device='pdf', dpi=700)
 
 ### Biomass regional scatterplot
 
@@ -311,14 +311,14 @@ biomass.plot <- ggplot(data = wm.regionYM) +
              size = 2.5) + 
   scale_fill_manual(name = "Region",
                     aesthetics = "color", values = c("dodgerblue", "salmon")) +
-  labs(x = "Mysid Biomass (g)", y = "Avg. Unique Whales per km Surveyed") +
+  labs(x = "Avg. Mysid Biomass (g)", y = "Avg. Unique Whales per km Surveyed") +
   theme.biomass +
   guides(color = guide_legend(override.aes = list(size = 2.5)))
 biomass.plot
 
-# ggsave(plot = biomass.plot,
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
-#        width = 9, height = 5, device='pdf', dpi=700)
+ggsave(plot = biomass.plot,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
+       width = 9, height = 5, device='pdf', dpi=700)
 
 ### Mysid biomass and whale per km double bar plot
 
