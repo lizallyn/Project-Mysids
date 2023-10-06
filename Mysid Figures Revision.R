@@ -53,7 +53,7 @@ pal2 <- c("dodgerblue", "orchid1", "turquoise2", "goldenrod", "orchid4", "skyblu
 plot.Speciesym <- 
   ggplot(data = species.counts.ym, aes(x = ym, y = pertow, fill = Species)) + 
   geom_col(position = "stack") + 
-  labs(x = "Year_Month", y = "Avg. Mysids per Tow") +
+  labs(x = "Year_Month", y = "Avg. Mysids per Sample") +
   theme.Speciesym +
   guides(color = guide_legend("Species")) +
   scale_x_discrete(expand = c(0,0)) +
@@ -267,6 +267,35 @@ IDs.region.month <- IDs.region.day %>%
   summarize(IDs = mean(IDs),
             n.sights = sum(n.sights))
 
+## just summarize by Y_M
+# list crc ids per day
+CRC.day <- CRC.feed %>%
+  group_by(Date, CRC.ID) %>%
+  summarize(count = 1,
+            n.sights = length(Date_S))
+# # sum CRC IDs per region perday
+IDs.day <- CRC.day %>%
+  group_by(Date) %>%
+  summarize(IDs = sum(count),
+            n.sights = sum(n.sights))
+# format the date as yyyymmdd and extract Y_M into column
+IDs.day$Date <- as.Date(as.character(IDs.day$Date), format="%Y%m%d")
+IDs.day$Y_M <- format(IDs.day$Date, format = "%Y_%m")
+IDs.day$Date <- format(IDs.day$Date, format="%Y%m%d")
+# Monthly ID summaries
+IDs.month <- IDs.day %>%
+  group_by(Y_M) %>%
+  summarize(IDs = mean(IDs),
+            n.sights = sum(n.sights))
+# mysids by just month
+mysid.sample.summ <- mysids %>%
+  group_by(Y_M, Sample) %>%
+  summarise(count = length(mysid.),
+            biomass = sum(weight, na.rm = T))
+mysid.month.summ <- mysid.sample.summ %>%
+  group_by(Y_M) %>%
+  summarize(biomass = mean(biomass))
+
 ## Merge Whale and Mysid Summaries
 wm.regionYM <- merge(x = mys.region.month, y = IDs.region.month, all.x = T)
 # NA whales and sightings to 0s
@@ -403,15 +432,17 @@ outline.long <- c(insleft, insright, insright, insleft, insleft)
 outline <- data.frame(cbind(outline.lat, outline.long))
 
 sekiu.pt <- data.frame(x = -124.2959, y = 48.2689, text = "Sekiu Point")
+pacific <- data.frame(x = -125.5, y = 47, text = "Pacific \n Ocean")
 
 inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop), 
-                       zoom=7, maptype="terrain-background")
+                       zoom=5, maptype="terrain-background")
 base_ter <- get_stamenmap(bbox = c(maxlong, minlat, minlong, maxlat), 
                           zoom=11, maptype="terrain-background")
 insetmap <- ggmap(inset) +
   geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), lwd = 0.5) +
   theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), lwd = 1.5)
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), lwd = 1.5) + 
+  geom_text(data = pacific, aes(x = x, y = y, label = text), size = 3)
 
 map1 <- ggmap(base_ter) +
   geom_point(data = sites, 
@@ -441,7 +472,7 @@ map_with_inset <- ggdraw() +
 map_with_inset
 
 ggsave(plot = map_with_inset,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision.pdf",
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision 2.pdf",
        width = 10, height = 8, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
