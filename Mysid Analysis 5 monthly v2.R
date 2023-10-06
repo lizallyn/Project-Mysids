@@ -23,6 +23,24 @@ tow.effort.ymr <- tow.effort %>%
 
 ## Mysid summary
 
+# data2 wide to long
+long.spp.all <- gather(data.full, Species, Count, HS:U)
+
+# create year_month column
+long.spp.all$ym <- paste(long.spp.all$Year, long.spp.all$Month, sep = "_")
+long.spp.all$ym <- factor(long.spp.all$ym, levels = c("2019_6", "2019_7", "2019_8", "2019_9", "2019_10", "2019_11", "2020_6", "2020_7", "2020_8", "2020_9"))
+
+# summarize by year_month and species
+species.counts.ym <- long.spp.all %>%
+  group_by(ym, Species) %>%
+  dplyr::summarise(tows = length(Sample),
+                   Mysids = sum(Count))
+species.counts.ym$Species <- factor(species.counts.ym$Species, 
+                                    levels = c("HS", "NR", "CI", "TC", "HP", "ED", "EG", "U"))
+
+species.counts.ym$pertow <- species.counts.ym$Mysids/species.counts.ym$tows
+
+
 all$Date <- as.Date(as.character(all$Date), format="%Y%m%d")
 all$Y_M <- format(all$Date, format = "%Y_%m")
 all$Date <- format(all$Date, format="%Y%m%d")
@@ -51,6 +69,20 @@ sum(data.full$HS[data.full$Year == 2019])/
   sum(data.full$MysidCount[data.full$Year == 2019])
 sum(data.full$HS[data.full$Year == 2020])/
   sum(data.full$MysidCount[data.full$Year == 2020])
+
+# mysids by SSB
+SSB <- c("Seal And Sail", "Sail River", "Bullman Beach")
+sum(data.full$MysidCount[data.full$Site %in% SSB])/
+  sum(data.full$MysidCount)
+# whales by SSB
+ss.whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whale%20at%20Seal%20and%20Sail%20and%20Bullman%202019%202020.csv")
+whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whales%20in%20full%20survey%20area%202019%202020.csv")
+nrow(ss.whale)/nrow(whale)
+whale$Y_M <- paste(whale$Year, whale$Month.num, sep = "_")
+whale$Est_Size_Best <- as.numeric(whale$Est_Size_Best)
+whales.ym <- whale %>%
+  group_by(Y_M) %>%
+  summarize(total = sum(Est_Size_Best))
 
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
