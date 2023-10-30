@@ -7,6 +7,7 @@
 data2 <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 
 library(ggplot2)
+library(cowplot)
 library(tidyr)
 library(dplyr)
 library(PNWColors)
@@ -16,7 +17,10 @@ long.spp.all <- gather(data2, Species, Count, HS:U)
 
 # create year_month column
 long.spp.all$ym <- paste(long.spp.all$Year, long.spp.all$Month, sep = "_")
-long.spp.all$ym <- factor(long.spp.all$ym, levels = c("2019_6", "2019_7", "2019_8", "2019_9", "2019_10", "2019_11", "2020_6", "2020_7", "2020_8", "2020_9"))
+long.spp.all$ym <- factor(long.spp.all$ym, levels = c("2019_6", "2019_7", 
+                                                      "2019_8", "2019_9", "2019_10", 
+                                                      "2019_11", "2020_6", "2020_7", 
+                                                      "2020_8", "2020_9"))
 
 # summarize by year_month and species
 species.counts.ym <- long.spp.all %>%
@@ -24,11 +28,22 @@ species.counts.ym <- long.spp.all %>%
   dplyr::summarise(tows = length(Sample),
                    Mysids = sum(Count))
 species.counts.ym$Species <- factor(species.counts.ym$Species, 
-                                    levels = c("HS", "NR", "CI", "TC", "HP", "ED", "EG", "U"))
+                                    levels = c("HS", "NR", "CI", "TC", 
+                                               "HP", "ED", "EG", "U"))
 
 # create avg mysids per tow column
 species.counts.ym$ym <- as.factor(species.counts.ym$ym)
 species.counts.ym$pertow <- species.counts.ym$Mysids/species.counts.ym$tows
+ym.2019.list <- c("2019_6", "2019_7", "2019_8", "2019_9", "2019_10", "2019_11")
+ym.2020.list <- c("2020_6", "2020_7", "2020_8", "2020_9")
+ym.species.2019 <- species.counts.ym[which(species.counts.ym$ym %in% ym.2019.list),]
+ym.species.2020 <- species.counts.ym[which(species.counts.ym$ym %in% ym.2020.list),]
+ym.species.2019$ym <- factor(ym.species.2019$ym, levels = c("2019_6", "2019_7", 
+                                                            "2019_8", "2019_9", 
+                                                            "2019_10", "2019_11"))
+ym.species.2020$ym <- factor(ym.species.2020$ym, levels = c("2020_6", "2020_7", "2020_8", 
+                                                            "2020_9", "*2020_10*", 
+                                                            "*2020_11*"))
 
 # set the theme
 dodge <- position_dodge(width=0.9)
@@ -45,29 +60,73 @@ theme.Speciesym <- theme_classic() +
         legend.title = element_text(size = 15, colour = "black"), 
         legend.text = element_text(size = 12, colour = "black", face = "italic"), 
         legend.key.size = unit(1, "line")) # size of color boxes
+theme.Speciesym.nolegend <- theme_classic() +
+  theme(plot.margin = margin(t=10,r=10,b=10,l=10),
+        axis.title = element_blank(), 
+        axis.title.x = element_text(color = "black", hjust = 0.5, vjust = 0, size = 15), 
+        axis.title.y = element_text(hjust = 0.45, vjust = 2, color = "black", size = 15), 
+        plot.title = element_blank(), 
+        axis.text.x = element_text(size = 12, colour = "black", angle=90), 
+        axis.text.y = element_text(size = 12, colour = "black"),
+        axis.ticks.x = element_blank(),
+        legend.position = "none")
 library(RColorBrewer)
 pal <- c(brewer.pal(name = "Set2", n = 7), "darkgray")
 pal2 <- c("dodgerblue", "orchid1", "turquoise2", "goldenrod", "orchid4", "skyblue2", "lightseagreen", "darkgray")
 
 # plot building
-plot.Speciesym <- 
-  ggplot(data = species.counts.ym, aes(x = ym, y = pertow, fill = Species)) + 
+legend.Speciesym.2019 <- 
+  ggplot(data = ym.species.2019, aes(x = ym, y = pertow, fill = Species)) + 
   geom_col(position = "stack") + 
   labs(x = "Year_Month", y = "Avg. Mysids per Sample") +
   theme.Speciesym +
   guides(color = guide_legend("Species")) +
-  scale_x_discrete(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0)) +
+  scale_x_discrete(expand = c(0,0), drop=F) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,300)) +
   scale_fill_manual(name = "Species", 
                     labels = c("H. sculpta", "N. rayii", "C. ignota", 
                                "T. columbiae", "H. platypoda", "E. davisi", 
                                "E. grimaldii", "Unknown"),
                     values = pal)
-plot(plot.Speciesym)
 
-# ggsave(plot = plot.Speciesym,
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/species comp by month bar plot.pdf",
-#        width = 9, height = 5, device='pdf', dpi=700)
+legend.species <- get_legend(plot.Speciesym.2019)
+
+plot.Speciesym.2019 <- 
+  ggplot(data = ym.species.2019, aes(x = ym, y = pertow, fill = Species)) + 
+  geom_col(position = "stack") + 
+  labs(x = NULL, y = "Avg. Mysids per Sample") +
+  theme.Speciesym.nolegend +
+  guides(color = guide_legend("Species")) +
+  scale_x_discrete(expand = c(0,0), drop=F) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,300)) +
+  scale_fill_manual(name = "Species", 
+                    labels = c("H. sculpta", "N. rayii", "C. ignota", 
+                               "T. columbiae", "H. platypoda", "E. davisi", 
+                               "E. grimaldii", "Unknown"),
+                    values = pal)
+plot.Speciesym.2020 <- 
+  ggplot(data = ym.species.2020, aes(x = ym, y = pertow, fill = Species)) + 
+  geom_col(position = "stack") + 
+  labs(x = "Year_Month", y = "Avg. Mysids per Sample") +
+  theme.Speciesym.nolegend +
+  guides(color = guide_legend("Species")) +
+  scale_x_discrete(expand = c(0,0), drop = F) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,300)) +
+  scale_fill_manual(name = "Species", 
+                    labels = c("H. sculpta", "N. rayii", "C. ignota", 
+                               "T. columbiae", "H. platypoda", "E. davisi", 
+                               "E. grimaldii", "Unknown"),
+                    values = pal)
+
+
+
+species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019, 
+                                              plot.Speciesym.2020), legend.species, ncol = 2, widths = c(2,0.5))
+
+
+ggsave(plot = species.composite,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot.pdf",
+       width = 9, height = 11, device='pdf', dpi=700)
 
 ### Size Distribution Whisker Plots
 
@@ -120,7 +179,7 @@ whisker.length.20 <-
 whisker.length.composite <- grid.arrange(arrangeGrob(whisker.length.19, 
                                                      whisker.length.20), ncol = 1)
 
-ggsave(plot = whisker.length.composite,
+# ggsave(plot = whisker.length.composite,
        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/length whisker composite.pdf",
        width = 9, height = 11, device='pdf', dpi=700)
 
