@@ -60,6 +60,7 @@ theme.Speciesym <- theme_classic() +
         legend.title = element_text(size = 15, colour = "black"), 
         legend.text = element_text(size = 12, colour = "black", face = "italic"), 
         legend.key.size = unit(1, "line")) # size of color boxes
+
 theme.Speciesym.nolegend <- theme_classic() +
   theme(plot.margin = margin(t=10,r=10,b=10,l=10),
         axis.title = element_blank(), 
