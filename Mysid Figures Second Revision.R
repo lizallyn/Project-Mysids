@@ -69,44 +69,17 @@ plot(plot.Speciesym)
 #        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/species comp by month bar plot.pdf",
 #        width = 9, height = 5, device='pdf', dpi=700)
 
-### Size Distribution Histograms
+### Size Distribution Whisker Plots
 
 data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
+library(gridExtra)
 
 # pull out mysids with a valid length
 data.mysids <- dplyr::filter(data, mysid.=="YES")
-data.mysids$Monthies <- factor(data.mysids$Monthies, levels = c("Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 data.mysids$length <- as.numeric(data.mysids$length)
-num.lengths <- filter(data.mysids, length>1)
-
 data.mysids$Year.Month <- factor(data.mysids$Year.Month, 
                              levels = c("2019_6", "2019_7", "2019_8", "2019_9", 
                                         "2019_10", "2019_11", "2020_6", "2020_7", "2020_8"))
-
-data.mysids$count <- rep(1, nrow(data.mysids))
-
-count.tow <- data.mysids %>%
-  group_by(Year, Month, Assigned.ID) %>%
-  summarize(total = sum(count),
-            length = mean(length, na.rm = T),
-            n.tows = 1)
-
-count.ym <- count.tow %>%
-  group_by(Year, Month) %>%
-  summarize(avg.count = mean(total, na.rm = T),
-            n.tows = sum(n.tows))
-count.ym$Y_M <- paste(count.ym$Year, count.ym$Month, sep = "_")
-
-length.ym <- data.mysids %>%
-  group_by(Year, Month) %>%
-  summarize(avg.length = mean(length, na.rm = T),
-            error = sd(length, na.rm = T)/sqrt(sum(count)))
-length.ym$Y_M <- paste(length.ym$Year, length.ym$Month, sep = "_")
-
-ym.length.summ <- merge(x = length.ym, y = count.ym, by = "Y_M")
-ym.length.summ$Y_M <- factor(ym.length.summ$Y_M, 
-                             levels = c("2019_6", "2019_7", "2019_8", "2019_9", 
-                             "2019_10", "2019_11", "2020_6", "2020_7", "2020_8"))
 
 # build the plot
 
@@ -120,27 +93,36 @@ theme.sizes <- theme_classic() +
         axis.ticks.x = element_blank(),
         panel.background = element_rect(fill = "white"))
 
-bar.length <- 
-  ggplot(data = ym.length.summ) + 
-  geom_col(aes(x = Y_M, y = avg.length), fill = "dodgerblue") + 
-  geom_errorbar(aes(x = Y_M, ymin = avg.length - error, 
-                    ymax = avg.length + error),
-                width = 0.2, lwd = 0.5) +
-  labs(x = "Year_Month", y = "Average Length (mm)") +
-  theme.sizes
-bar.length
+data.mysids.2019 <- data.mysids[data.mysids$Year == 2019,]
+data.mysids.2019$Year.Month <- factor(data.mysids.2019$Year.Month, 
+                                      levels = c("2019_6", "2019_7", "2019_8", 
+                                                 "2019_9", "2019_10", "2019_11"))
+data.mysids.2020 <- data.mysids[data.mysids$Year == 2020,]
+data.mysids.2020$Year.Month <- factor(data.mysids.2020$Year.Month, 
+                                      levels = c("2020_6", "2020_7", "2020_8",
+                                                 "2020_9", "*2020_10*", "*2020_11*"))
 
-whisker.length <- 
-  ggplot(data = data.mysids) +
+whisker.length.19 <- 
+  ggplot(data = data.mysids.2019) +
+  geom_boxplot(aes(Year.Month, length), fill = "skyblue") + 
+  labs(x = NULL, y = "Mysid Length (mm)") +
+  scale_y_continuous(limits = c(0,30)) +
+  theme.sizes
+
+whisker.length.20 <- 
+  ggplot(data = data.mysids.2020) +
   geom_boxplot(aes(Year.Month, length), fill = "skyblue") + 
   labs(x = "Year_Month", y = "Mysid Length (mm)") +
+  scale_x_discrete(drop = F) +
+  scale_y_continuous(limits = c(0,30)) +
   theme.sizes
 
-whisker.length
+whisker.length.composite <- grid.arrange(arrangeGrob(whisker.length.19, 
+                                                     whisker.length.20), ncol = 1)
 
-ggsave(plot = whisker.length,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/length whisker plot.pdf",
-       width = 9, height = 5, device='pdf', dpi=700)
+ggsave(plot = whisker.length.composite,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/length whisker composite.pdf",
+       width = 9, height = 11, device='pdf', dpi=700)
 
 ### Biomass regional scatterplot
 
