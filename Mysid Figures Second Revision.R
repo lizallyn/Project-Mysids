@@ -11,6 +11,7 @@ library(cowplot)
 library(tidyr)
 library(dplyr)
 library(PNWColors)
+library(gridExtra)
 
 # data2 wide to long
 long.spp.all <- gather(data2, Species, Count, HS:U)
@@ -90,7 +91,7 @@ legend.Speciesym.2019 <-
                                "E. grimaldii", "Unknown"),
                     values = pal)
 
-legend.species <- get_legend(plot.Speciesym.2019)
+legend.species <- get_legend(legend.Speciesym.2019)
 
 plot.Speciesym.2019 <- 
   ggplot(data = ym.species.2019, aes(x = ym, y = pertow, fill = Species)) + 
@@ -98,7 +99,7 @@ plot.Speciesym.2019 <-
   labs(x = NULL, y = "Avg. Mysids per Sample") +
   theme.Speciesym.nolegend +
   guides(color = guide_legend("Species")) +
-  scale_x_discrete(expand = c(0,0), drop=F) +
+  scale_x_discrete(drop=F) +
   scale_y_continuous(expand = c(0,0), limits = c(0,300)) +
   scale_fill_manual(name = "Species", 
                     labels = c("H. sculpta", "N. rayii", "C. ignota", 
@@ -111,7 +112,7 @@ plot.Speciesym.2020 <-
   labs(x = "Year_Month", y = "Avg. Mysids per Sample") +
   theme.Speciesym.nolegend +
   guides(color = guide_legend("Species")) +
-  scale_x_discrete(expand = c(0,0), drop = F) +
+  scale_x_discrete(drop = F) +
   scale_y_continuous(expand = c(0,0), limits = c(0,300)) +
   scale_fill_manual(name = "Species", 
                     labels = c("H. sculpta", "N. rayii", "C. ignota", 
@@ -123,9 +124,9 @@ species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019,
                                               plot.Speciesym.2020), legend.species, ncol = 2, widths = c(2,0.5))
 
 
-# ggsave(plot = species.composite,
-       # filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot.pdf",
-       # width = 9, height = 11, device='pdf', dpi=700)
+# ggsave(plot = species.composite, 
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot.pdf", 
+#        width = 9, height = 11, device='pdf', dpi=700)
 
 ### Size Distribution Whisker Plots
 
