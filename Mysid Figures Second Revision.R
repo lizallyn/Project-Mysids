@@ -118,15 +118,13 @@ plot.Speciesym.2020 <-
                                "E. grimaldii", "Unknown"),
                     values = pal)
 
-
-
 species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019, 
                                               plot.Speciesym.2020), legend.species, ncol = 2, widths = c(2,0.5))
 
 
-ggsave(plot = species.composite,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot.pdf",
-       width = 9, height = 11, device='pdf', dpi=700)
+# ggsave(plot = species.composite,
+       # filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot.pdf",
+       # width = 9, height = 11, device='pdf', dpi=700)
 
 ### Size Distribution Whisker Plots
 
