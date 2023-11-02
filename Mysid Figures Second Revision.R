@@ -121,7 +121,8 @@ plot.Speciesym.2020 <-
                     values = pal)
 
 species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019, 
-                                              plot.Speciesym.2020), legend.species, ncol = 2, widths = c(2,0.5))
+                                              plot.Speciesym.2020), 
+                                  legend.species, ncol = 2, widths = c(2,0.5))
 
 
 # ggsave(plot = species.composite, 
