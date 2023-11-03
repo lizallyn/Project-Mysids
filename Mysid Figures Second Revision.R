@@ -43,8 +43,8 @@ ym.species.2019$ym <- factor(ym.species.2019$ym, levels = c("2019_6", "2019_7",
                                                             "2019_8", "2019_9", 
                                                             "2019_10", "2019_11"))
 ym.species.2020$ym <- factor(ym.species.2020$ym, levels = c("2020_6", "2020_7", "2020_8", 
-                                                            "2020_9", "*2020_10*", 
-                                                            "*2020_11*"))
+                                                            "2020_9", "", 
+                                                            " "))
 
 # set the theme
 dodge <- position_dodge(width=0.9)
@@ -125,9 +125,9 @@ species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019,
                                   legend.species, ncol = 2, widths = c(2,0.5))
 
 
-# ggsave(plot = species.composite, 
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot.pdf", 
-#        width = 9, height = 11, device='pdf', dpi=700)
+ggsave(plot = species.composite,
+       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot no sample no label.pdf",
+       width = 9, height = 11, device='pdf', dpi=700)
 
 ### Size Distribution Whisker Plots
 
