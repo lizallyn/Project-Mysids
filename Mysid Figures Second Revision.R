@@ -9,6 +9,7 @@ data2 <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/mai
 library(ggplot2)
 library(cowplot)
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(PNWColors)
 library(gridExtra)
@@ -43,8 +44,12 @@ ym.species.2019$ym <- factor(ym.species.2019$ym, levels = c("2019_6", "2019_7",
                                                             "2019_8", "2019_9", 
                                                             "2019_10", "2019_11"))
 ym.species.2020$ym <- factor(ym.species.2020$ym, levels = c("2020_6", "2020_7", "2020_8", 
-                                                            "2020_9", "", 
-                                                            " "))
+                                                            "2020_9", "2020_10", 
+                                                            "2020_11"))
+ym.species.2019$ym <- revalue(ym.species.2019$ym, c("2019_6" = "2019_6*"))
+ym.species.2020$ym <- revalue(ym.species.2020$ym, c("2020_8" = "2020_8*", 
+                                                    "2020_10" = " ",
+                                                    "2020_11" = "  "))
 
 # set the theme
 dodge <- position_dodge(width=0.9)
@@ -113,7 +118,7 @@ plot.Speciesym.2020 <-
   theme.Speciesym.nolegend +
   guides(color = guide_legend("Species")) +
   scale_x_discrete(drop = F) +
-  scale_y_continuous(expand = c(0,0), limits = c(0,300)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0,175)) +
   scale_fill_manual(name = "Species", 
                     labels = c("H. sculpta", "N. rayii", "C. ignota", 
                                "T. columbiae", "H. platypoda", "E. davisi", 
@@ -125,9 +130,9 @@ species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019,
                                   legend.species, ncol = 2, widths = c(2,0.5))
 
 
-ggsave(plot = species.composite,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot no sample no label.pdf",
-       width = 9, height = 11, device='pdf', dpi=700)
+# ggsave(plot = species.composite,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/species by month composite bar plot x axis labels.pdf",
+#        width = 9, height = 11, device='pdf', dpi=700)
 
 ### Size Distribution Whisker Plots
 
@@ -139,7 +144,8 @@ data.mysids <- dplyr::filter(data, mysid.=="YES")
 data.mysids$length <- as.numeric(data.mysids$length)
 data.mysids$Year.Month <- factor(data.mysids$Year.Month, 
                              levels = c("2019_6", "2019_7", "2019_8", "2019_9", 
-                                        "2019_10", "2019_11", "2020_6", "2020_7", "2020_8"))
+                                        "2019_10", "2019_11", "2020_6", "2020_7", 
+                                        "2020_8", "2020_9", "2020_10", "2020_11"))
 
 # build the plot
 
@@ -154,13 +160,14 @@ theme.sizes <- theme_classic() +
         panel.background = element_rect(fill = "white"))
 
 data.mysids.2019 <- data.mysids[data.mysids$Year == 2019,]
-data.mysids.2019$Year.Month <- factor(data.mysids.2019$Year.Month, 
-                                      levels = c("2019_6", "2019_7", "2019_8", 
-                                                 "2019_9", "2019_10", "2019_11"))
 data.mysids.2020 <- data.mysids[data.mysids$Year == 2020,]
-data.mysids.2020$Year.Month <- factor(data.mysids.2020$Year.Month, 
-                                      levels = c("2020_6", "2020_7", "2020_8",
-                                                 "2020_9", "*2020_10*", "*2020_11*"))
+data.mysids.2020$Year.Month <- factor(data.mysids.2020$Year.Month,
+                                 levels = c("2020_6", "2020_7", "2020_8", 
+                                            "2020_9", "2020_10", "2020_11"))
+
+data.mysids.2020$Year.Month <- revalue(data.mysids.2020$Year.Month, 
+                                       c("2020_9" = "   ", "2020_10" = " ", 
+                                         "2020_11" = "  "))
 
 whisker.length.19 <- 
   ggplot(data = data.mysids.2019) +
@@ -181,8 +188,8 @@ whisker.length.composite <- grid.arrange(arrangeGrob(whisker.length.19,
                                                      whisker.length.20), ncol = 1)
 
 # ggsave(plot = whisker.length.composite,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/length whisker composite.pdf",
-       width = 9, height = 11, device='pdf', dpi=700)
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Second Review/Figures R2/length whisker composite x axis labels.pdf",
+#        width = 9, height = 11, device='pdf', dpi=700)
 
 ### Biomass regional scatterplot
 
