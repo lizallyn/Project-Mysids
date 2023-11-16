@@ -2,17 +2,18 @@
 
 #### Charts ####
 
-### Species Composition Bar Plot
-
-data2 <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
-
+# run these before any plots!!
 library(ggplot2)
 library(cowplot)
 library(tidyr)
-library(plyr)
 library(dplyr)
+library(plyr)
 library(PNWColors)
 library(gridExtra)
+
+### Species Composition Bar Plot
+
+data2 <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 
 # data2 wide to long
 long.spp.all <- gather(data2, Species, Count, HS:U)
@@ -136,8 +137,7 @@ species.composite <- grid.arrange(arrangeGrob(plot.Speciesym.2019,
 
 ### Size Distribution Whisker Plots
 
-data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
-library(gridExtra)
+data <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/All%20obs%20for%20R.csv")
 
 # pull out mysids with a valid length
 data.mysids <- dplyr::filter(data, mysid.=="YES")
@@ -194,9 +194,9 @@ whisker.length.composite <- grid.arrange(arrangeGrob(whisker.length.19,
 ### Biomass regional scatterplot
 
 # data
-all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
-data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
-CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
+all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/All%20obs%20for%20R.csv")
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
 
 # Packages
 library(tidyr)
@@ -376,8 +376,8 @@ theme.biomass <- theme_classic() +
         plot.title = element_blank(), 
         axis.text.x = element_text(size = 12, colour = "black"), 
         axis.text.y = element_text(size = 12, colour = "black"),
-        axis.line = element_line(size = 0.5),
-        axis.ticks = element_line(size = 0.5, colour = "black"),
+        axis.line = element_line(linewidth = 0.5),
+        axis.ticks = element_line(linewidth = 0.5, colour = "black"),
         panel.background = element_rect(fill = "white"),
         legend.position = "right", 
         legend.title = element_text(size = 15, colour = "black"), 
@@ -398,35 +398,13 @@ biomass.plot
 #        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
 #        width = 9, height = 5, device='pdf', dpi=700)
 
-### Mysid biomass and whale per km double bar plot
-
-wm.forlong <- wm.regionYM["Y_M", ""]
-wm.long <- gather()
-
-plot.biomass.whale <- 
-  ggplot(data = wm.regionYM, aes(x = Year_Month, y = density, fill = animal)) + 
-  geom_bar(stat = "identity", position = dodge, width = 0.8) +
-  scale_y_continuous(expand = c(0,0), name = "Avg. mysids per tow", sec.axis = sec_axis( trans=~.*.1, name = "Avg. whales per day")) +
-  labs(x = "Year_Month") +
-  theme(axis.text.x = element_text(angle = 90, size = 12),
-        axis.text.y = element_text(size = 12),
-        legend.text = element_text(size = 14),
-        axis.title.x = element_text(size = 14, vjust = -0.5),
-        axis.title.y.left = element_text(size = 14, vjust = 2),
-        axis.title.y.right = element_text(size = 14, vjust = 2),
-        title = element_text(size = 14),
-        panel.background = element_rect(fill = "white"),
-        axis.line = element_line(color = "black")) +
-  guides(color = guide_legend("Animal")) +
-  scale_fill_manual(name = "", 
-                    labels = c("Mysids", "Whales"), 
-                    values = c("mysids" = "darkgoldenrod3", "whales" = "skyblue3"))
-
 #### Maps ####
+
+# These won't work anymore since R phased out the mapping abilities in October 2023
 
 ## Sample sites map with whale survey area outline
 
-sites <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Sample%20site%20coords%20for%20R.csv")
+sites <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Sample%20site%20coords%20for%20R.csv")
 
 library(ggmap)
 library(ggrepel)
@@ -527,9 +505,9 @@ ggsave(plot = map_with_inset,
 ### Four panel mysids and whales map
 
 # read in data
-ss.whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whale%20at%20Seal%20and%20Sail%20and%20Bullman%202019%202020.csv")
-tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Tow%20data%20for%20R.csv")
-whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whales%20in%20full%20survey%20area%202019%202020.csv")
+ss.whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whale%20at%20Seal%20and%20Sail%20and%20Bullman%202019%202020.csv")
+tows <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Tow%20data%20for%20R.csv")
+whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whales%20in%20full%20survey%20area%202019%202020.csv")
 
 # whale icon
 # install.packages("tidyverse")
@@ -537,8 +515,8 @@ library(tidyverse)
 library(ggimage)
 library(gridExtra)
 
-ss.whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
-whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/icons8-whale-66.png")
+ss.whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/icons8-whale-66.png")
+whale$image <- ("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/icons8-whale-66.png")
 
 # sort tow data, month as factor
 tows <- tows[order(-tows$Mysids),]
