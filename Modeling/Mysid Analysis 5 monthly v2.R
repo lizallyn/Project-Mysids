@@ -2,9 +2,9 @@
 # version 2
 
 ## read in data
-CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
-data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
-all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/All%20obs%20for%20R.csv")
+CRC <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/CRC%20IDs%20per%20sighting%20June%20-%20Nov%202019%202020%20mysid%20survey%20area%20only%20all%20behaviors.csv")
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+all <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/All%20obs%20for%20R.csv")
 
 # Packages
 library(tidyr)
@@ -75,8 +75,8 @@ SSB <- c("Seal And Sail", "Sail River", "Bullman Beach")
 sum(data.full$MysidCount[data.full$Site %in% SSB])/
   sum(data.full$MysidCount)
 # whales by SSB
-ss.whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whale%20at%20Seal%20and%20Sail%20and%20Bullman%202019%202020.csv")
-whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Whales%20in%20full%20survey%20area%202019%202020.csv")
+ss.whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whale%20at%20Seal%20and%20Sail%20and%20Bullman%202019%202020.csv")
+whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whales%20in%20full%20survey%20area%202019%202020.csv")
 nrow(ss.whale)/nrow(whale)
 whale$Y_M <- paste(whale$Year, whale$Month.num, sep = "_")
 whale$Est_Size_Best <- as.numeric(whale$Est_Size_Best)
