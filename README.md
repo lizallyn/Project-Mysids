@@ -10,7 +10,6 @@ Mysid Figures Second Revision.R
 
 This file is the script used to produce the final versions of the figures in the published manuscript in PeerJ.
 
-
 ## Modeling
 
 Mysid Analysis 4 sites.R
@@ -30,4 +29,6 @@ Mysid Analysis 6 monthly zi.R.
 This file summarizes the data monthly during the study and then constructs zi-negbinom models and incorporates size. Not a lot of diagnostics here, see file 5 for that.
 
 ## Data Files
+
+All data files called by a script are in this folder as .csv format. The whale icon .png from the map figures is also here.
 
