@@ -394,9 +394,9 @@ biomass.plot <- ggplot(data = wm.regionYM) +
   guides(color = guide_legend(override.aes = list(size = 2.5)))
 biomass.plot
 
-ggsave(plot = biomass.plot,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
-       width = 9, height = 5, device='pdf', dpi=700)
+# ggsave(plot = biomass.plot,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/biomass scatterplot.pdf",
+#        width = 9, height = 5, device='pdf', dpi=700)
 
 ### Mysid biomass and whale per km double bar plot
 
@@ -785,6 +785,6 @@ panels <- grid.arrange(map_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
-ggsave(plot = fourpanelwithlegend,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
-       width = 11, height  = 10, device='pdf', dpi=700)
+# ggsave(plot = fourpanelwithlegend,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
+#        width = 11, height  = 10, device='pdf', dpi=700)
