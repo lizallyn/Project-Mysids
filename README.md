@@ -12,7 +12,7 @@ This file is the script used to produce the final versions of the figures in the
 
 ## Modeling
 
-Mysid Analysis 4 sites.R
+### Mysid Analysis 4 sites.R
 
 This file assigns each whale sighting to a mysid tow site if within a certain distance of that site and then constructs models based on whales within the vicinity during mysid sampling. Has diagnostics.
 
