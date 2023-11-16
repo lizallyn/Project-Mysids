@@ -6,21 +6,21 @@
  
 ## R Scripts
 
-### Mysid Figures Second Revision.R
+#### Mysid Figures Second Revision.R
 
 This file is the script used to produce the final versions of the figures in the published manuscript in PeerJ.
 
 ## Modeling
 
-### Mysid Analysis 4 sites.R
+#### Mysid Analysis 4 sites.R
 
 This file assigns each whale sighting to a mysid tow site if within a certain distance of that site and then constructs models based on whales within the vicinity during mysid sampling. Has diagnostics.
 
-### Mysid Analysis 4 daily.R
+#### Mysid Analysis 4 daily.R
 
 This file summarizes whales and mysids on a daily basis (only including sightings on days when tows happened) and then constructs models based on that.
 
-### Mysid Analysis 5 monthly v2.R
+#### Mysid Analysis 5 monthly v2.R
 
 This file summarizes the whale and mysids on a monthly basis and then uses lm and lmer with visualization and diagnostics.
 
