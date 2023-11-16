@@ -4,7 +4,7 @@
 # read in data
 
 full.whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whales%20in%20full%20survey%20area%202019%202020.csv")
-whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Recycle%20Bin/whales%20per%20day%20for%20R.csv")
+whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/whales%20per%20day%20for%20R.csv")
 data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
