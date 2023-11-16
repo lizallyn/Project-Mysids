@@ -2,10 +2,10 @@
 # separated from full analysis file on Sept 13, 2023
 
 # read in data
-full.whales <- read.csv("Whales in full survey area 2019 2020.csv")
-sites <- read.csv("Sample site coords for R.csv")
-whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/whales%20per%20day%20for%20R.csv")
-data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
+full.whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whales%20in%20full%20survey%20area%202019%202020.csv")
+sites <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Sample%20site%20coords%20for%20R.csv")
+whales <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/whales%20per%20day%20for%20R.csv")
+data.full <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Er%20prey%20analysis%20for%20R%20fixed%20whale%20presence.csv")
 # Pull out useful clean mysid data columns to simplify data frame
 data <- data.full[,c(1,2,4:6,7,11,17:25,30,31)]
 data <- data.frame(data)
