@@ -6,8 +6,8 @@
 library(ggplot2)
 library(cowplot)
 library(tidyr)
-library(dplyr)
 library(plyr)
+library(dplyr)
 library(PNWColors)
 library(gridExtra)
 
@@ -461,10 +461,10 @@ outline <- data.frame(cbind(outline.lat, outline.long))
 sekiu.pt <- data.frame(x = -124.2959, y = 48.2689, text = "Sekiu Point")
 pacific <- data.frame(x = -125.5, y = 47, text = "Pacific \n Ocean")
 
-inset <- get_stamenmap(bbox=c(insleft, insbott, insright, instop), 
-                       zoom=5, maptype="terrain-background")
-base_ter <- get_stamenmap(bbox = c(maxlong, minlat, minlong, maxlat), 
-                          zoom=11, maptype="terrain-background")
+inset <- get_stadiamap(bbox=c(insleft, insbott, insright, instop), 
+                       zoom=5, maptype="stamen_terrain_background")
+base_ter <- get_stadiamap(bbox = c(maxlong, minlat, minlong, maxlat), 
+                          zoom=11, maptype="stamen_terrain_background")
 insetmap <- ggmap(inset) +
   geom_path(data = insetbox.shape, aes(x = insetbox.long, y = insetbox.lat), lwd = 0.5) +
   theme_void() +
@@ -498,9 +498,9 @@ map_with_inset <- ggdraw() +
             width = 0.3, height=0.3)
 map_with_inset
 
-ggsave(plot = map_with_inset,
-       filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision 2.pdf",
-       width = 10, height = 8, device='pdf', dpi=700)
+# ggsave(plot = map_with_inset,
+#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/Sample site map revision 2.pdf",
+#        width = 10, height = 8, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
 
