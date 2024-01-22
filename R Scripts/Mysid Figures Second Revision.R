@@ -401,6 +401,7 @@ biomass.plot
 #### Maps ####
 
 # These won't work anymore since R phased out the mapping abilities in October 2023
+# updated to new syntax today January 2024, but just this map not the ones below.
 
 ## Sample sites map with whale survey area outline
 
@@ -462,7 +463,7 @@ sekiu.pt <- data.frame(x = -124.2959, y = 48.2689, text = "Sekiu Point")
 pacific <- data.frame(x = -125.5, y = 47, text = "Pacific \n Ocean")
 
 inset <- get_stadiamap(bbox=c(insleft, insbott, insright, instop), 
-                       zoom=5, maptype="stamen_terrain_background")
+                       zoom=7, maptype="stamen_terrain_background")
 base_ter <- get_stadiamap(bbox = c(maxlong, minlat, minlong, maxlat), 
                           zoom=11, maptype="stamen_terrain_background")
 insetmap <- ggmap(inset) +
