@@ -8,7 +8,7 @@
 
 #### Mysid Figures Second Revision.R
 
-This file is the script used to produce the final versions of the figures in the published manuscript in PeerJ. Available online <here>(https://peerj.com/articles/16587/).
+This file is the script used to produce the final versions of the figures in the published manuscript in PeerJ. Available online: https://peerj.com/articles/16587/
 
 ## Modeling
 
