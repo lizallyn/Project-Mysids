@@ -401,7 +401,7 @@ biomass.plot
 #### Maps ####
 
 # These won't work anymore since R phased out the mapping abilities in October 2023
-# updated to new syntax today January 2024, but just this map not the ones below.
+# updated to new syntax today January 2024, but just this map
 
 ## Sample sites map with whale survey area outline
 
@@ -504,6 +504,7 @@ map_with_inset
 #        width = 10, height = 8, device='pdf', dpi=700)
 
 ### Four panel mysids and whales map
+# updated to new syntax April 2025
 
 # read in data
 ss.whale <- read.csv("https://raw.githubusercontent.com/lizallyn/Project-Mysids/main/Data%20Files/Whale%20at%20Seal%20and%20Sail%20and%20Bullman%202019%202020.csv")
