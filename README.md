@@ -2,13 +2,13 @@
 
 ## Gray whale prey analysis 2023
  
- This repo has all the files associated with the manuscript accepted by PeerJ in November 2023 and the many analysis attempts leading up to that. Data files (.csv) called by R scripts are in the "Data Files" folder. The R Scripts used to create the final figures, tables, and in-text numbers are in the folder "R Scripts". Modeling attempts from spring/summer 2023 are in the folder "Modeling". "Recycle Bin" holds any files that are not called by a script in the Modeling or R Scripts files or any interim coding files that were not completed. 
+ This repo has all the files associated with the manuscript accepted by PeerJ in November 2023 (published in January 2024 and available open access online: https://peerj.com/articles/16587/) and the many analysis attempts leading up to that. Data files (.csv) called by R scripts are in the "Data Files" folder. The R Scripts used to create the final figures, tables, and in-text numbers are in the folder "R Scripts". Modeling attempts from spring/summer 2023 are in the folder "Modeling". "Recycle Bin" holds any files that are not called by a script in the Modeling or R Scripts files or any interim coding files that were not completed. 
  
 ## R Scripts
 
 #### Mysid Figures Second Revision.R
 
-This file is the script used to produce the final versions of the figures in the published manuscript in PeerJ. (add URL when available online).
+This file is the script used to produce the final versions of the figures in the published manuscript in PeerJ. 
 
 ## Modeling
 
