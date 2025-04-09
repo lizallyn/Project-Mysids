@@ -565,12 +565,12 @@ outline.lat <- c(insbott.ss, insbott.ss, instop.ss, instop.ss, insbott.ss)
 outline.long <- c(insleft.ss, insright.ss, insright.ss, insleft.ss, insleft.ss)
 outline <- data.frame(cbind(outline.lat, outline.long))
 
-ss_ter <- get_stamenmap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss),
-                        zoom=13, maptype = "terrain-background")
+ss_ter <- get_stadiamap(bbox = c(insleft.ss, insbott.ss, insright.ss, instop.ss),
+                        zoom=13, maptype = "stamen_terrain_background")
 
 # load terrain map
-tow_ter <- get_stamenmap(bbox = c(long1, lat1, long2, lat2), zoom=11, 
-                         maptype = "terrain-background")
+tow_ter <- get_stadiamap(bbox = c(long1, lat1, long2, lat2), zoom=11, 
+                         maptype = "stamen_terrain_background")
 
 # remove 0 mysid rows so they don't plot!
 tows2019 <- tows2019[-which(tows2019$Mysids == 0),]
@@ -634,7 +634,7 @@ map2020 <- ggmap(tow_ter) +
             linewidth = 0.8)
 ss.insetmap2020 <- ggmap(ss_ter) +
   theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), linewidth = 1) +
   geom_point(aes(x=Dec.long, y=Dec.lat, size = Mysids, color = Month),
              data = tows2020,
              alpha = 0.5) +
@@ -673,7 +673,7 @@ whalemap2019 <- ggmap(tow_ter) +
             linewidth = 0.8)
 ss.whalemap2019 <- ggmap(ss_ter) +
   theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), linewidth = 1) +
   geom_image(data = ss.w2019, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                   image = image, color = Month),
              size = 0.09) +
@@ -712,7 +712,7 @@ whalemap2020 <- ggmap(tow_ter) +
             linewidth = 0.8)
 ss.whalemap2020 <- ggmap(ss_ter) +
   theme_void() +
-  geom_path(data = outline, aes(x = outline.long, y = outline.lat), size = 1) +
+  geom_path(data = outline, aes(x = outline.long, y = outline.lat), linewidth = 1) +
   geom_image(data = ss.w2020, aes(x = Start_Dec_Long, y = Start_Dec_Lat, 
                                   image = image, color = Month),
              size = 0.09) +
@@ -764,6 +764,6 @@ panels <- grid.arrange(map_with_inset2019,
                        map_with_inset2020,
                        whalemap_with_inset2020, ncol = 2)
 fourpanelwithlegend <- grid.arrange(panels, legend, ncol = 2, widths = c(1.5,0.3))
-# ggsave(plot = fourpanelwithlegend,
-#        filename = "C:/Users/Elizabeth Allyn/Box/Makah Fisheries Management/Er prey/Liz Needs These Uploaded/Manuscript Docs/Review/Figures/four panel composite map with legend.pdf",
-#        width = 11, height  = 10, device='pdf', dpi=700)
+ggsave(plot = fourpanelwithlegend,
+       filename = "C:/Users/Elizabeth Allyn/Documents/GitHub/Project-Mysids/Figure Outputs/four panel composite map with legend.pdf",
+       width = 11, height  = 10, device='pdf', dpi=700)
